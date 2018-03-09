@@ -16,6 +16,8 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
 import java.io.File;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
 /**
  *
@@ -23,7 +25,13 @@ import java.io.File;
  */
 public class LR_Main_Process {
     
-    public LR_Main_Process(){}
+    LR_Strings Strings;
+    LR_Files Files;
+    
+    public LR_Main_Process(){
+        Files = new LR_Files();
+        Strings = new LR_Strings();
+    }
     
     public static void main(String[] args) {
         LR_Main_Process p;
@@ -41,10 +49,19 @@ public class LR_Main_Process {
 //        sp.run(area);
         
         // Generalise Leeds
+                // min is the minimum count for a generlisation reported
+        int min;
+        // inputDataDir provides the location of the input data
+        File inputDataDir;
+        //inputDataDir = Files.getOutputDataDir(Strings);
+        inputDataDir = Files.getInputDataDir(Strings);
+
+        
         LR_Generalise_Process gp;
         gp = new LR_Generalise_Process();
         gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-        gp.run(area);
+        min = 5;
+        gp.run(area, min, inputDataDir);
         
     }
 }

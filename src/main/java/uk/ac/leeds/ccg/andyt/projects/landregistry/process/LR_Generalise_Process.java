@@ -26,25 +26,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_OC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
 /**
  * For reading and processing data from
  *
  * @author geoagdt
  */
-public class LR_Generalise_Process {
-
-    LR_Files Files;
-    LR_Strings Strings;
+public class LR_Generalise_Process extends LR_Main_Process {
 
     public LR_Generalise_Process() {
-        Files = new LR_Files();
-        Strings = new LR_Strings();
+        super();
     }
 
     TreeMap<String, Integer> tenureCounts;
@@ -58,14 +52,7 @@ public class LR_Generalise_Process {
     TreeMap<String, Integer> proprietorshipCategory1Counts;
 //    TreeMap<String, Integer> countryIncorporated1Counts;
 
-    public void run(String area) {
-        // min is the minimum count for a generlisation reported
-        int min = 1;
-
-        File inputDataDir;
-        //inputDataDir = Files.getOutputDataDir(Strings);
-        inputDataDir = Files.getInputDataDir(Strings);
-
+    public void run(String area, int min, File inputDataDir) {
         File outputDataDir;
         outputDataDir = Files.getOutputDataDir(Strings);
 

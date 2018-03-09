@@ -23,24 +23,17 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_OC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_Record;
-//import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_CC_COU_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
 /**
  * For reading, selecting and writing out selected records.
  */
-public class LR_Select_Process {
-
-    LR_Files Files;
-    LR_Strings Strings;
+public class LR_Select_Process extends LR_Main_Process {
 
     public LR_Select_Process() {
-        Files = new LR_Files();
-        Strings = new LR_Strings();
+        super();
     }
 
     public void run(String area) {
