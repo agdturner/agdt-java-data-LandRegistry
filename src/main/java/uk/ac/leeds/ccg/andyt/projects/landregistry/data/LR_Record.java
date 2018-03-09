@@ -315,4 +315,10 @@ public abstract class LR_Record {
         return ProprietorshipCategory4;
     }
 
+    /**
+     * @return the CountryIncorporated1
+     */
+    public String getCountryIncorporated1() {
+        return "United Kingdom";
+    }
 }

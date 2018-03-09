@@ -49,7 +49,7 @@ public class LR_Main_Process {
 //        sp.run(area);
         
         // Generalise Leeds
-                // min is the minimum count for a generlisation reported
+        // min is the minimum count for a generlisation reported
         int min;
         // inputDataDir provides the location of the input data
         File inputDataDir;
@@ -60,7 +60,8 @@ public class LR_Main_Process {
         LR_Generalise_Process gp;
         gp = new LR_Generalise_Process();
         gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-        min = 5;
+        min = 1;
+        //min = 5;
         gp.run(area, min, inputDataDir);
         
     }

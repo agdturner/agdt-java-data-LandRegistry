@@ -50,7 +50,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //    TreeMap<String, Integer> PricePaidCounts;
     TreeMap<String, Integer> companyRegistrationNo1Counts;
     TreeMap<String, Integer> proprietorshipCategory1Counts;
-//    TreeMap<String, Integer> countryIncorporated1Counts;
+    TreeMap<String, Integer> proprietorName1Counts;
+    TreeMap<String, Integer> countryIncorporated1Counts;
 
     public void run(String area, int min, File inputDataDir) {
         File outputDataDir;
@@ -128,7 +129,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //                PricePaidCounts = new TreeMap<>();
                 companyRegistrationNo1Counts = new TreeMap<>();
                 proprietorshipCategory1Counts = new TreeMap<>();
-//                countryIncorporated1Counts = new TreeMap<>();
+                proprietorName1Counts = new TreeMap<>();
+                countryIncorporated1Counts = new TreeMap<>();
 
                 LR_Record r;
                 for (long ID = 1; ID < lines.size(); ID++) {
@@ -160,7 +162,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //        Generic_Collections.addToTreeMapStringInteger(PricePaidCounts, r.getPricePaid(), 1);
         Generic_Collections.addToTreeMapStringInteger(companyRegistrationNo1Counts, r.getCompanyRegistrationNo1(), 1);
         Generic_Collections.addToTreeMapStringInteger(proprietorshipCategory1Counts, r.getProprietorshipCategory1(), 1);
-        //Generic_Collections.addToTreeMapStringInteger(countryIncorporated1Counts, r.getCountryIncorporated1(), 1);
+        Generic_Collections.addToTreeMapStringInteger(proprietorName1Counts, r.getProprietorName1(), 1);
+        Generic_Collections.addToTreeMapStringInteger(countryIncorporated1Counts, r.getCountryIncorporated1(), 1);
     }
 
     void printGeneralisation(PrintWriter pw, int min) {
@@ -170,6 +173,10 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //        printGeneralisation(pw, "Postcode", postcodeCounts);
         printGeneralisation(pw, "Company Registration No 1", companyRegistrationNo1Counts, min);
         printGeneralisation(pw, "Proprietorship Category 1", proprietorshipCategory1Counts, min);
+        printGeneralisation(pw, "Proprietor Name 1", proprietorName1Counts, min);
+        printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min);
+        
+        
     }
 
     void printGeneralisation(PrintWriter pw, String type,
