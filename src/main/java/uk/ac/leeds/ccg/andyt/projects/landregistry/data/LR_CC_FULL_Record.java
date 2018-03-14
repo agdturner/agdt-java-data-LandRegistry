@@ -16,6 +16,8 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 
 /**
  *
@@ -26,13 +28,20 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
     public LR_CC_FULL_Record() {
     }
 
-    public LR_CC_FULL_Record(long ID, String line) {
-        this.ID = ID;
+    public LR_CC_FULL_Record(HashMap<LR_ID, String> IDToAddress,
+            HashMap<String, LR_ID> AddressToID, String line) {
         String[] ls;
         ls = line.split("\",\"");
         TitleNumber = ls[0].substring(1);
         Tenure = ls[1];
         PropertyAddress = ls[2];
+        if (AddressToID.containsKey(PropertyAddress)) {
+            this.ID = AddressToID.get(PropertyAddress);
+        } else {
+            this.ID = new LR_ID(AddressToID.size());
+            AddressToID.put(PropertyAddress, ID);
+            IDToAddress.put(ID, PropertyAddress);
+        }
         District = ls[3];
         County = ls[4];
         Region = ls[5];

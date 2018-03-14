@@ -16,6 +16,8 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 
 /**
  *
@@ -26,8 +28,9 @@ public class LR_OC_COU_Record extends LR_OC_FULL_Record implements Serializable 
     private final String ChangeIndicator;
     private final String ChangeDate;
 
-    public LR_OC_COU_Record(long ID, String line) {
-        super(ID, line);
+    public LR_OC_COU_Record(HashMap<LR_ID, String> IDToAddress,
+    HashMap<String, LR_ID> AddressToID, String line) {
+        super(IDToAddress, AddressToID, line);
         String[] ls;
         ls = line.split("\",\"");
         int lineLength;

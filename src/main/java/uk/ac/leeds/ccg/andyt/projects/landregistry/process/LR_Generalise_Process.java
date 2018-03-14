@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_OC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_Record;
@@ -53,7 +55,22 @@ public class LR_Generalise_Process extends LR_Main_Process {
     TreeMap<String, Integer> proprietorName1Counts;
     TreeMap<String, Integer> countryIncorporated1Counts;
 
-    public void run(String area, int min, File inputDataDir) {
+    /**
+     *
+     * @param IDToAddress
+     * @param AddressToID
+     * @param area
+     * @param doAll
+     * @param minCC
+     * @param minOC
+     * @param inputDataDir
+     * @param doCCOD
+     * @param doOCOD
+     * @param doFull
+     */
+    public void run(HashMap<LR_ID, String> IDToAddress,
+            HashMap<String, LR_ID> AddressToID, String area, boolean doAll, int minCC, int minOC,
+            File inputDataDir, boolean doCCOD, boolean doOCOD, boolean doFull) {
         File outputDataDir;
         outputDataDir = Files.getOutputDataDir(Strings);
 
@@ -66,17 +83,25 @@ public class LR_Generalise_Process extends LR_Main_Process {
         names0 = new ArrayList<>();
         //names1 = new ArrayList<>();
         names2 = new ArrayList<>();
-        //names0.add("CCOD");
-        names0.add("OCOD");
-        boolean isCCOD;
+        if (doCCOD) {
+            names0.add("CCOD");
+        }
+        if (doOCOD) {
+            names0.add("OCOD");
+        }
         //names1.add("COU");
         //names1.add("FULL");
-        names2.add("2017_11");
-//        names2.add("2017_12");
-//        names2.add("2018_01");
-        names2.add("2018_02");
-//        names2.add("2018_03");
-
+        boolean isCCOD;
+        if (doFull) {
+            names2.add("2017_11");
+            names2.add("2018_02");
+        } else {
+            names2.add("2017_11");
+            names2.add("2017_12");
+            names2.add("2018_01");
+            names2.add("2018_02");
+            names2.add("2018_03");
+        }
         File indir;
         File outdir;
         File f;
@@ -90,20 +115,29 @@ public class LR_Generalise_Process extends LR_Main_Process {
             name0 = ite0.next();
             isCCOD = name0.equalsIgnoreCase("CCOD");
             name00 = "";
-            //name00 += name0 + "_COU_";
-            name00 += name0 + "_FULL_";
+            if (doFull) {
+                name00 += name0 + "_FULL_";
+            } else {
+                name00 += name0 + "_COU_";
+            }
             ite2 = names2.iterator();
             while (ite2.hasNext()) {
                 name = name00;
                 name += ite2.next();
-                indir = new File(outputDataDir, area);
-                indir = new File(indir, name0);
-                //indir = new File(inputDataDir, name0);
-                indir = new File(indir, name);
+                if (doFull) {
+                    indir = new File(inputDataDir, name0);
+                    indir = new File(indir, name);
+                    if (doAll) {
+                        outdir = new File(outputDataDir, "GeneralisedFull");
+                    } else {
+                        outdir = new File(outputDataDir, area + "GeneralisedFull");
+                    }
+                } else {
+                    indir = new File(outputDataDir, area);
+                    indir = new File(indir, name0);
+                    outdir = new File(outputDataDir, area + "_Generalised");
+                }
                 System.out.println("indir " + indir);
-//                outdir = new File(outputDataDir, area + "_Generalised");
-//                outdir = new File(outputDataDir, "GeneralisedFull");
-                outdir = new File(outputDataDir, area + "GeneralisedFull");
                 outdir = new File(outdir, name0);
                 outdir = new File(outdir, name);
                 System.out.println("outdir " + outdir);
@@ -133,19 +167,25 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 countryIncorporated1Counts = new TreeMap<>();
 
                 LR_Record r;
-                for (long ID = 1; ID < lines.size(); ID++) {
+                for (int ID = 1; ID < lines.size(); ID++) {
                     try {
                         if (isCCOD) {
-                            r = new LR_CC_COU_Record(ID, lines.get((int) ID));
+                            r = new LR_CC_COU_Record(IDToAddress, AddressToID,
+                                    lines.get((int) ID));
                         } else {
-                            r = new LR_OC_COU_Record(ID, lines.get((int) ID));
+                            r = new LR_OC_COU_Record(IDToAddress, AddressToID,
+                                    lines.get((int) ID));
                         }
                         addToCounts(r);
                     } catch (ArrayIndexOutOfBoundsException e) {
                         e.printStackTrace(System.err);
                     }
                 }
-                printGeneralisation(pw, min);
+                if (isCCOD) {
+                    printGeneralisation(pw, minCC);
+                } else {
+                    printGeneralisation(pw, minOC);
+                }
                 pw.close();
             }
         }
@@ -175,8 +215,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         printGeneralisation(pw, "Proprietorship Category 1", proprietorshipCategory1Counts, min);
         printGeneralisation(pw, "Proprietor Name 1", proprietorName1Counts, min);
         printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min);
-        
-        
+
     }
 
     void printGeneralisation(PrintWriter pw, String type,
