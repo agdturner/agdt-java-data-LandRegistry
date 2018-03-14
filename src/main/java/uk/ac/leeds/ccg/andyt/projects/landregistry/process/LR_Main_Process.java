@@ -63,12 +63,12 @@ public class LR_Main_Process {
     public void run() {
 
         // Main switches
-//        doSelectLeeds = true;
+        doSelectLeeds = true;
 //        doGeneralise = true;
 //        doGeneraliseLeeds = true;
 //        doGeneraliseAll = true;
-        doTransitions = true;
-        doTransitionsLeeds = true;
+//        doTransitions = true;
+//        doTransitionsLeeds = true;
         
         String area;
         area = "LEEDS";

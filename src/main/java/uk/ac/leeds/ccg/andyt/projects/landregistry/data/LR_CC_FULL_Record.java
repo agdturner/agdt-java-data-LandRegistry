@@ -28,20 +28,12 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
     public LR_CC_FULL_Record() {
     }
 
-    public LR_CC_FULL_Record(HashMap<LR_ID, String> IDToAddress,
-            HashMap<String, LR_ID> AddressToID, String line) {
+    public LR_CC_FULL_Record(String line) {
         String[] ls;
         ls = line.split("\",\"");
         TitleNumber = ls[0].substring(1);
         Tenure = ls[1];
         PropertyAddress = ls[2];
-        if (AddressToID.containsKey(PropertyAddress)) {
-            this.ID = AddressToID.get(PropertyAddress);
-        } else {
-            this.ID = new LR_ID(AddressToID.size());
-            AddressToID.put(PropertyAddress, ID);
-            IDToAddress.put(ID, PropertyAddress);
-        }
         District = ls[3];
         County = ls[4];
         Region = ls[5];
@@ -74,6 +66,18 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         Proprietor4Address3 = ls[32];
         DateProprietorAdded = ls[33];
         AdditionalProprietorIndicator = ls[34];
+    }
+    
+    public LR_CC_FULL_Record(HashMap<LR_ID, String> IDToAddress,
+            HashMap<String, LR_ID> AddressToID, String line) {
+        this(line);
+        if (AddressToID.containsKey(PropertyAddress)) {
+            this.ID = AddressToID.get(PropertyAddress);
+        } else {
+            this.ID = new LR_ID(AddressToID.size());
+            AddressToID.put(PropertyAddress, ID);
+            IDToAddress.put(ID, PropertyAddress);
+        }
     }
 
     @Override

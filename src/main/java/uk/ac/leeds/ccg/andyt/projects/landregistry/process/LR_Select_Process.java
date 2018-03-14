@@ -132,11 +132,9 @@ public class LR_Select_Process extends LR_Main_Process {
                     //r = new LR_FULL_Record(ID, lines.get((int) ID));
                     try {
                         if (isCCOD) {
-                            r = new LR_CC_COU_Record(IDToAddress, AddressToID, 
-                                    lines.get(ID));
+                            r = new LR_CC_COU_Record(lines.get(ID));
                         } else {
-                            r = new LR_OC_COU_Record(IDToAddress, AddressToID, 
-                                    lines.get(ID));
+                            r = new LR_OC_COU_Record(lines.get(ID));
                         }
                         if (r.getDistrict().equalsIgnoreCase(area)) {
                             //System.out.println(r.toCSV());
