@@ -50,10 +50,13 @@ public class LR_Transitions_Process extends LR_Main_Process {
 
     public void run(HashMap<LR_ID, String> IDToAddress,
             HashMap<String, LR_ID> AddressToID, String area, File inputDataDir,
-            int min) {
+            int minCC, int minOC) {
         File outputDataDir;
         outputDataDir = Files.getOutputDataDir(Strings);
 
+        this.AddressToID = AddressToID;
+        this.IDToAddress = IDToAddress;
+        
         ArrayList<String> names0;
         //ArrayList<String> names1;
         ArrayList<String> names2;
@@ -138,7 +141,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                         e.printStackTrace(System.err);
                     }
                 }
-                printGeneralisation(pw, min);
+                printGeneralisation(pw, minCC, minOC);
                 pw.close();
             }
         }
@@ -166,11 +169,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
     }
 
-    void printGeneralisation(PrintWriter pw, int min) {
-        printGeneralisation(pw, "addedCCR", addedCCR, min);
-        printGeneralisation(pw, "deletedCCR", deletedCCR, min);
-        printGeneralisation(pw, "addedOCR", addedOCR, min);
-        printGeneralisation(pw, "deletedOCR", deletedOCR, min);
+    void printGeneralisation(PrintWriter pw, int minCC, int minOC) {
+        printGeneralisation(pw, "addedCCR", addedCCR, minCC);
+        printGeneralisation(pw, "deletedCCR", deletedCCR, minCC);
+        printGeneralisation(pw, "addedOCR", addedOCR, minOC);
+        printGeneralisation(pw, "deletedOCR", deletedOCR, minOC);
     }
 
     void printGeneralisation(PrintWriter pw, String type,
@@ -195,7 +198,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                         reportedSmallCount = true;
                     }
                     if (aID != null) {
-                        pw.println(IDToAddress.get(aID) + "," + count);
+                        pw.println("\"" + IDToAddress.get(aID) + "\"," + count);
                     } else {
                         System.out.println("null ID");
                     }

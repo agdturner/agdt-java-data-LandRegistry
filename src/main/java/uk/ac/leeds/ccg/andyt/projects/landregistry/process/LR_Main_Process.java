@@ -63,13 +63,13 @@ public class LR_Main_Process {
     public void run() {
 
         // Main switches
-        doSelectLeeds = true;
+//        doSelectLeeds = true;
 //        doGeneralise = true;
 //        doGeneraliseLeeds = true;
 //        doGeneraliseAll = true;
-//        doTransitions = true;
-//        doTransitionsLeeds = true;
-        
+        doTransitions = true;
+        doTransitionsLeeds = true;
+
         String area;
         area = "LEEDS";
 
@@ -94,18 +94,18 @@ public class LR_Main_Process {
          * inputDataDir provides the location of the input data
          */
         File inputDataDir;
-
+        /**
+         * minCC is the minimum count for a generalisation reported in the
+         * corporate data.
+         */
+        int minCC;
+        /**
+         * minCC is the minimum count for a generalisation reported in the
+         * overseas data.
+         */
+        int minOC;
+        
         if (doGeneralise) {
-            /**
-             * minCC is the minimum count for a generalisation reported in the
-             * corporate data.
-             */
-            int minCC;
-            /**
-             * minCC is the minimum count for a generalisation reported in the
-             * overseas data.
-             */
-            int minOC;
             /**
              * If doAll the run is for all areas and area is ignored.
              */
@@ -147,12 +147,13 @@ public class LR_Main_Process {
 
         if (doTransitions) {
             if (doTransitionsLeeds) {
-                int min = 1;
+                minCC = 2;
+                minOC = 2;
                 inputDataDir = Files.getOutputDataDir(Strings);
                 LR_Transitions_Process tp;
                 tp = new LR_Transitions_Process();
                 tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-                tp.run(IDToAddress, AddressToID, area, inputDataDir, min);
+                tp.run(IDToAddress, AddressToID, area, inputDataDir, minCC, minOC);
             }
 //            if {doTransitionsAll) {
 //                

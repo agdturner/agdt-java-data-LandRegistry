@@ -56,7 +56,7 @@ public class LR_OC_COU_Record extends LR_OC_FULL_Record implements Serializable 
 
     @Override
     public String toCSV() {        
-        return super.toCSV() + ",\"" + getChangeIndicator()
+        return super.toCSV() + "\",\"" + getChangeIndicator()
                 + "\",\"" + getChangeDate() + "\"";
     }
 
