@@ -19,10 +19,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
@@ -32,11 +34,20 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
  */
 public class LR_Select_Process extends LR_Main_Process {
 
+    HashMap<LR_ID, String> IDToAddress;
+    HashMap<String, LR_ID> AddressToID;
+
     public LR_Select_Process() {
         super();
     }
 
-    public void run(String area) {
+    /**
+     * @param area
+     * @param doFull If doFull the run generalises the FULL data otherwise this
+     * generalises the Change Only Update (COU) data.
+     */
+    public void run(HashMap<LR_ID, String> IDToAddress,
+            HashMap<String, LR_ID> AddressToID, String area, boolean doFull) {
         File inputDataDir;
         inputDataDir = Files.getInputDataDir(Strings);
         File outputDataDir;
@@ -56,11 +67,16 @@ public class LR_Select_Process extends LR_Main_Process {
         boolean isCCOD;
         //names1.add("COU");
         //names1.add("FULL");
-        names2.add("2017_11");
-//        names2.add("2017_12");
-//        names2.add("2018_01");
-        names2.add("2018_02");
-//        names2.add("2018_03");
+        if (doFull) {
+            names2.add("2017_11");
+            names2.add("2018_02");
+        } else {
+            names2.add("2017_11");
+            names2.add("2017_12");
+            names2.add("2018_01");
+            names2.add("2018_02");
+            names2.add("2018_03");
+        }
 
         File indir;
         File outdir;
@@ -75,8 +91,11 @@ public class LR_Select_Process extends LR_Main_Process {
             name0 = ite0.next();
             isCCOD = name0.equalsIgnoreCase("CCOD");
             name00 = "";
-//            name00 += name0 + "_COU_";
+        if (doFull) {
             name00 += name0 + "_FULL_";
+        } else {
+            name00 += name0 + "_COU_";
+        }
             ite2 = names2.iterator();
             while (ite2.hasNext()) {
                 name = name00;
@@ -109,13 +128,13 @@ public class LR_Select_Process extends LR_Main_Process {
 
                 //LR_FULL_Record r;
                 LR_Record r;
-                for (long ID = 1; ID < lines.size(); ID++) {
+                for (int ID = 1; ID < lines.size(); ID++) {
                     //r = new LR_FULL_Record(ID, lines.get((int) ID));
                     try {
                         if (isCCOD) {
-                            r = new LR_CC_COU_Record(ID, lines.get((int) ID));
+                            r = new LR_CC_COU_Record(lines.get(ID));
                         } else {
-                            r = new LR_OC_COU_Record(ID, lines.get((int) ID));
+                            r = new LR_OC_COU_Record(lines.get(ID));
                         }
                         if (r.getDistrict().equalsIgnoreCase(area)) {
                             //System.out.println(r.toCSV());

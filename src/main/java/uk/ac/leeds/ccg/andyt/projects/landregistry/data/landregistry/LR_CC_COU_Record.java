@@ -16,6 +16,8 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 
 /**
  *
@@ -23,17 +25,27 @@ import java.io.Serializable;
  */
 public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable {
 
-    private final String ChangeIndicator;
-    private final String ChangeDate;
+    private String ChangeIndicator;
+    private String ChangeDate;
 
-    public LR_CC_COU_Record(long ID, String line) {
-        super(ID, line);
+    public LR_CC_COU_Record(String line) {
+        super(line);
+        init(line);
+    }
+    
+    private void init(String line) {
         String[] ls;
         ls = line.split("\",\"");
         int lineLength;
         lineLength = ls.length;
         ChangeIndicator = ls[lineLength - 2];
         ChangeDate = ls[lineLength - 1];
+    }
+        
+    public LR_CC_COU_Record(HashMap<LR_ID, String> IDToAddress,
+            HashMap<String, LR_ID> AddressToID, String line) {
+        super(IDToAddress, AddressToID, line);
+        init(line);
     }
 
     @Override
@@ -44,8 +56,8 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
 
     @Override
     public String toCSV() {
-        return super.toCSV() + "," + getChangeIndicator()
-                + "," + getChangeDate();
+        return super.toCSV() + "\",\"" + getChangeIndicator()
+                + "\",\"" + getChangeDate() + "\"";
     }
 
     public static String header() {

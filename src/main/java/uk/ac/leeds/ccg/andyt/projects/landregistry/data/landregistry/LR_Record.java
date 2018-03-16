@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2018 geoagdt.
  *
@@ -15,13 +16,15 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
+
 /**
  *
  * @author geoagdt
  */
 public abstract class LR_Record {
 
-    protected long ID;
+    protected LR_ID ID;
     protected String TitleNumber;
     protected String Tenure;
     protected String PropertyAddress;
@@ -66,7 +69,7 @@ public abstract class LR_Record {
     /**
      * @return the ID
      */
-    public long getID() {
+    public LR_ID getID() {
         return ID;
     }
 
