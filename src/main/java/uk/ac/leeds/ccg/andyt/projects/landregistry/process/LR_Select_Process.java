@@ -23,9 +23,9 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_CC_COU_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_OC_COU_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
 
 /**
  * For reading, selecting and writing out selected records.

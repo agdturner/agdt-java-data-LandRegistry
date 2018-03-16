@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -26,9 +27,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_CC_COU_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_OC_COU_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.LR_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.transparencyinternational.LR_TI_Handler;
 
 /**
  * For reading and processing data from
@@ -52,11 +54,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
     TreeMap<String, Integer> proprietorshipCategory1Counts;
     TreeMap<String, Integer> proprietorName1Counts;
     TreeMap<String, Integer> countryIncorporated1Counts;
+    HashMap<String, Integer> transparencyMap;
 
     public void run(String area, int min, File inputDataDir) {
+        transparencyMap = LR_TI_Handler.loadFromSource(Files.getTIDataFile(Strings));
         File outputDataDir;
         outputDataDir = Files.getOutputDataDir(Strings);
-
         ArrayList<String> names0;
         //ArrayList<String> names1;
         ArrayList<String> names2;
@@ -174,7 +177,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
         printGeneralisation(pw, "Company Registration No 1", companyRegistrationNo1Counts, min);
         printGeneralisation(pw, "Proprietorship Category 1", proprietorshipCategory1Counts, min);
         printGeneralisation(pw, "Proprietor Name 1", proprietorName1Counts, min);
-        printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min);
+//        printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min);
+        printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min, transparencyMap);
         
         
     }
@@ -199,7 +203,41 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     pw.println("Those with less than " + min + "," + smallCount);
                     reportedSmallCount = true;
                 }
-                pw.println(var + "," + count);
+                pw.println("\"" + var + "\"," + count);
+            } else {
+                smallCount += count;
+            }
+        }
+        pw.println();
+    }
+    
+    void printGeneralisation(PrintWriter pw, String type,
+            TreeMap<String, Integer> counts, int min, HashMap<String, Integer> transparencyMap) {
+        Map<String, Integer> sortedCounts;
+        sortedCounts = Generic_Collections.sortByValue(counts);
+        pw.println(type);
+        String var;
+        int count;
+        int smallCount = 0;
+        boolean reportedSmallCount = false;
+        Iterator<String> ite;
+        pw.println("Value, Count, CPIScore2017");
+        ite = sortedCounts.keySet().iterator();
+        Integer CPIScore2017; 
+        while (ite.hasNext()) {
+            var = ite.next();
+            count = counts.get(var);
+            if (count >= min) {
+                if (!reportedSmallCount) {
+                    pw.println("Those with less than " + min + "," + smallCount);
+                    reportedSmallCount = true;
+                }
+                CPIScore2017 = transparencyMap.get(var);
+                if (CPIScore2017 != null) {
+                    pw.println("\"" + var + "\"," + count + "," + CPIScore2017);
+                } else {
+                    pw.println("\"" + var + "\"," + count + ",UnknownCPIScore");
+                }
             } else {
                 smallCount += count;
             }

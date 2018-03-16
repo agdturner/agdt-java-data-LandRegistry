@@ -15,7 +15,9 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.io;
 
+import java.io.File;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 
 /**
  *
@@ -32,5 +34,13 @@ public class LR_Files extends Generic_Files {
      */
     public LR_Files(String dataDirName) {
         super(dataDirName);
+    }
+
+    public File getTIDataFile(LR_Strings s) {
+        File result;
+        File dir;
+        dir = new File(getInputDataDir(s), "TransparencyInternational");
+        result = new File(dir, "Selection.csv");
+        return result;
     }
 }
