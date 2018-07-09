@@ -31,8 +31,6 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.transparencyinternational.LR_TI_Handler;
-
 
 /**
  * For reading and processing data from
@@ -54,14 +52,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //    TreeMap<String, Integer> PricePaidCounts;
     TreeMap<String, Integer> companyRegistrationNo1Counts;
     TreeMap<String, Integer> proprietorshipCategory1Counts;
-    TreeMap<String, Integer> proprietorName1Counts;
+//    TreeMap<String, Integer> proprietorNameID1s;
+    TreeMap<LR_ID, Integer> proprietorName1IDCounts;
     TreeMap<String, Integer> countryIncorporated1Counts;
     HashMap<String, Integer> transparencyMap;
 
     /**
-     *
-     * @param IDToAddress
-     * @param AddressToID
      * @param area
      * @param doAll
      * @param minCC
@@ -70,10 +66,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
      * @param doCCOD
      * @param doOCOD
      * @param doFull
+     * @param overwrite
      */
-    public void run(HashMap<LR_ID, String> IDToAddress,
-            HashMap<String, LR_ID> AddressToID, String area, boolean doAll, int minCC, int minOC,
-            File inputDataDir, boolean doCCOD, boolean doOCOD, boolean doFull) {
+    public void run(String area, boolean doAll,
+            int minCC, int minOC, File inputDataDir, boolean doCCOD,
+            boolean doOCOD, boolean doFull, boolean overwrite) {
+
         File outputDataDir;
         outputDataDir = Files.getOutputDataDir(Strings);
         ArrayList<String> names0;
@@ -103,6 +101,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
             names2.add("2018_01");
             names2.add("2018_02");
             names2.add("2018_03");
+            names2.add("2018_04");
+            names2.add("2018_05");
+            names2.add("2018_06");
         }
         File indir;
         File outdir;
@@ -146,49 +147,54 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 f = new File(indir, name + ".csv");
                 if (!f.exists()) {
                     System.out.println("File " + f + " does not exist.");
-                }
-                lines = Generic_ReadCSV.read(f, null, 7);
-                outdir.mkdirs();
-                f = new File(outdir, name + "Generalised.csv");
-                try {
-                    pw = new PrintWriter(f);
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(LR_Generalise_Process.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                // Initialisation
-                tenureCounts = new TreeMap<>();
+                } else {
+                    lines = Generic_ReadCSV.read(f, null, 7);
+                    outdir.mkdirs();
+                    f = new File(outdir, name + "Generalised.csv");
+                    if (!overwrite || !f.exists()) {
+                        try {
+                            pw = new PrintWriter(f);
+                        } catch (FileNotFoundException ex) {
+                            Logger.getLogger(LR_Generalise_Process.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        // Initialisation
+                        tenureCounts = new TreeMap<>();
 //                districtCounts = new TreeMap<>();
 //                countyCounts = new TreeMap<>();
 //                regionCounts = new TreeMap<>();
 //                postcodeCounts = new TreeMap<>();
 //                multipleAddressIndicatorCounts = new TreeMap<>();
 //                PricePaidCounts = new TreeMap<>();
-                companyRegistrationNo1Counts = new TreeMap<>();
-                proprietorshipCategory1Counts = new TreeMap<>();
-                proprietorName1Counts = new TreeMap<>();
-                countryIncorporated1Counts = new TreeMap<>();
+                        companyRegistrationNo1Counts = new TreeMap<>();
+                        proprietorshipCategory1Counts = new TreeMap<>();
+                        proprietorName1IDCounts = new TreeMap<>();
+                        countryIncorporated1Counts = new TreeMap<>();
 
-                LR_Record r;
-                for (int ID = 1; ID < lines.size(); ID++) {
-                    try {
-                        if (isCCOD) {
-                            r = new LR_CC_COU_Record(IDToAddress, AddressToID,
-                                    lines.get((int) ID));
-                        } else {
-                            r = new LR_OC_COU_Record(IDToAddress, AddressToID,
-                                    lines.get((int) ID));
+                        LR_Record r;
+                        for (int ID = 1; ID < lines.size(); ID++) {
+                            try {
+                                if (isCCOD) {
+                                    r = new LR_CC_COU_Record(Env,
+                                            lines.get((int) ID));
+                                } else {
+                                    r = new LR_OC_COU_Record(Env,
+                                            lines.get((int) ID));
+                                }
+                                addToCounts(r);
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                e.printStackTrace(System.err);
+                            }
                         }
-                        addToCounts(r);
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        e.printStackTrace(System.err);
+                        if (isCCOD) {
+                            printGeneralisation(pw, minCC);
+                        } else {
+                            printGeneralisation(pw, minOC);
+                        }
+                        pw.close();
+                    } else {
+                        System.out.println("Output file " + f + " already exists and is not being overwritten.");
                     }
                 }
-                if (isCCOD) {
-                    printGeneralisation(pw, minCC);
-                } else {
-                    printGeneralisation(pw, minOC);
-                }
-                pw.close();
             }
         }
 
@@ -204,7 +210,10 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //        Generic_Collections.addToTreeMapStringInteger(PricePaidCounts, r.getPricePaid(), 1);
         Generic_Collections.addToTreeMapStringInteger(companyRegistrationNo1Counts, r.getCompanyRegistrationNo1(), 1);
         Generic_Collections.addToTreeMapStringInteger(proprietorshipCategory1Counts, r.getProprietorshipCategory1(), 1);
-        Generic_Collections.addToTreeMapStringInteger(proprietorName1Counts, r.getProprietorName1(), 1);
+//        LR_ID id;
+//        id = null;
+//        Generic_Collections.addToMap(proprietorName1Counts, id, 1);
+        Generic_Collections.addToMap(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
         Generic_Collections.addToTreeMapStringInteger(countryIncorporated1Counts, r.getCountryIncorporated1(), 1);
     }
 
@@ -215,39 +224,41 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //        printGeneralisation(pw, "Postcode", postcodeCounts);
         printGeneralisation(pw, "Company Registration No 1", companyRegistrationNo1Counts, min);
         printGeneralisation(pw, "Proprietorship Category 1", proprietorshipCategory1Counts, min);
-        printGeneralisation(pw, "Proprietor Name 1", proprietorName1Counts, min);
+        printGeneralisation(pw, "Proprietor Name 1", proprietorName1IDCounts, min);
         printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min, transparencyMap);
         printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min);
     }
 
-    void printGeneralisation(PrintWriter pw, String type,
-            TreeMap<String, Integer> counts, int min) {
-        Map<String, Integer> sortedCounts;
+//    void printGeneralisation(PrintWriter pw, String type,
+//            TreeMap<String, Integer> counts, int min) {
+    <K> void printGeneralisation(PrintWriter pw, String type,
+            Map<K, Integer> counts, int min) {
+        Map<K, Integer> sortedCounts;
         sortedCounts = Generic_Collections.sortByValue(counts);
         pw.println(type);
-        String var;
+        K k;
         int count;
         int smallCount = 0;
         boolean reportedSmallCount = false;
-        Iterator<String> ite;
+        Iterator<K> ite;
         pw.println("Value, Count");
         ite = sortedCounts.keySet().iterator();
         while (ite.hasNext()) {
-            var = ite.next();
-            count = counts.get(var);
+            k = ite.next();
+            count = counts.get(k);
             if (count >= min) {
                 if (!reportedSmallCount) {
                     pw.println("Those with less than " + min + "," + smallCount);
                     reportedSmallCount = true;
                 }
-                pw.println("\"" + var + "\"," + count);
+                pw.println("\"" + k + "\"," + count);
             } else {
                 smallCount += count;
             }
         }
         pw.println();
     }
-    
+
     void printGeneralisation(PrintWriter pw, String type,
             TreeMap<String, Integer> counts, int min, HashMap<String, Integer> transparencyMap) {
         Map<String, Integer> sortedCounts;
@@ -260,7 +271,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         Iterator<String> ite;
         pw.println("Value, Count, CPIScore2017");
         ite = sortedCounts.keySet().iterator();
-        Integer CPIScore2017; 
+        Integer CPIScore2017;
         while (ite.hasNext()) {
             var = ite.next();
             count = counts.get(var);

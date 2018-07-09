@@ -16,9 +16,8 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
 import java.io.File;
-import java.util.HashMap;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
@@ -26,28 +25,49 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
  *
  * @author geoagdt
  */
-public class LR_Main_Process {
+public class LR_Main_Process extends LR_Object {
 
-    HashMap<LR_ID, String> IDToAddress;
-    HashMap<String, LR_ID> AddressToID;
+    int nInitialPropertyAddress;
+    int nInitialCompanyRegistrationNo;
+    int nInitialCountryIncorporated;
+    int nInitialProprietorName;
+    int nInitialTitleNumber;
 
-    int IDtoAddressInitialSize;
+    // For convenience
+    public LR_Strings Strings;
+    public LR_Files Files;
 
-    LR_Strings Strings;
-    LR_Files Files;
+    protected LR_Main_Process() {
+        super();
+        Strings = Env.Strings;
+        Files = Env.Files;
+    }
 
-    public LR_Main_Process() {
-        Files = new LR_Files();
-        Strings = new LR_Strings();
+    public LR_Main_Process(LR_Environment env) {
+        super(env);
+        Strings = Env.Strings;
+        Files = Env.Files;
     }
 
     public static void main(String[] args) {
         LR_Main_Process p;
         p = new LR_Main_Process();
         p.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-        p.loadIDToAddress();
-        p.loadAddressToID();
-        p.IDtoAddressInitialSize = p.AddressToID.size();
+        p.Env.loadIDToPropertyAddress();
+        p.Env.loadPropertyAddressToID();
+        p.Env.loadIDToTitleNumber();
+        p.Env.loadTitleNumberToID();
+        p.Env.loadIDToCompanyRegistrationNo();
+        p.Env.loadCompanyRegistrationNoToID();
+        p.Env.loadIDToCountryIncorporated();
+        p.Env.loadCountryIncorporatedToID();
+        p.Env.loadIDToProprietorName();
+        p.Env.loadProprietorNameToID();
+        p.nInitialPropertyAddress = p.Env.PropertyAddressToID.size();
+        p.nInitialCompanyRegistrationNo = p.Env.CompanyRegistrationNoToID.size();
+        p.nInitialCountryIncorporated = p.Env.CountryIncorporatedToID.size();
+        p.nInitialProprietorName = p.Env.ProprietorNameToID.size();
+        p.nInitialTitleNumber = p.Env.TitleNumberToID.size();
         p.run();
     }
 
@@ -65,8 +85,8 @@ public class LR_Main_Process {
         // Main switches
 //        doSelectLeeds = true;
 //        doGeneralise = true;
-//        doGeneraliseLeeds = true;
-//        doGeneraliseAll = true;
+        doGeneraliseLeeds = true;
+        doGeneraliseAll = true;
         doTransitions = true;
         doTransitionsLeeds = true;
 
@@ -84,10 +104,13 @@ public class LR_Main_Process {
             LR_Select_Process sp;
             sp = new LR_Select_Process();
             sp.Files.setDataDirectory(Files.getDataDir());
-            doFull = true;
-            sp.run(IDToAddress, AddressToID, area, doFull);
+            boolean overwrite;
+//            overwrite = true;
+            overwrite = false;
+//            doFull = true;
+//            sp.run(IDToPropertyAddress, PropertyAddressPropertyToID, area, doFull, overwrite);
             doFull = false;
-            sp.run(IDToAddress, AddressToID, area, doFull);
+            sp.run(area, doFull, overwrite);
         }
 
         /**
@@ -104,7 +127,7 @@ public class LR_Main_Process {
          * overseas data.
          */
         int minOC;
-        
+
         if (doGeneralise) {
             /**
              * If doAll the run is for all areas and area is ignored.
@@ -112,6 +135,9 @@ public class LR_Main_Process {
             boolean doAll;
             boolean doCCOD;
             boolean doOCOD;
+            boolean overwrite;
+            overwrite = true;
+//            overwrite = false;
             if (doGeneraliseLeeds) {
                 doAll = false;
                 doCCOD = true;
@@ -122,10 +148,10 @@ public class LR_Main_Process {
                 gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 minCC = 5;
                 minOC = 1;
-                doFull = true;
-                gp.run(IDToAddress, AddressToID, area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull);
+//                doFull = true;
+//                gp.run(IDToPropertyAddress, PropertyAddressPropertyToID, area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
                 doFull = false;
-                gp.run(IDToAddress, AddressToID, area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull);
+                gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
             }
             if (doGeneraliseAll) {
                 // Generalise All
@@ -139,9 +165,9 @@ public class LR_Main_Process {
                 minCC = 10;
                 minOC = 5;
                 doFull = true;
-                gp.run(IDToAddress, AddressToID, area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull);
+                gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
                 doFull = false;
-                gp.run(IDToAddress, AddressToID, area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull);
+                gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
             }
         }
 
@@ -151,9 +177,9 @@ public class LR_Main_Process {
                 minOC = 2;
                 inputDataDir = Files.getOutputDataDir(Strings);
                 LR_Transitions_Process tp;
-                tp = new LR_Transitions_Process();
+                tp = new LR_Transitions_Process(Env);
                 tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-                tp.run(IDToAddress, AddressToID, area, inputDataDir, minCC, minOC);
+                tp.run(area, inputDataDir, minCC, minOC);
             }
 //            if {doTransitionsAll) {
 //                
@@ -161,39 +187,39 @@ public class LR_Main_Process {
         }
 
         /**
-         * If IDToAddress, AddressToID have increased in size, write them out
+         * If IDToPropertyAddress has increased in size, write out the mappings
          * again.
          */
-        if (IDtoAddressInitialSize < IDToAddress.size()) {
-            writeIDToAddress();
+        if (nInitialPropertyAddress < Env.IDToPropertyAddress.size()) {
+            Env.writeIDToPropertyAddress();
         }
-    }
-
-    protected void writeIDToAddress() {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "IDToAddress.dat");
-        Generic_StaticIO.writeObject(IDToAddress, f);
-        f = new File(Files.getGeneratedDataDir(Strings), "AddressToID.dat");
-        Generic_StaticIO.writeObject(AddressToID, f);
-    }
-
-    protected void loadIDToAddress() {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "IDToAddress.dat");
-        if (!f.exists()) {
-            IDToAddress = new HashMap<>();
-        } else {
-            IDToAddress = (HashMap<LR_ID, String>) Generic_StaticIO.readObject(f);
+        /**
+         * If IDToCompanyRegistrationNo has increased in size, write out the
+         * mappings again.
+         */
+        if (nInitialCompanyRegistrationNo < Env.IDToCompanyRegistrationNo.size()) {
+            Env.writeIDToCompanyRegistrationNo();
         }
-    }
-
-    protected void loadAddressToID() {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "AddressToID.dat");
-        if (!f.exists()) {
-            AddressToID = new HashMap<>();
-        } else {
-            AddressToID = (HashMap<String, LR_ID>) Generic_StaticIO.readObject(f);
+        /**
+         * If IDToCountryIncorporated has increased in size, write out the
+         * mappings again.
+         */
+        if (nInitialCountryIncorporated < Env.IDToCountryIncorporated.size()) {
+            Env.writeIDToCountryIncorporated();
+        }
+        /**
+         * If IDToProprietorName has increased in size, write out the mappings
+         * again.
+         */
+        if (nInitialProprietorName < Env.IDToProprietorName.size()) {
+            Env.writeIDToProprietorName();
+        }
+        /**
+         * If IDToTitleNumber has increased in size, write out the mappings
+         * again.
+         */
+        if (nInitialTitleNumber < Env.IDToTitleNumber.size()) {
+            Env.writeIDToTitleNumber();
         }
     }
 

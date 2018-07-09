@@ -16,8 +16,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 
 /**
  *
@@ -42,15 +41,14 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
         ChangeDate = ls[lineLength - 1];
     }
         
-    public LR_CC_COU_Record(HashMap<LR_ID, String> IDToAddress,
-            HashMap<String, LR_ID> AddressToID, String line) {
-        super(IDToAddress, AddressToID, line);
+    public LR_CC_COU_Record(LR_Environment env, String line) {
+        super(env, line);
         init(line);
     }
 
     @Override
     public String toString() {
-        return super.toString() + "ChangeIndicator " + getChangeIndicator()
+        return super.toString() + ",ChangeIndicator " + getChangeIndicator()
                 + ",ChangeDate " + getChangeDate();
     }
 
@@ -61,7 +59,7 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
     }
 
     public static String header() {
-        return LR_CC_FULL_Record.header() + "ChangeIndicator,ChangeDate";
+        return LR_CC_FULL_Record.header() + ",ChangeIndicator,ChangeDate";
     }
 
     /**

@@ -16,15 +16,19 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 
 /**
  *
- * @author geoagdt
+ * @author Andy Turner
  */
 public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable {
 
+    protected LR_ID CountryIncorporated1ID;
+    protected LR_ID CountryIncorporated2ID;
+    protected LR_ID CountryIncorporated3ID;
+    protected LR_ID CountryIncorporated4ID;
     private String CountryIncorporated1;
     private String CountryIncorporated2;
     private String CountryIncorporated3;
@@ -36,56 +40,114 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public LR_OC_FULL_Record(String line) {
         String[] ls;
         ls = line.split("\",\"");
-        TitleNumber = ls[0].substring(1);
-        Tenure = ls[1];
-        PropertyAddress = ls[2];
-        District = ls[3];
-        County = ls[4];
-        Region = ls[5];
-        Postcode = ls[6];
-        MultipleAddressIndicator = ls[7];
-        PricePaid = ls[8];
-        ProprietorName1 = ls[9];
-        CompanyRegistrationNo1 = ls[10];
-        ProprietorshipCategory1 = ls[11];
-        CountryIncorporated1 = ls[12];
-        Proprietor1Address1 = ls[13];
-        Proprietor1Address2 = ls[14];
-        Proprietor1Address3 = ls[15];
-        ProprietorName2 = ls[16];
-        CompanyRegistrationNo2 = ls[17];
-        ProprietorshipCategory2 = ls[18];
-        CountryIncorporated2 = ls[19];
-        Proprietor2Address1 = ls[20];
-        Proprietor2Address2 = ls[21];
-        Proprietor2Address3 = ls[22];
-        ProprietorName3 = ls[23];
-        CompanyRegistrationNo3 = ls[24];
-        ProprietorshipCategory3 = ls[25];
-        CountryIncorporated3 = ls[26];
-        Proprietor3Address1 = ls[27];
-        Proprietor3Address2 = ls[28];
-        Proprietor3Address3 = ls[29];
-        ProprietorName4 = ls[30];
-        CompanyRegistrationNo4 = ls[31];
-        ProprietorshipCategory4 = ls[32];
-        CountryIncorporated4 = ls[33];
-        Proprietor4Address1 = ls[34];
-        Proprietor4Address2 = ls[35];
-        Proprietor4Address3 = ls[36];
-        DateProprietorAdded = ls[37];
-        AdditionalProprietorIndicator = ls[38];        
+        setTitleNumber(ls[0].substring(1));
+        setTenure(ls[1]);
+        setPropertyAddress(ls[2]);
+        setDistrict(ls[3]);
+        setCounty(ls[4]);
+        setRegion(ls[5]);
+        setPostcode(ls[6]);
+        setMultipleAddressIndicator(ls[7]);
+        setPricePaid(ls[8]);
+        setProprietorName1(ls[9]);
+        setCompanyRegistrationNo1(ls[10]);
+        setProprietorshipCategory1(ls[11]);
+        setCountryIncorporated1(ls[12]);
+        setProprietor1Address1(ls[13]);
+        setProprietor1Address2(ls[14]);
+        setProprietor1Address3(ls[15]);
+        setProprietorName2(ls[16]);
+        setCompanyRegistrationNo2(ls[17]);
+        setProprietorshipCategory2(ls[18]);
+        setCountryIncorporated2(ls[19]);
+        setProprietor2Address1(ls[20]);
+        setProprietor2Address2(ls[21]);
+        setProprietor2Address3(ls[22]);
+        setProprietorName3(ls[23]);
+        setCompanyRegistrationNo3(ls[24]);
+        setProprietorshipCategory3(ls[25]);
+        setCountryIncorporated3(ls[26]);
+        setProprietor3Address1(ls[27]);
+        setProprietor3Address2(ls[28]);
+        setProprietor3Address3(ls[29]);
+        setProprietorName4(ls[30]);
+        setCompanyRegistrationNo4(ls[31]);
+        setProprietorshipCategory4(ls[32]);
+        setCountryIncorporated4(ls[33]);
+        setProprietor4Address1(ls[34]);
+        setProprietor4Address2(ls[35]);
+        setProprietor4Address3(ls[36]);
+        setDateProprietorAdded(ls[37]);
+        setAdditionalProprietorIndicator(ls[38]);
+    }
+
+    public LR_OC_FULL_Record(LR_Environment env, String line) {
+        this(line);
+        Env = env;
+        updateIDs();
+        String s;
+        s = getCountryIncorporated1();
+        updateCountryIncorporatedLookups(1, s);
+        s = getCountryIncorporated2();
+        updateCountryIncorporatedLookups(2, s);
+        s = getCountryIncorporated3();
+        updateCountryIncorporatedLookups(3, s);
+        s = getCountryIncorporated4();
+        updateCountryIncorporatedLookups(4, s);
     }
     
-    public LR_OC_FULL_Record(HashMap<LR_ID, String> IDToAddress,
-            HashMap<String, LR_ID> AddressToID, String line) {
-        this(line);
-        if (AddressToID.containsKey(PropertyAddress)) {
-            this.ID = AddressToID.get(PropertyAddress);
+    public LR_OC_FULL_Record(LR_OC_FULL_Record r) {
+        super(r);
+        setCountryIncorporated1(r.getCountryIncorporated1());
+        setCountryIncorporated2(r.getCountryIncorporated2());
+        setCountryIncorporated3(r.getCountryIncorporated3());
+        setCountryIncorporated4(r.getCountryIncorporated4());
+    }
+
+    /**
+     *
+     * @param i Either 1, 2, 3, or 4.
+     * @param s A potentially new ProprietorName.
+     */
+    public final void updateCountryIncorporatedLookups(int i, String s) {
+        if (Env.CountryIncorporatedToID.containsKey(s)) {
+            switch (i) {
+                case 1:
+                    CountryIncorporated1ID = Env.CountryIncorporatedToID.get(s);
+                    break;
+                case 2:
+                    CountryIncorporated2ID = Env.CountryIncorporatedToID.get(s);
+                    break;
+                case 3:
+                    CountryIncorporated3ID = Env.CountryIncorporatedToID.get(s);
+                    break;
+                default:
+                    CountryIncorporated4ID = Env.CountryIncorporatedToID.get(s);
+                    break;
+            }
         } else {
-            this.ID = new LR_ID(AddressToID.size());
-            AddressToID.put(PropertyAddress, ID);
-            IDToAddress.put(ID, PropertyAddress);
+            switch (i) {
+                case 1:
+                    CountryIncorporated1ID = new LR_ID(Env.CountryIncorporatedToID.size());
+                    Env.CountryIncorporatedToID.put(s, CountryIncorporated1ID);
+                    Env.IDToCountryIncorporated.put(CountryIncorporated1ID, s);
+                    break;
+                case 2:
+                    CountryIncorporated2ID = new LR_ID(Env.CountryIncorporatedToID.size());
+                    Env.CountryIncorporatedToID.put(s, CountryIncorporated2ID);
+                    Env.IDToCountryIncorporated.put(CountryIncorporated2ID, s);
+                    break;
+                case 3:
+                    CountryIncorporated3ID = new LR_ID(Env.CountryIncorporatedToID.size());
+                    Env.CountryIncorporatedToID.put(s, CountryIncorporated3ID);
+                    Env.IDToCountryIncorporated.put(CountryIncorporated3ID, s);
+                    break;
+                default:
+                    CountryIncorporated4ID = new LR_ID(Env.CountryIncorporatedToID.size());
+                    Env.CountryIncorporatedToID.put(s, CountryIncorporated4ID);
+                    Env.IDToCountryIncorporated.put(CountryIncorporated4ID, s);
+                    break;
+            }
         }
     }
 
@@ -214,28 +276,64 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      * @return the CountryIncorporated1
      */
     @Override
-    public String getCountryIncorporated1() {
+    public final String getCountryIncorporated1() {
         return CountryIncorporated1;
     }
 
     /**
      * @return the CountryIncorporated2
      */
-    public String getCountryIncorporated2() {
+    public final String getCountryIncorporated2() {
         return CountryIncorporated2;
     }
 
     /**
      * @return the CountryIncorporated3
      */
-    public String getCountryIncorporated3() {
+    public final String getCountryIncorporated3() {
         return CountryIncorporated3;
     }
 
     /**
      * @return the CountryIncorporated4
      */
-    public String getCountryIncorporated4() {
+    public final String getCountryIncorporated4() {
         return CountryIncorporated4;
     }
+
+    /**
+     * @param CountryIncorporated1 the CountryIncorporated1 to set
+     */
+    public final void setCountryIncorporated1(String CountryIncorporated1) {
+        this.CountryIncorporated1 = CountryIncorporated1;
+    }
+
+    /**
+     * @param CountryIncorporated2 the CountryIncorporated2 to set
+     */
+    public final void setCountryIncorporated2(String CountryIncorporated2) {
+        this.CountryIncorporated2 = CountryIncorporated2;
+    }
+
+    /**
+     * @param CountryIncorporated3 the CountryIncorporated3 to set
+     */
+    public final void setCountryIncorporated3(String CountryIncorporated3) {
+        this.CountryIncorporated3 = CountryIncorporated3;
+    }
+
+    /**
+     * @param CountryIncorporated4 the CountryIncorporated4 to set
+     */
+    public final void setCountryIncorporated4(String CountryIncorporated4) {
+        this.CountryIncorporated4 = CountryIncorporated4;
+    }
+
+    /**
+     * @return the CountryIncorporated1ID
+     */
+    public final LR_ID getCountryIncorporated1ID() {
+        return CountryIncorporated1ID;
+    }
+
 }
