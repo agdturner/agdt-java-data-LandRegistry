@@ -17,6 +17,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
 
 /**
@@ -25,6 +26,7 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
  */
 public abstract class LR_Record extends LR_Object {
 
+    protected LR_ID2 ID; 
     protected LR_ID TitleNumberID;
     protected LR_ID PropertyAddressID;
     protected LR_ID ProprietorName1ID;
@@ -76,6 +78,7 @@ public abstract class LR_Record extends LR_Object {
 
     public LR_Record(LR_Record r) {
         Env = r.Env;
+        ID = r.ID;
         setTitleNumber(r.getTitleNumber());
         setTenure(r.getTenure());
         setPropertyAddress(r.getPropertyAddress());
@@ -115,6 +118,13 @@ public abstract class LR_Record extends LR_Object {
     
 
     public abstract String toCSV();
+
+    /**
+     * @return the ID
+     */
+    public final LR_ID2 getID() {
+        return ID;
+    }
 
     /**
      * @return the TitleNumberID
@@ -498,6 +508,11 @@ public abstract class LR_Record extends LR_Object {
      * @param CompanyRegistrationNo1 the CompanyRegistrationNo1 to set
      */
     public final void setCompanyRegistrationNo1(String CompanyRegistrationNo1) {
+        if (CompanyRegistrationNo1.startsWith("0")) {
+            do {
+                CompanyRegistrationNo1 = CompanyRegistrationNo1.substring(1);
+            } while (CompanyRegistrationNo1.startsWith("0"));
+        }
         this.CompanyRegistrationNo1 = CompanyRegistrationNo1;
     }
 

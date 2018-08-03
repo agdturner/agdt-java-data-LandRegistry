@@ -18,6 +18,7 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 import java.io.Serializable;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 
 /**
  *
@@ -87,6 +88,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             PropertyAddressID = new LR_ID(Env.PropertyAddressToID.size());
             Env.PropertyAddressToID.put(s, PropertyAddressID);
             Env.IDToPropertyAddress.put(PropertyAddressID, s);
+            Env.updatedPropertyAddressLookups = true;
         }
         s = getTitleNumber();
         if (Env.TitleNumberToID.containsKey(s)) {
@@ -95,7 +97,9 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             TitleNumberID = new LR_ID(Env.TitleNumberToID.size());
             Env.TitleNumberToID.put(s, TitleNumberID);
             Env.IDToTitleNumber.put(TitleNumberID, s);
+            Env.updatedTitleNumberLookups = true;
         }
+        ID = new LR_ID2(TitleNumberID, PropertyAddressID);
         // ProprietorName
         s = getProprietorName1();
         updateProprietorNameLookups(1, s);
@@ -159,6 +163,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
                     Env.IDToProprietorName.put(ProprietorName4ID, s);
                     break;
             }
+            Env.updatedProprietorNameLookups = true;
         }
     }
 
@@ -205,6 +210,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
                     Env.IDToCountryIncorporated.put(CompanyRegistrationNo4ID, s);
                     break;
             }
+            Env.updatedCompanyRegistrationNoLookups = true;
         }
     }
 

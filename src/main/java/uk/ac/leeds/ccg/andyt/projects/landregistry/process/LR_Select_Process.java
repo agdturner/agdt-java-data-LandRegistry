@@ -15,16 +15,22 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.StreamTokenizer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_FULL_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_FULL_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
 
 /**
@@ -34,18 +40,20 @@ public class LR_Select_Process extends LR_Main_Process {
 
     boolean overwrite;
 
-    public LR_Select_Process() {
-        super();
+    protected LR_Select_Process() {
+    }
+
+    public LR_Select_Process(LR_Environment env) {
+        super(env);
     }
 
     /**
      * @param area
-     * @param doFull If doFull the run generalises the FULL data otherwise this
-     * generalises the Change Only Update (COU) data.
+     * @param doFull If doFull the run selects from the FULL data otherwise it
+     * selects from the Change Only Update (COU) data.
      * @param overwrite
      */
-    public void run(String area, boolean doFull,
-            boolean overwrite) {
+    public void run(String area, boolean doFull, boolean overwrite) {
         this.overwrite = overwrite;
         File inputDataDir;
         inputDataDir = Files.getInputDataDir(Strings);
@@ -54,36 +62,20 @@ public class LR_Select_Process extends LR_Main_Process {
 
         ArrayList<String> names0;
         //ArrayList<String> names1;
-        ArrayList<String> names2;
+        ArrayList<String> setNames;
         String name;
         String name0;
         String name00;
         names0 = new ArrayList<>();
-        //names1 = new ArrayList<>();
-        names2 = new ArrayList<>();
         names0.add("CCOD");
         names0.add("OCOD");
         boolean isCCOD;
-        //names1.add("COU");
-        //names1.add("FULL");
-        if (doFull) {
-            names2.add("2017_11");
-            names2.add("2018_02");
-        } else {
-            names2.add("2017_11");
-            names2.add("2017_12");
-            names2.add("2018_01");
-            names2.add("2018_02");
-            names2.add("2018_03");
-            names2.add("2018_04");
-            names2.add("2018_05");
-            names2.add("2018_06");
-        }
+        setNames = getSetNames(doFull);
 
         File indir;
         File outdir;
-        File f;
-        ArrayList<String> lines;
+        File fin;
+        File fout;
         PrintWriter pw = null;
 
         Iterator<String> ite0;
@@ -98,7 +90,7 @@ public class LR_Select_Process extends LR_Main_Process {
             } else {
                 name00 += name0 + "_COU_";
             }
-            ite2 = names2.iterator();
+            ite2 = setNames.iterator();
             while (ite2.hasNext()) {
                 name = name00;
                 name += ite2.next();
@@ -109,53 +101,86 @@ public class LR_Select_Process extends LR_Main_Process {
                 outdir = new File(outdir, name0);
                 outdir = new File(outdir, name);
                 System.out.println("outdir " + outdir);
-                f = new File(indir, name + ".csv");
-                if (!f.exists()) {
-                    System.out.println("Input file " + f + " does not exist.");
+                fin = new File(indir, name + ".csv");
+                if (!fin.exists()) {
+                    System.out.println("Input file " + fin + " does not exist.");
                 } else {
-                    lines = Generic_ReadCSV.read(f, null, 7);
                     outdir.mkdirs();
-                    f = new File(outdir, name + ".csv");
-                    if (!f.exists() || overwrite) {
+                    fout = new File(outdir, name + ".csv");
+                    if (!fout.exists() || overwrite) {
+                        BufferedReader br;
+                        StreamTokenizer st;
+                        br = Generic_StaticIO.getBufferedReader(fin);
+                        st = new StreamTokenizer(br);
+                        Generic_StaticIO.setStreamTokenizerSyntax7(st);
                         try {
-                            pw = new PrintWriter(f);
+                            pw = new PrintWriter(fout);
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(LR_Select_Process.class.getName()).log(Level.SEVERE, null, ex);
                         }
-
                         if (isCCOD) {
-                            pw.println(LR_CC_COU_Record.header());
+                            if (doFull) {
+                                pw.println(LR_CC_FULL_Record.header());
+                            } else {
+                                pw.println(LR_CC_COU_Record.header());
+                            }
                         } else {
-                            pw.println(LR_OC_COU_Record.header());
+                            if (doFull) {
+                                pw.println(LR_OC_FULL_Record.header());
+                            } else {
+                                pw.println(LR_OC_COU_Record.header());
+                            }
                         }
-
-                        //LR_FULL_Record r;
+                        boolean read;
+                        read = false;
+                        String line;
                         LR_Record r;
-                        for (int ID = 1; ID < lines.size(); ID++) {
-                            //r = new LR_FULL_Record(ID, lines.get((int) ID));
-                            try {
-                                if (isCCOD) {
-                                    r = new LR_CC_COU_Record(lines.get(ID));
-                                } else {
-                                    r = new LR_OC_COU_Record(lines.get(ID));
+                        // read header
+                        Generic_ReadCSV.readLine(st, null);
+                        int ID;
+                        ID = 1;
+                        while (!read) {
+                            line = Generic_ReadCSV.readLine(st, null);
+                            if (line == null) {
+                                read = true;
+                            } else {
+                                try {
+                                    if (isCCOD) {
+                                        if (doFull) {
+                                             r = new LR_CC_FULL_Record(Env, line);
+                                        }else {
+                                            r = new LR_CC_COU_Record(Env, line);
+                                        }
+                                    } else {
+                                        if (doFull) {
+                                            r = new LR_OC_FULL_Record(Env, line);
+                                        } else {
+                                            r = new LR_OC_COU_Record(Env, line);
+                                        }
+                                    }
+                                    if (r.getDistrict().equalsIgnoreCase(area)) {
+                                        //System.out.println(r.toCSV());
+                                        pw.println(r.toCSV());
+                                    }
+                                } catch (ArrayIndexOutOfBoundsException e) {
+                                    //e.printStackTrace(System.err);
+                                    System.out.println("Line " + ID + " is not a nomal line:" + line);
                                 }
-                                if (r.getDistrict().equalsIgnoreCase(area)) {
-                                    //System.out.println(r.toCSV());
-                                    pw.println(r.toCSV());
-                                }
-                            } catch (ArrayIndexOutOfBoundsException e) {
-                                e.printStackTrace(System.err);
-                                System.out.println("" + ID + " lines.size() " + lines.size());
-                                System.out.println("line " + lines.get((int) ID));
                             }
                         }
                         pw.close();
                     } else {
-                        System.out.println("Output file " + f + " already exists and is not being overwritten.");
+                        System.out.println("Output file " + fout + " already exists and is not being overwritten.");
                     }
                 }
             }
         }
+        Env.writeIDToCompanyRegistrationNo();
+        Env.writeIDToCountryIncorporated();
+        Env.writeIDToPropertyAddress();
+        Env.writeIDToProprietorName();
+        Env.writeIDToTitleNumber();
+        System.out.println("Written out lookups if necessary.");
     }
 
 }

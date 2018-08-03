@@ -16,6 +16,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
 import java.io.File;
+import java.util.ArrayList;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
@@ -85,8 +86,8 @@ public class LR_Main_Process extends LR_Object {
         // Main switches
 //        doSelectLeeds = true;
 //        doGeneralise = true;
-        doGeneraliseLeeds = true;
-        doGeneraliseAll = true;
+//        doGeneraliseLeeds = true;
+//        doGeneraliseAll = true;
         doTransitions = true;
         doTransitionsLeeds = true;
 
@@ -101,14 +102,17 @@ public class LR_Main_Process extends LR_Object {
 
         if (doSelectLeeds) {
             // Select Leeds
+            doFull = true;
+//            doFull = false;
             LR_Select_Process sp;
-            sp = new LR_Select_Process();
+            sp = new LR_Select_Process(Env);
             sp.Files.setDataDirectory(Files.getDataDir());
             boolean overwrite;
 //            overwrite = true;
             overwrite = false;
-//            doFull = true;
-//            sp.run(IDToPropertyAddress, PropertyAddressPropertyToID, area, doFull, overwrite);
+            if (doFull) {
+                sp.run(area, doFull, overwrite);
+            }
             doFull = false;
             sp.run(area, doFull, overwrite);
         }
@@ -139,33 +143,44 @@ public class LR_Main_Process extends LR_Object {
             overwrite = true;
 //            overwrite = false;
             if (doGeneraliseLeeds) {
+
+                // Options
+                doFull = true;
+//                doFull = false;
+
                 doAll = false;
                 doCCOD = true;
                 doOCOD = true;
                 inputDataDir = Files.getOutputDataDir(Strings);
                 LR_Generalise_Process gp;
-                gp = new LR_Generalise_Process();
+                gp = new LR_Generalise_Process(Env);
                 gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 minCC = 5;
                 minOC = 1;
-//                doFull = true;
-//                gp.run(IDToPropertyAddress, PropertyAddressPropertyToID, area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+                if (doFull) {
+                    gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+                }
                 doFull = false;
                 gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
             }
             if (doGeneraliseAll) {
-                // Generalise All
+
+                // Options
+                doFull = true;
+//                doFull = false;
+
                 doAll = true;
                 doCCOD = true;
                 doOCOD = true;
                 inputDataDir = Files.getInputDataDir(Strings);
                 LR_Generalise_Process gp;
-                gp = new LR_Generalise_Process();
+                gp = new LR_Generalise_Process(Env);
                 gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 minCC = 10;
                 minOC = 5;
-                doFull = true;
-                gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+                if (doFull) {
+                    gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+                }
                 doFull = false;
                 gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
             }
@@ -221,6 +236,28 @@ public class LR_Main_Process extends LR_Object {
         if (nInitialTitleNumber < Env.IDToTitleNumber.size()) {
             Env.writeIDToTitleNumber();
         }
+    }
+
+    protected ArrayList<String> getSetNames(boolean doFull) {
+        ArrayList<String> names2;
+        names2 = new ArrayList<>();
+        if (doFull) {
+            names2.add("2017_11");
+            names2.add("2018_02");
+            names2.add("2018_07");
+        } else {
+            names2.add("2017_11");
+            names2.add("2017_12");
+            names2.add("2018_01");
+            names2.add("2018_02");
+            names2.add("2018_03");
+            names2.add("2018_04");
+            names2.add("2018_05");
+            names2.add("2018_06");
+            names2.add("2018_07");
+            names2.add("2018_08");
+        }
+        return names2;
     }
 
 }

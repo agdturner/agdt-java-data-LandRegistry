@@ -21,7 +21,7 @@ import java.io.Serializable;
  *
  * @author Andy Turner
  */
-public class LR_ID implements Serializable {
+public class LR_ID implements Serializable, Comparable {
     
     private final int ID;
     
@@ -52,6 +52,20 @@ public class LR_ID implements Serializable {
         int hash = 3;
         hash = 59 * hash + this.ID;
         return hash;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof LR_ID) {
+            LR_ID o2;
+            o2 = (LR_ID) o;
+            if (this.ID > o2.ID ) {
+                return 1;
+            } else if (this.ID == o2.ID) {
+                return 0;
+            }
+        }
+        return -1;
     }
     
     

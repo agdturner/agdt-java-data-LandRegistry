@@ -26,7 +26,9 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
@@ -39,8 +41,12 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
  */
 public class LR_Generalise_Process extends LR_Main_Process {
 
-    public LR_Generalise_Process() {
+    protected LR_Generalise_Process() {
         super();
+    }
+
+    public LR_Generalise_Process(LR_Environment env) {
+        super(env);
     }
 
     TreeMap<String, Integer> tenureCounts;
@@ -76,38 +82,27 @@ public class LR_Generalise_Process extends LR_Main_Process {
         outputDataDir = Files.getOutputDataDir(Strings);
         ArrayList<String> names0;
         //ArrayList<String> names1;
-        ArrayList<String> names2;
+        ArrayList<String> setNames;
         String name;
         String name0;
         String name00;
         names0 = new ArrayList<>();
-        //names1 = new ArrayList<>();
-        names2 = new ArrayList<>();
         if (doCCOD) {
             names0.add("CCOD");
         }
         if (doOCOD) {
             names0.add("OCOD");
         }
-        //names1.add("COU");
-        //names1.add("FULL");
         boolean isCCOD;
-        if (doFull) {
-            names2.add("2017_11");
-            names2.add("2018_02");
-        } else {
-            names2.add("2017_11");
-            names2.add("2017_12");
-            names2.add("2018_01");
-            names2.add("2018_02");
-            names2.add("2018_03");
-            names2.add("2018_04");
-            names2.add("2018_05");
-            names2.add("2018_06");
-        }
+        setNames = getSetNames(doFull);
+
+        // Initialise transparencyMap
+        loadTransparencyMap();
+
         File indir;
         File outdir;
-        File f;
+        File fin;
+        File fout;
         ArrayList<String> lines;
         PrintWriter pw = null;
 
@@ -123,7 +118,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
             } else {
                 name00 += name0 + "_COU_";
             }
-            ite2 = names2.iterator();
+            ite2 = setNames.iterator();
             while (ite2.hasNext()) {
                 name = name00;
                 name += ite2.next();
@@ -133,27 +128,31 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     if (doAll) {
                         outdir = new File(outputDataDir, "GeneralisedFull");
                     } else {
+                        indir = new File(outputDataDir, area);
+                        indir = new File(indir, name0);
+                        indir = new File(indir, name);
                         outdir = new File(outputDataDir, area + "GeneralisedFull");
                     }
                 } else {
                     indir = new File(outputDataDir, area);
                     indir = new File(indir, name0);
+                    indir = new File(indir, name);
                     outdir = new File(outputDataDir, area + "_Generalised");
                 }
                 System.out.println("indir " + indir);
                 outdir = new File(outdir, name0);
                 outdir = new File(outdir, name);
                 System.out.println("outdir " + outdir);
-                f = new File(indir, name + ".csv");
-                if (!f.exists()) {
-                    System.out.println("File " + f + " does not exist.");
+                fin = new File(indir, name + ".csv");
+                if (!fin.exists()) {
+                    System.out.println("File " + fin + " does not exist.");
                 } else {
-                    lines = Generic_ReadCSV.read(f, null, 7);
                     outdir.mkdirs();
-                    f = new File(outdir, name + "Generalised.csv");
-                    if (!overwrite || !f.exists()) {
+                    fout = new File(outdir, name + "Generalised.csv");
+                    if (!overwrite || !fout.exists()) {
+                        lines = Generic_ReadCSV.read(fin, null, 7);
                         try {
-                            pw = new PrintWriter(f);
+                            pw = new PrintWriter(fout);
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(LR_Generalise_Process.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -192,13 +191,15 @@ public class LR_Generalise_Process extends LR_Main_Process {
                         }
                         pw.close();
                     } else {
-                        System.out.println("Output file " + f + " already exists and is not being overwritten.");
+                        System.out.println("Output file " + fout + " already exists and is not being overwritten.");
                     }
                 }
             }
         }
 
         // Write out summaries.
+        System.out.println(" Write out summaries");
+
     }
 
     void addToCounts(LR_Record r) {
@@ -214,30 +215,40 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //        id = null;
 //        Generic_Collections.addToMap(proprietorName1Counts, id, 1);
         Generic_Collections.addToMap(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
+//        Generic_Collections.addToTreeMapStringInteger(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
         Generic_Collections.addToTreeMapStringInteger(countryIncorporated1Counts, r.getCountryIncorporated1(), 1);
     }
 
     void printGeneralisation(PrintWriter pw, int min) {
-        printGeneralisation(pw, "Tenure", tenureCounts, min);
+        printGeneralisation(pw, "Tenure", tenureCounts, null, min);
 //        printGeneralisation(pw, "District", districtCounts);
 //        printGeneralisation(pw, "County", countyCounts);
 //        printGeneralisation(pw, "Postcode", postcodeCounts);
-        printGeneralisation(pw, "Company Registration No 1", companyRegistrationNo1Counts, min);
-        printGeneralisation(pw, "Proprietorship Category 1", proprietorshipCategory1Counts, min);
-        printGeneralisation(pw, "Proprietor Name 1", proprietorName1IDCounts, min);
+        printGeneralisation(pw, "Company Registration No 1", companyRegistrationNo1Counts, null, min);
+        printGeneralisation(pw, "Proprietorship Category 1", proprietorshipCategory1Counts, null, min);
+        printGeneralisation(pw, "Proprietor Name 1", proprietorName1IDCounts, Env.IDToProprietorName, min);
         printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min, transparencyMap);
-        printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min);
+        //printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, null, min);
     }
 
 //    void printGeneralisation(PrintWriter pw, String type,
 //            TreeMap<String, Integer> counts, int min) {
+    /**
+     *
+     * @param <K>
+     * @param pw
+     * @param type
+     * @param counts
+     * @param lookup
+     * @param min
+     */
     <K> void printGeneralisation(PrintWriter pw, String type,
-            Map<K, Integer> counts, int min) {
+            Map<K, Integer> counts, Map<K, String> lookup, int min) {
         Map<K, Integer> sortedCounts;
         sortedCounts = Generic_Collections.sortByValue(counts);
         pw.println(type);
         K k;
-        int count;
+        Integer count;
         int smallCount = 0;
         boolean reportedSmallCount = false;
         Iterator<K> ite;
@@ -245,13 +256,29 @@ public class LR_Generalise_Process extends LR_Main_Process {
         ite = sortedCounts.keySet().iterator();
         while (ite.hasNext()) {
             k = ite.next();
+//            //Debug code
+//            if (counts == null) {
+//                int debug = 1;
+//            }
+//            if (k == null) {
+//                int debug = 1;
+//            }
             count = counts.get(k);
+            if (count == null) {
+                count = 0;
+            }
             if (count >= min) {
                 if (!reportedSmallCount) {
                     pw.println("Those with less than " + min + "," + smallCount);
                     reportedSmallCount = true;
                 }
-                pw.println("\"" + k + "\"," + count);
+                if (lookup == null) {
+                    pw.println("\"" + k + "\"," + count);
+                } else {
+                    String v;
+                    v = lookup.get(k);
+                    pw.println("\"" + v + "\"," + count);
+                }
             } else {
                 smallCount += count;
             }
@@ -260,7 +287,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
     }
 
     void printGeneralisation(PrintWriter pw, String type,
-            TreeMap<String, Integer> counts, int min, HashMap<String, Integer> transparencyMap) {
+            TreeMap<String, Integer> counts, int min, 
+            HashMap<String, Integer> transparencyMap) {
         Map<String, Integer> sortedCounts;
         sortedCounts = Generic_Collections.sortByValue(counts);
         pw.println(type);
@@ -280,6 +308,14 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     pw.println("Those with less than " + min + "," + smallCount);
                     reportedSmallCount = true;
                 }
+
+                if (var == null) {
+                    int debug = 1;
+                }
+                if (transparencyMap == null) {
+                    int debug = 1;
+                }
+
                 CPIScore2017 = transparencyMap.get(var);
                 if (CPIScore2017 != null) {
                     pw.println("\"" + var + "\"," + count + "," + CPIScore2017);
@@ -291,5 +327,35 @@ public class LR_Generalise_Process extends LR_Main_Process {
             }
         }
         pw.println();
+    }
+
+    // load transparencyMap
+    protected void loadTransparencyMap() {
+        transparencyMap = new HashMap<>();
+        File f;
+        f = Files.getTIDataFile(Strings);
+        ArrayList<String> lines;
+        lines = Generic_ReadCSV.read(f, null, 7);
+        Iterator<String> ite;
+        ite = lines.iterator();
+        String l;
+        String[] split;
+        // Skip header
+        l = ite.next();
+        System.out.println(l);
+        String cname;
+        while (ite.hasNext()) {
+            l = ite.next();
+            split = l.split("\"");
+            if (split.length == 1) {
+                split = split[0].split(",");
+                cname = split[0];
+            } else {
+                cname = split[1];
+                split = split[2].split(",");
+            }
+            transparencyMap.put(Generic_StaticString.getUpperCase(cname), 
+                    Integer.valueOf(split[2]));
+        }
     }
 }

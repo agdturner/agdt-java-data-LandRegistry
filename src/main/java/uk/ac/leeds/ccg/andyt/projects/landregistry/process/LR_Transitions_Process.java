@@ -31,6 +31,7 @@ import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_FULL_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
@@ -53,21 +54,21 @@ public class LR_Transitions_Process extends LR_Main_Process {
         super(env);
     }
 
-    HashMap<LR_ID, Integer> addedCCRCount;
-    HashMap<LR_ID, Integer> deletedCCRCount;
-    HashMap<LR_ID, Integer> addedOCRCount;
-    HashMap<LR_ID, Integer> deletedOCRCount;
-//    HashMap<String, HashMap<LR_ID, ArrayList<LR_CC_COU_Record>>> addedCCR;
-//    HashMap<String, HashMap<LR_ID, ArrayList<LR_CC_COU_Record>>> deletedCCR;
-//    HashMap<String, HashMap<LR_ID, ArrayList<LR_OC_COU_Record>>> addedOCR;
-//    HashMap<String, HashMap<LR_ID, ArrayList<LR_OC_COU_Record>>> deletedOCR;
-    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> addedCCR;
-    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> deletedCCR;
-    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> addedOCR;
-    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> deletedOCR;
+    HashMap<LR_ID2, Integer> addedCCRCount;
+    HashMap<LR_ID2, Integer> deletedCCRCount;
+    HashMap<LR_ID2, Integer> addedOCRCount;
+    HashMap<LR_ID2, Integer> deletedOCRCount;
+    HashMap<String, HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>>> addedCCR;
+    HashMap<String, HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>>> deletedCCR;
+    HashMap<String, HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>>> addedOCR;
+    HashMap<String, HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>>> deletedOCR;
+//    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> addedCCR;
+//    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> deletedCCR;
+//    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> addedOCR;
+//    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> deletedOCR;
 
-    HashMap<LR_ID, LR_CC_FULL_Record> fullCCR;
-    HashMap<LR_ID, LR_OC_FULL_Record> fullOCR;
+    HashMap<LR_ID2, LR_CC_FULL_Record> fullCCR;
+    HashMap<LR_ID2, LR_OC_FULL_Record> fullOCR;
 
     public void run(String area, File inputDataDir,
             int minCC, int minOC) {
@@ -110,29 +111,24 @@ public class LR_Transitions_Process extends LR_Main_Process {
         deletedCCR = new HashMap<>();
         addedOCR = new HashMap<>();
         deletedOCR = new HashMap<>();
-//        HashMap<LR_ID, ArrayList<LR_CC_COU_Record>> addedCCRTime = null;
-//        HashMap<LR_ID, ArrayList<LR_CC_COU_Record>> deletedCCRTime = null;
-//        HashMap<LR_ID, ArrayList<LR_OC_COU_Record>> addedOCRTime = null;
-//        HashMap<LR_ID, ArrayList<LR_OC_COU_Record>> deletedOCRTime = null;
-        /**
-         * Keys are PropertyAddressIDs, Values are a list of LR_Records.
-         */
-        HashMap<LR_ID, ArrayList<LR_Record>> addedCCRTime = null;
-        HashMap<LR_ID, ArrayList<LR_Record>> deletedCCRTime = null;
-        HashMap<LR_ID, ArrayList<LR_Record>> addedOCRTime = null;
-        HashMap<LR_ID, ArrayList<LR_Record>> deletedOCRTime = null;
+
+        HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>> addedCCRTime = null;
+        HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>> deletedCCRTime = null;
+        HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>> addedOCRTime = null;
+        HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>> deletedOCRTime = null;
 
         File indir;
         File outdir;
-        File f;
+        File fin;
+        File fout;
         ArrayList<String> lines;
         PrintWriter pw = null;
         outdir = new File(outputDataDir, area + "Transitions");
         System.out.println("outdir " + outdir);
         outdir.mkdirs();
-        f = new File(outdir, "TransitionsGeneralisation.csv");
+        fout = new File(outdir, "TransitionsGeneralisation.csv");
         try {
-            pw = new PrintWriter(f);
+            pw = new PrintWriter(fout);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -143,7 +139,6 @@ public class LR_Transitions_Process extends LR_Main_Process {
         LR_CC_FULL_Record fullccr;
         LR_OC_FULL_Record fullocr;
 
-        File fin;
         // init fullCCR
         fullCCR = new HashMap<>();
         indir = new File(outputDataDir, area);
@@ -155,7 +150,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         for (int ID = 1; ID < lines.size(); ID++) {
             try {
                 fullccr = new LR_CC_FULL_Record(Env, lines.get(ID));
-                fullCCR.put(fullccr.getPropertyAddressID(), fullccr);
+                fullCCR.put(fullccr.getID(), fullccr);
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             }
@@ -172,18 +167,18 @@ public class LR_Transitions_Process extends LR_Main_Process {
         for (int ID = 1; ID < lines.size(); ID++) {
             try {
                 fullocr = new LR_OC_FULL_Record(Env, lines.get(ID));
-                fullOCR.put(fullocr.getPropertyAddressID(), fullocr);
+                fullOCR.put(fullocr.getID(), fullocr);
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             }
         }
 
         // check if there are OCR in CCR
-        Set<LR_ID> s;
+        Set<LR_ID2> s;
         s = new HashSet<>();
         s.addAll(fullCCR.keySet());
         s.retainAll(fullOCR.keySet());
-        System.out.println("There are " + s.size() + "oversees corporate owners.");
+        System.out.println("There are " + s.size() + " oversees corporate owners.");
 
         Iterator<String> ites0;
         Iterator<String> ites1;
@@ -214,11 +209,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 indir = new File(indir, name0);
                 indir = new File(indir, name);
                 System.out.println("indir " + indir);
-                f = new File(indir, name + ".csv");
-                if (!f.exists()) {
-                    System.out.println("File " + f + " does not exist.");
+                fout = new File(indir, name + ".csv");
+                if (!fout.exists()) {
+                    System.out.println("File " + fout + " does not exist.");
                 }
-                lines = Generic_ReadCSV.read(f, null, 7);
+                lines = Generic_ReadCSV.read(fout, null, 7);
                 //LR_Record r;
                 for (int ID = 1; ID < lines.size(); ID++) {
                     try {
@@ -238,9 +233,9 @@ public class LR_Transitions_Process extends LR_Main_Process {
         printGeneralisation(pw, minCC, minOC);
         pw.close();
 
-        f = new File(outdir, "TransitionsMapped.csv");
+        fout = new File(outdir, "TransitionsMapped.csv");
         try {
-            pw = new PrintWriter(f);
+            pw = new PrintWriter(fout);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -248,47 +243,35 @@ public class LR_Transitions_Process extends LR_Main_Process {
         /**
          * mappedTransitions contains the detailed transition for each property.
          */
-        HashMap<LR_ID, ArrayList<ArrayList<LR_Record>>> mappedTransitions;
+        HashMap<LR_ID2, ArrayList<ArrayList<? extends LR_Record>>> mTs;
 
         /**
          * For transitions in mappedTransitions.
          */
-        ArrayList<ArrayList<LR_Record>> transitions = null;
+        ArrayList<ArrayList<? extends LR_Record>> ts = null;
 
         /**
-         * For records in transitions.
+         * List of records in transitions.
          */
-        LR_Record r;
+        ArrayList<LR_OC_COU_Record> lod;
+        ArrayList<LR_OC_COU_Record> loa;
+        ArrayList<LR_CC_COU_Record> lcd;
+        ArrayList<LR_CC_COU_Record> lca;
 
-        /**
-         * List of LR_Record records in transitions.
-         */
-        ArrayList<LR_Record> ld;
-        ArrayList<LR_Record> la;
-
-//        /**
-//         * List of LR_OC_COU_Record records in transitions.
-//         */
-//        ArrayList<LR_OC_COU_Record> lOC;
-//
-//        /**
-//         * List of LR_CC_COU_Record records in transitions.
-//         */
-//        ArrayList<LR_CC_COU_Record> lCC;
         /**
          * transitionTypes gives a type of transition for each property.
          */
-        HashMap<LR_ID, String> transitionTypes;
+        HashMap<LR_ID2, String> tts;
 
         /**
          * For name that describes a property ownership transition.
          */
-        String transitionType;
+        String tt;
 
         /**
          * transitionTypeCounts counts the number of transitions of each type.
          */
-        TreeMap<String, Integer> transitionTypeCounts;
+        TreeMap<String, Integer> ttc;
 
         /**
          * For the transition type count.
@@ -296,19 +279,25 @@ public class LR_Transitions_Process extends LR_Main_Process {
         int transitionTypeCount;
 
         // Initialisation
-        mappedTransitions = new HashMap<>();
-        transitionTypes = new HashMap<>();
-        transitionTypeCounts = new TreeMap<>();
+        mTs = new HashMap<>();
+        tts = new HashMap<>();
+        ttc = new TreeMap<>();
 
         // For messages
         String m;
 
-        Iterator<LR_ID> ite1;
-        Iterator<LR_Record> ite2;
-        Iterator<LR_Record> ite3;
+        Iterator<LR_ID2> ite1;
 
-        LR_ID aID;
-        LR_ID lrID;
+        Iterator<LR_CC_COU_Record> itec1;
+        Iterator<LR_CC_COU_Record> itec2;
+        Iterator<LR_OC_COU_Record> iteo1;
+        Iterator<LR_OC_COU_Record> iteo2;
+
+        LR_ID2 aID;
+        /**
+         * Delimeter
+         */
+        String d = " -> ";
 
         // Go through each time in order
         ites0 = names2.iterator();
@@ -321,246 +310,267 @@ public class LR_Transitions_Process extends LR_Main_Process {
             addedOCRTime = addedOCR.get(time);
             deletedOCRTime = deletedOCR.get(time);
 
-            LR_CC_FULL_Record recc;
+            //LR_CC_FULL_Record recc;
             LR_CC_COU_Record recca;
             LR_CC_COU_Record reccd;
-            LR_OC_FULL_Record reco;
+            //LR_OC_FULL_Record reco;
             LR_OC_COU_Record recoa;
             LR_OC_COU_Record recod;
-            ArrayList<LR_Record> loa0;
-            ArrayList<LR_Record> lod0;
-            ArrayList<LR_Record> lca0;
-            ArrayList<LR_Record> lcd0;
-            String destinationCountry;
-            String originCountry;
+            String destc;
+            String desto;
+            String origc;
+            String origo;
             int nod;
             int noa;
             int ncd;
             int nca;
+            Object[] diff;
             /**
              * Transitions for deletedCCR.
              */
-            LR_CC_FULL_Record cc;
             ite1 = deletedCCRTime.keySet().iterator();
             while (ite1.hasNext()) {
                 aID = ite1.next();
-                ld = deletedCCRTime.get(aID);
-                ncd = checkList(ld, aID, "deleted");
-                // Iterate over each deletion.
-                ite2 = ld.iterator();
-                while (ite2.hasNext()) {
-                    reccd = (LR_CC_COU_Record) ld.get(0);
-                    /**
-                     * Has it also been added?
-                     */
-                    if (addedCCRTime.containsKey(aID)) {
-                        la = addedCCRTime.get(aID);
-                        addedCCRTime.remove(aID);
-                        if (printDiff) {
-                            m = "Deleted CCR is also added, so is really updated.";
-                            System.out.println(m);
-                            if (fullCCR.containsKey(aID)) {
-                                cc = fullCCR.get(aID);
-                                System.out.println("Current:");
-                                System.out.println(cc);
-                            }
-                            System.out.println("Deleted:");
-                            System.out.println(ld.get(0));
-                            System.out.println("Added:");
-                            System.out.println(la.get(0));
-                        }
-                        nca = checkList(la, aID, "added");
-                        if (nca != ncd) {
-                            int debug = 1;
-                        }
-                        if (nca > 1 || ncd > 1) {
-                            int debug = 1;
-                        }
-                        LR_Record lr;
-                        ite3 = la.iterator();
-                        Object[] diff;
-                        while (ite3.hasNext()) {
-                            lr = ite3.next();
-                            lrID = lr.getPropertyAddressID();
-                            recca = (LR_CC_COU_Record) lr;
-                            // Examine difference between fullCCR and cccou 
+                lcd = deletedCCRTime.get(aID);
+                ncd = checkList(lcd, aID, "deleted");
+                /**
+                 * Has it also been added?
+                 */
+                if (addedCCRTime.containsKey(aID)) {
+                    lca = addedCCRTime.get(aID);
+                    printDiff("CCR", printDiff, aID, lcd, lca);
+                    nca = checkList(lca, aID, "added");
+                    if (nca == ncd) {
+                        // Iterate over each deletion.
+                        itec1 = lcd.iterator();
+                        itec2 = lca.iterator();
+                        while (itec1.hasNext()) {
+                            reccd = (LR_CC_COU_Record) itec1.next();
+                            recca = (LR_CC_COU_Record) itec2.next();
                             diff = difference(reccd, recca, printDiff);
                             if ((Boolean) diff[2]) {
                                 /**
                                  * Figure out if the cc change is also foreign
-                                 * ownership change and if so who it changed
-                                 * from and to and if there was a change in
-                                 * country. Record all this in the
-                                 * transitionType.
+                                 * ownership change and record which country it
+                                 * changed from and to.
                                  */
-                                if (fullOCR.containsKey(aID)) {
-                                    if (addedOCRTime.containsKey(lrID)) {
-                                        loa0 = addedOCRTime.get(lrID);
-                                        addedOCRTime.remove(lrID);
-                                        noa = checkList(loa0, lrID, "added"); // Assume list of 1.
-                                        recoa = (LR_OC_COU_Record) loa0.get(0);
-                                        fullOCR.put(lrID, recoa);
-                                        destinationCountry = recoa.getCountryIncorporated1();
-                                        if (deletedOCRTime.containsKey(lrID)) {
-                                            lod0 = deletedOCRTime.get(lrID);
-                                            deletedOCRTime.remove(lrID);
-                                            nod = checkList(lod0, lrID, "deleted"); // Assume list of 1.
-                                            if (noa != nod) {
-                                                int debug = 1;
+                                origc = reccd.getCountryIncorporated1();
+                                destc = recca.getCountryIncorporated1();
+                                if (deletedOCRTime.containsKey(aID)) {
+                                    lod = deletedOCRTime.get(aID);
+                                    nod = checkList(lod, aID, "deleted");
+                                    if (addedOCRTime.containsKey(aID)) {
+                                        loa = addedOCRTime.get(aID);
+                                        noa = checkList(loa, aID, "added");
+                                        if (noa == nod && nca == noa) {
+                                            tt = "";
+                                            iteo1 = lod.iterator();
+                                            iteo2 = loa.iterator();
+                                            while (iteo1.hasNext()) {
+                                                recod = iteo1.next();
+                                                recoa = iteo2.next();
+                                                origo = recod.getCountryIncorporated1();
+                                                desto = recoa.getCountryIncorporated1();
+                                                tt = addTransition(tt, "CU_OU__" + origc + "_" + destc + "__" + origo + "_" + desto, d);
+                                                fullCCR.put(aID, recca);
+                                                fullOCR.put(aID, recoa);
+                                                addToMappedTransitions(aID, mTs, ts, tt, tts, ttc, lod, d);
+                                                if (itec1.hasNext()) {
+                                                    reccd = itec1.next();
+                                                    recca = itec2.next();
+                                                    origc = reccd.getCountryIncorporated1();
+                                                    destc = recca.getCountryIncorporated1();
+                                                }
                                             }
-                                            if (noa > 1 || nod > 1) {
-                                                int debug = 1;
-                                            }
-                                            recod = (LR_OC_COU_Record) lod0.get(0);
-                                            originCountry = recod.getCountryIncorporated1();
-                                            transitionType = "CU_OU_" + originCountry + "_" + destinationCountry;
+                                            deletedOCRTime.remove(aID);
+                                            addedOCRTime.remove(aID);
                                         } else {
-                                            transitionType = "CU_OA_UK_" + destinationCountry;
+                                            int debug = 1;
+                                            tt = "?";
                                         }
                                     } else {
-                                        if (deletedOCRTime.containsKey(lrID)) {
-                                            lod0 = deletedOCRTime.get(lrID);
-                                            deletedOCRTime.remove(lrID);
-                                            checkList(lod0, lrID, "deleted"); // Assume list of 1.
-                                            recod = (LR_OC_COU_Record) lod0.get(0);
-                                            fullOCR.remove(lrID);
-                                            originCountry = recod.getCountryIncorporated1();
-                                            transitionType = "CU_OD_" + originCountry + "United Kingdom";
+                                        if (nod == 1) {
+                                            origo = lod.get(0).getCountryIncorporated1();
+                                            tt = "CU_OD__" + origc + "_" + destc + "__" + origo;
+                                            fullCCR.put(aID, recca);
+                                            fullOCR.remove(aID);
                                         } else {
-                                            reco = fullOCR.get(aID);
-                                            originCountry = reco.getCountryIncorporated1();
-                                            destinationCountry = recca.getCountryIncorporated1();
-                                            if (!destinationCountry.equalsIgnoreCase(reccd.getCountryIncorporated1())) {
-                                                int debug = 1;
-                                            }
-                                            transitionType = "CU_" + originCountry + "_" + destinationCountry;
+                                            int debug = 1;
+                                            tt = "?";
                                         }
                                     }
                                 } else {
-                                    if (addedOCRTime.containsKey(lrID)) {
-                                        loa0 = addedOCRTime.get(lrID);
-                                        addedOCRTime.remove(lrID);
-                                        checkList(loa0, lrID, "added"); // Assume list of 1.
-                                        recoa = (LR_OC_COU_Record) loa0.get(0);
-                                        destinationCountry = recoa.getCountryIncorporated1();
-                                        if (deletedOCRTime.containsKey(lrID)) {
-                                            lod0 = deletedOCRTime.get(lrID);
-                                            deletedOCRTime.remove(lrID);
-                                            checkList(lod0, lrID, "deleted"); // Assume list of 1.
-                                            recod = (LR_OC_COU_Record) lod0.get(0);
-                                            originCountry = recod.getCountryIncorporated1();
-                                            transitionType = "CU_OU_" + originCountry + "_" + destinationCountry;
+                                    if (addedOCRTime.containsKey(aID)) {
+                                        loa = addedOCRTime.get(aID);
+                                        noa = checkList(loa, aID, "added");
+                                        if (noa > 1) {
+                                            int debug = 1;
+                                            tt = "?";
                                         } else {
-                                            transitionType = "CU_OA_United Kingdom_" + destinationCountry;
+                                            addedOCRTime.remove(aID);
+                                            recoa = loa.get(0);
+                                            origo = recoa.getCountryIncorporated1();
+                                            tt = "CU_OA__" + origc + "_" + destc + "__" + origo;
+                                            fullCCR.put(aID, recca);
+                                            fullOCR.put(aID, recoa);
                                         }
                                     } else {
-                                        if (deletedOCRTime.containsKey(lrID)) {
-                                            lod0 = deletedOCRTime.get(lrID);
-                                            deletedOCRTime.remove(lrID);
-                                            checkList(lod0, lrID, "deleted"); // Assume list of 1.
-                                            recod = (LR_OC_COU_Record) lod0.get(0);
-                                            originCountry = recod.getCountryIncorporated1();
-                                            transitionType = "CU_OD_" + originCountry + "_United Kingdom";
-                                        } else {
-                                            destinationCountry = recca.getCountryIncorporated1();
-                                            originCountry = "United Kingdom";
-                                            transitionType = "CU_" + originCountry + "_" + destinationCountry;
-                                            if (!originCountry.equalsIgnoreCase(destinationCountry)) {
-                                                int debug = 1;
-                                            }
-                                        }
+                                        tt = "CU__" + origc + "_" + destc;
+                                        fullCCR.put(aID, recca);
                                     }
                                 }
-                                addToMappedTransitions(aID, mappedTransitions,
-                                        transitions, transitionType,
-                                        transitionTypes, transitionTypeCounts,
-                                        ld);
+                                addToMappedTransitions(aID, mTs, ts, tt, tts, ttc, lcd, d);
                             } else {
                                 // Remove from added (changes not significant).
                                 if (addedCCRTime.containsKey(aID)) {
-                                    addedCCRTime.remove(aID); // This needs more consideration - we could be removing other adds that would make a difference in terms of ownership!
+                                    fullCCR.put(aID, recca);
+                                    addedCCRTime.remove(aID);
                                 } else {
                                     int debug = 1;
                                 }
                             }
-//                        } else {
-//                            System.out.println("Wierdness");
-//                        }
                         }
                     } else {
-                        if (fullOCR.containsKey(aID)) {
-                            if (addedOCRTime.containsKey(aID)) {
-                                loa0 = addedOCRTime.get(aID);
-                                addedOCRTime.remove(aID);
-                                checkList(loa0, aID, "added"); // Assume list of 1.
-                                recoa = (LR_OC_COU_Record) loa0.get(0);
-                                fullOCR.put(aID, recoa);
-                                destinationCountry = recoa.getCountryIncorporated1();
-                                if (deletedOCRTime.containsKey(aID)) {
-                                    lod0 = deletedOCRTime.get(aID);
-                                    deletedOCRTime.remove(aID);
-                                    checkList(lod0, aID, "deleted"); // Assume list of 1.
-                                    recod = (LR_OC_COU_Record) lod0.get(0);
-                                    originCountry = recod.getCountryIncorporated1();
-                                    transitionType = "CD_OU_" + originCountry + "_" + destinationCountry;
-                                } else {
-                                    transitionType = "CD_OA_UK_" + destinationCountry;
-                                }
-                            } else {
-                                if (deletedOCRTime.containsKey(aID)) {
-                                    lod0 = deletedOCRTime.get(aID);
-                                    deletedOCRTime.remove(aID);
-                                    checkList(lod0, aID, "deleted"); // Assume list of 1.
-                                    recod = (LR_OC_COU_Record) lod0.get(0);
-                                    fullOCR.remove(aID);
-                                    originCountry = recod.getCountryIncorporated1();
-                                    transitionType = "CD_OD_" + originCountry + "_United Kingdom";
-                                } else {
-                                    reco = fullOCR.get(aID);
-                                    originCountry = reco.getCountryIncorporated1();
-                                    transitionType = "CD_O_" + originCountry + "_United Kingdom";
-                                }
-                            }
-                        } else {
-                            if (addedOCRTime.containsKey(aID)) {
-                                loa0 = addedOCRTime.get(aID);
-                                addedOCRTime.remove(aID);
-                                checkList(loa0, aID, "added"); // Assume list of 1.
-                                recoa = (LR_OC_COU_Record) loa0.get(0);
-                                destinationCountry = recoa.getCountryIncorporated1();
-                                if (deletedOCRTime.containsKey(aID)) {
-                                    lod0 = deletedOCRTime.get(aID);
-                                    checkList(lod0, aID, "deleted"); // Assume list of 1.
-                                    deletedOCRTime.remove(aID);
-                                    recod = (LR_OC_COU_Record) lod0.get(0);
-                                    originCountry = recod.getCountryIncorporated1();
-                                    transitionType = "CD_OU_" + originCountry + "_" + destinationCountry;
-                                } else {
-                                    transitionType = "CD_OA_United Kingdom_" + destinationCountry;
-                                }
-                            } else {
-                                if (deletedOCRTime.containsKey(aID)) {
-                                    lod0 = deletedOCRTime.get(aID);
-                                    deletedOCRTime.remove(aID);
-                                    checkList(lod0, aID, "deleted"); // Assume list of 1.
-                                    recod = (LR_OC_COU_Record) lod0.get(0);
-                                    originCountry = recod.getCountryIncorporated1();
-                                    transitionType = "CD_OD_" + originCountry + "United Kingdom";
-                                } else {
-                                    //destinationCountry = reccca.getCountryIncorporated1();
-                                    destinationCountry = reccd.getCountryIncorporated1();
-                                    originCountry = "United Kingdom";
-                                    transitionType = "CD_" + originCountry + "_" + destinationCountry;
-                                    if (!originCountry.equalsIgnoreCase(destinationCountry)) {
+                        if (nca > ncd) {
+                            tt = "";
+                            itec1 = lca.iterator();
+                            itec2 = lcd.iterator();
+                            while (itec1.hasNext()) {
+                                recca = itec1.next();
+                                origc = recca.getCountryIncorporated1();
+
+                                String date;
+                                date = recca.getChangeDate();
+                                System.out.println(date);
+
+                                if (fullCCR.containsKey(aID)) {
+                                    LR_CC_FULL_Record r;
+                                    r = fullCCR.get(aID);
+                                    //diff = difference(r, recca, printDiff);
+                                    
+                                    System.out.println("Difference between existing and added:");
+                                    
+                                    diff = difference(r, recca, true);
+                                    if ((Boolean) diff[2]) {
+                                        int debug = 1;
+                                    } else {
                                         int debug = 1;
                                     }
                                 }
+                                tt = addTransition(tt, "CA__" + origc, d);
+                                fullCCR.put(aID, recca);
+                                if (itec2.hasNext()) {
+                                    reccd = itec2.next();
+                                    origc = reccd.getCountryIncorporated1();
+
+                                    String date1;
+                                    date1 = reccd.getChangeDate();
+                                    System.out.println(date1);
+
+                                    recca = itec1.next();
+                                    destc = recca.getCountryIncorporated1();
+
+                                    System.out.println("Difference between deleted and added:");
+                                    diff = difference(reccd, recca, true);
+                                    if ((Boolean) diff[2]) {
+                                        int debug = 1;
+                                    } else {
+                                        int debug = 1;
+                                    }
+                                    
+                                    String date2;
+                                    date2 = recca.getChangeDate();
+                                    System.out.println(date2);
+
+                                    tt = addTransition(tt, "CU__" + origc + "_" + destc, d);
+                                    
+                                    System.out.println(tt);
+                                    
+                                    fullCCR.put(aID, recca);
+                                }
+                                
+                                System.out.println(tt);
+                                
+                                
+                            }
+                            if (fullOCR.containsKey(aID)) {
+                                int debug = 1;
+                            }
+                            if (deletedOCRTime.containsKey(aID)) {
+                                int debug = 1;
+                            }
+                            if (addedOCRTime.containsKey(aID)) {
+                                int debug = 1;
+                            }
+                            addToMappedTransitions(aID, mTs, ts, tt, tts, ttc, lcd, d);
+                        } else {
+                            if (ncd > nca) {
+                                if (fullCCR.containsKey(aID)) {
+                                    int debug = 1;
+                                } else {
+                                    int debug = 1;
+                                }
+                            }
+                            addedCCRTime.remove(aID);
+                        }
+                    }
+                } else {
+                    if (ncd == 1) {
+                        origc = lcd.get(0).getCountryIncorporated1();
+                        if (deletedOCRTime.containsKey(aID)) {
+                            lod = deletedOCRTime.get(aID);
+                            nod = checkList(lod, aID, "deleted");
+                            if (addedOCRTime.containsKey(aID)) {
+                                loa = addedOCRTime.get(aID);
+                                noa = checkList(loa, aID, "added");
+                                if (nod == noa && nod == 1) {
+                                    origo = lod.get(0).getCountryIncorporated1();
+                                    recoa = loa.get(0);
+                                    desto = recoa.getCountryIncorporated1();
+                                    tt = "CD_OU__" + origc + "__" + origo + "_" + desto;
+                                    fullCCR.remove(aID);
+                                    fullOCR.put(aID, recoa);
+                                } else {
+                                    int debug = 1;
+                                    tt = "?";
+                                }
+                            } else {
+                                if (nod == 1) {
+                                    origo = lod.get(0).getCountryIncorporated1();
+                                    tt = "CD_OD__" + origc + "__" + origo;
+                                    fullCCR.remove(aID);
+                                    fullOCR.remove(aID);
+                                } else {
+                                    int debug = 1;
+                                    tt = "?";
+                                }
+                            }
+                            deletedOCRTime.remove(aID);
+                        } else {
+                            tt = "CD__" + origc;
+                            fullCCR.remove(aID);
+                        }
+                        addToMappedTransitions(aID, mTs, ts, tt, tts, ttc, lcd, d);
+                    } else {
+                        if (deletedOCRTime.containsKey(aID)) {
+                            lod = deletedOCRTime.get(aID);
+                            nod = checkList(lod, aID, "deleted");
+                            if (addedOCRTime.containsKey(aID)) {
+                                loa = addedOCRTime.get(aID);
+                                noa = checkList(loa, aID, "added");
+                                int debug = 1;
+                            } else {
+                                int debug = 1;
+                            }
+                        } else {
+                            if (addedOCRTime.containsKey(aID)) {
+                                loa = addedOCRTime.get(aID);
+                                noa = checkList(loa, aID, "added");
+                                int debug = 1;
+                            } else {
+                                int debug = 1;
                             }
                         }
-                        addToMappedTransitions(aID, mappedTransitions,
-                                transitions, transitionType,
-                                transitionTypes, transitionTypeCounts,
-                                ld);
                     }
                 }
             }
@@ -569,130 +579,237 @@ public class LR_Transitions_Process extends LR_Main_Process {
             ite1 = deletedOCRTime.keySet().iterator();
             while (ite1.hasNext()) {
                 aID = ite1.next();
-                ld = deletedOCRTime.get(aID);
-                recod = (LR_OC_COU_Record) ld.get(0);
+                lod = deletedOCRTime.get(aID);
                 if (addedOCRTime.containsKey(aID)) {
-                    la = addedOCRTime.get(aID);
-                    addedOCRTime.remove(aID);
-                    if (printDiff) {
-                        m = "Deleted OCR is also added, so this is really updated.";
-                        System.out.println(m);
-                        System.out.println("Current:");
-                        System.out.println("fullOCR.containsKey(aID): " + fullOCR.containsKey(aID));
-                        System.out.println("fullCCR.containsKey(aID): " + fullCCR.containsKey(aID));
-                        System.out.println("Deleted:");
-                        System.out.println(recod);
-                        System.out.println("Added:");
-                        System.out.println(la.get(0));
-                    }
-                    checkList(ld, aID, "deleted");
-                    checkList(la, aID, "added");
-                    Iterator<LR_Record> ite;
-                    LR_Record lr;
-                    ite = la.iterator();
-                    Object[] diff;
-                    while (ite.hasNext()) {
-                        lr = ite.next();
-                        lrID = lr.getPropertyAddressID();
-                        recoa = (LR_OC_COU_Record) lr;
-                        // Examine difference between fullCCR and cccou 
-                        diff = difference(recod, recoa, printDiff);
-                        if ((Boolean) diff[2]) {
-                            if (addedCCRTime.containsKey(lrID)) {
-                                lca0 = addedCCRTime.get(lrID);
-                                addedCCRTime.remove(lrID);
-                                checkList(lca0, lrID, "added"); // Assume list of 1.
-                                recca = (LR_CC_COU_Record) lca0.get(0);
-                                fullCCR.put(lrID, recca);
-                                destinationCountry = recca.getCountryIncorporated1();
-                                if (deletedOCRTime.containsKey(aID)) {
-                                    int debug = 1; // This should not happen as already dealt with this.
-                                    transitionType = "?";
+                    loa = addedOCRTime.get(aID);
+                    printDiff("OCR", printDiff, aID, lod, loa);
+                    nod = checkList(lod, aID, "deleted");
+                    noa = checkList(loa, aID, "added");
+                    if (noa == nod) {
+                        iteo1 = lod.iterator();
+                        iteo2 = loa.iterator();
+                        while (iteo2.hasNext()) {
+                            recod = iteo1.next();
+                            recoa = iteo2.next();
+                            diff = difference(recod, recoa, printDiff);
+                            if ((Boolean) diff[2]) {
+                                origo = recod.getCountryIncorporated1();
+                                desto = recoa.getCountryIncorporated1();
+                                if (addedCCRTime.containsKey(aID)) {
+                                    lca = addedCCRTime.get(aID);
+                                    nca = checkList(lca, aID, "added");
+                                    if (nca == 1) {
+                                        addedCCRTime.remove(aID);
+                                        recca = (LR_CC_COU_Record) lca.get(0);
+                                        destc = recca.getCountryIncorporated1();
+                                        tt = "CA_OU__" + destc + "__" + origo + "_" + desto;
+                                        fullCCR.put(aID, recca);
+                                        fullOCR.put(aID, recoa);
+                                    } else {
+                                        int debug = 1;
+                                        tt = "?";
+                                    }
                                 } else {
-                                    originCountry = recod.getCountryIncorporated1();
-                                    transitionType = "CU_OA_" + originCountry + "_" + destinationCountry;
+                                    tt = "OU__" + origo + "_" + desto;
+                                    fullOCR.put(aID, recoa);
                                 }
+                                addToMappedTransitions(aID, mTs, ts, tt, tts, ttc, lod, d);
                             } else {
-                                originCountry = recod.getCountryIncorporated1();
-                                destinationCountry = recoa.getCountryIncorporated1();
-                                transitionType = "CU_" + originCountry + "_" + destinationCountry;
+                                fullOCR.put(aID, recoa);
                             }
-                            addToMappedTransitions(aID, mappedTransitions,
-                                    transitions, transitionType,
-                                    transitionTypes, transitionTypeCounts,
-                                    ld);
-                        } else {
-                            fullOCR.put(lrID, recoa);
                         }
+                    } else {
+                        int debug = 1;
                     }
                 } else {
-                    originCountry = recod.getCountryIncorporated1();
-                    destinationCountry = "United Kingdom";
-                    transitionType = "CD_" + originCountry + "_" + destinationCountry;
-                    addToMappedTransitions(aID, mappedTransitions,
-                            transitions, transitionType,
-                            transitionTypes, transitionTypeCounts,
-                            ld);
+                    nod = checkList(lod, aID, "deleted");
+                    if (nod == 1) {
+                        recod = (LR_OC_COU_Record) lod.get(0);
+                        origo = recod.getCountryIncorporated1();
+                        if (deletedCCRTime.containsKey(aID)) {
+                            lcd = deletedCCRTime.get(aID);
+                            ncd = checkList(lcd, aID, "deleted");
+                            if (ncd == 1) {
+                                origc = lod.get(0).getCountryIncorporated1();
+                                if (addedCCRTime.containsKey(aID)) {
+                                    lca = addedCCRTime.get(aID);
+                                    nca = checkList(lca, aID, "added");
+                                    if (nca == 1) {
+                                        recca = lca.get(0);
+                                        destc = recca.getCountryIncorporated1();
+                                        tt = "CU_OD__" + origc + "_" + destc + "__" + origo;
+                                        fullCCR.put(aID, recca);
+                                        fullOCR.remove(aID);
+                                    } else {
+                                        int debug = 1;
+                                        tt = "?";
+                                    }
+                                } else {
+                                    tt = "CD_OD__" + origc + "__" + origo;
+                                    fullCCR.remove(aID);
+                                    fullOCR.remove(aID);
+                                }
+                            } else {
+                                int debug = 1;
+                                tt = "?";
+                            }
+                        } else {
+                            if (addedCCRTime.containsKey(aID)) {
+                                lca = addedCCRTime.get(aID);
+                                nca = checkList(lca, aID, "added");
+                                if (nca == 1) {
+                                    recca = lca.get(0);
+                                    destc = recca.getCountryIncorporated1();
+                                    tt = "CA_OD__" + destc + "__" + origo;
+                                    fullCCR.put(aID, recca);
+                                } else {
+                                    int debug = 1;
+                                    tt = "?";
+                                }
+                            } else {
+                                tt = "OD__" + origo;
+                                fullOCR.remove(aID);
+                            }
+                        }
+                    } else {
+                        int debug = 1;
+                        tt = "?";
+                    }
+                    addToMappedTransitions(aID, mTs, ts, tt, tts, ttc, lod, d);
                 }
-
+                fullOCR.remove(aID);
             }
 
+            HashSet<LR_ID> done;
+            done = new HashSet<>();
             // Transitions for addedCCR
             System.out.println("There are up to " + addedCCRTime.size() + " addedCCRTime records to process");
             ite1 = addedCCRTime.keySet().iterator();
             while (ite1.hasNext()) {
                 aID = ite1.next();
-                la = addedCCRTime.get(aID);
-                recca = (LR_CC_COU_Record) la.get(0);
+                lca = addedCCRTime.get(aID);
+                nca = checkList(lca, aID, "added");
                 if (addedOCRTime.containsKey(aID)) {
-                    addedOCRTime.remove(aID);
-                    if (fullCCR.containsKey(aID) || fullOCR.containsKey(aID)) {
-                        int debug = 1;
-                        transitionType = "?";
+                    loa = addedOCRTime.get(aID);
+                    noa = checkList(loa, aID, "added");
+                    if (nca == noa && nca == 1) {
+                        recca = lca.get(0);
+                        recoa = loa.get(0);
+                        destc = recca.getCountryIncorporated1();
+                        desto = recoa.getCountryIncorporated1();
+                        tt = "CA_OA__" + destc + "__" + desto;
+                        addedOCRTime.remove(aID);
+                        fullCCR.put(aID, recca);
+                        fullOCR.put(aID, recoa);
                     } else {
-                        originCountry = "United Kingdom";
-                        destinationCountry = recca.getCountryIncorporated1();
-                        transitionType = "CA_OA_" + originCountry + "_" + destinationCountry;
+                        int debug = 1;
+                        tt = "?";
                     }
                 } else {
-                    originCountry = "United Kingdom";
-                    destinationCountry = recca.getCountryIncorporated1();
-                    transitionType = "CA_" + originCountry + "_" + destinationCountry;
+                    switch (nca) {
+                        case 1:
+                            recca = lca.get(0);
+                            destc = recca.getCountryIncorporated1();
+                            tt = "CA__" + destc;
+                            fullCCR.put(aID, recca);
+                            break;
+                        default:
+                            itec1 = lca.iterator();
+                            recca = itec1.next();
+                            origc = recca.getCountryIncorporated1();
+                            tt = "CA__" + origc;
+                            LR_CC_COU_Record recca2;
+                            while (itec1.hasNext()) {
+                                recca2 = itec1.next();
+                                diff = difference(recca, recca2, printDiff);
+                                if ((Boolean) diff[2]) {
+                                    origc = recca.getCountryIncorporated1();
+                                    tt = addTransition(tt, "CA__" + origc, d);
+                                    fullCCR.put(aID, recca2);
+                                } else {
+                                    fullCCR.put(aID, recca);
+                                }
+                                recca = recca2;
+                            }
+                            break;
+                    }
                 }
-                addToMappedTransitions(aID, mappedTransitions,
-                        transitions, transitionType,
-                        transitionTypes, transitionTypeCounts,
-                        la);
+                addToMappedTransitions(aID, mTs, ts, tt, tts, ttc, lca, d);
             }
             // Transitions for addedOCR
             System.out.println("There are up to " + addedOCRTime.size() + " addedOCRTime records to process");
             ite1 = addedOCRTime.keySet().iterator();
             while (ite1.hasNext()) {
                 aID = ite1.next();
-                la = addedOCRTime.get(aID);
-                recoa = (LR_OC_COU_Record) la.get(0);
-                originCountry = "United Kingdom";
-                destinationCountry = recoa.getCountryIncorporated1();
-                transitionType = "OA_" + originCountry + "_" + destinationCountry;
-                addToMappedTransitions(aID, mappedTransitions,
-                        transitions, transitionType,
-                        transitionTypes, transitionTypeCounts,
-                        la);
+                tt = "";
+                loa = addedOCRTime.get(aID);
+                iteo1 = loa.iterator();
+                while (iteo1.hasNext()) {
+                    recoa = iteo1.next();
+                    destc = recoa.getCountryIncorporated1();
+                    tt = addTransition(tt, "OA__" + destc, d);
+                    fullOCR.put(aID, recoa);
+                }
+                addToMappedTransitions(aID, mTs, ts, tt, tts, ttc, loa, d);
             }
         }
         // Write out transition results
         pw.println("Count,TransitionType");
-        Iterator<String> ite4;
-        ite4 = transitionTypeCounts.keySet().iterator();
-        while (ite4.hasNext()) {
-            transitionType = ite4.next();
-            transitionTypeCount = transitionTypeCounts.get(transitionType);
-            pw.println("" + transitionTypeCount + "," + transitionType);
+        ites0 = ttc.keySet().iterator();
+        while (ites0.hasNext()) {
+            tt = ites0.next();
+            transitionTypeCount = ttc.get(tt);
+            if (transitionTypeCount > 0) {
+                pw.println("" + transitionTypeCount + "," + tt);
+            }
         }
         pw.close();
     }
 
-    protected int checkList(ArrayList<LR_Record> l, LR_ID aID, String name) {
+    protected String addTransition(String t0, String t1, String delimeter) {
+        if (t0.isEmpty()) {
+            return t1;
+        } else {
+            return t0 + delimeter + t1;
+        }
+    }
+
+    protected void printDiff(String type, boolean printDiff, LR_ID2 aID,
+            ArrayList<? extends LR_Record> ld,
+            ArrayList<? extends LR_Record> la) {
+        if (printDiff) {
+            String m;
+            m = "Deleted " + type + " is also added, so this is really updated.";
+            System.out.println(m);
+            System.out.println("Current:");
+            boolean b;
+            b = fullOCR.containsKey(aID);
+            System.out.println("fullOCR.containsKey(aID): " + b);
+            LR_OC_FULL_Record ocf;
+            ocf = fullOCR.get(aID);
+            System.out.println(ocf.toString());
+            b = fullCCR.containsKey(aID);
+            System.out.println("fullCCR.containsKey(aID): " + b);
+            LR_CC_FULL_Record ccf;
+            ccf = fullCCR.get(aID);
+            System.out.println(ccf.toString());
+            Iterator<? extends LR_Record> ite;
+            System.out.println("Deleted:");
+            ite = ld.iterator();
+            while (ite.hasNext()) {
+                m = ite.next().toString();
+                System.out.println(m);
+            }
+            System.out.println("Added:");
+            ite = la.iterator();
+            while (ite.hasNext()) {
+                m = ite.next().toString();
+                System.out.println(m);
+            }
+        }
+    }
+
+    protected int checkList(ArrayList<? extends LR_Record> l, LR_ID2 aID, String name) {
         int result;
         result = l.size();
         if (result > 1) {
@@ -714,14 +831,15 @@ public class LR_Transitions_Process extends LR_Main_Process {
      * @param transitionTypes
      * @param transitionTypeCounts
      * @param l
+     * @param delimeter
      */
-    protected void addToMappedTransitions(LR_ID aID,
-            HashMap<LR_ID, ArrayList<ArrayList<LR_Record>>> mappedTransitions,
-            ArrayList<ArrayList<LR_Record>> transitions,
+    protected void addToMappedTransitions(LR_ID2 aID,
+            HashMap<LR_ID2, ArrayList<ArrayList<? extends LR_Record>>> mappedTransitions,
+            ArrayList<ArrayList<? extends LR_Record>> transitions,
             String transitionType0,
-            HashMap<LR_ID, String> transitionTypes,
+            HashMap<LR_ID2, String> transitionTypes,
             TreeMap<String, Integer> transitionTypeCounts,
-            ArrayList<LR_Record> l) {
+            ArrayList<? extends LR_Record> l, String delimeter) {
         String transitionType;
         if (mappedTransitions.containsKey(aID)) {
             transitions = mappedTransitions.get(aID);
@@ -735,7 +853,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
             transitionType = "";
         }
         if (!transitionType.isEmpty()) {
-            transitionType += "->";
+            transitionType += delimeter;
         }
         transitionType += (transitionType0.replaceAll(",", "-")).replaceAll(" ", "");
         transitionTypes.put(aID, transitionType);
@@ -748,6 +866,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
      *
      * @param f
      * @param c
+     * @param printDiff
      * @return Object[5] result: result[0] = Integer (change count); result[1] =
      * Boolean (true iff TitleNumber has changed; result[2] = Boolean (true iff
      * there has been some form of ownership change); result[3] = Boolean (true
@@ -940,6 +1059,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
      *
      * @param f
      * @param c
+     * @param printDiff
      * @return Object[5] result: result[0] = Integer (change count); result[1] =
      * Boolean (true iff TitleNumber has changed; result[2] = Boolean (true iff
      * there has been some form of ownership change); result[3] = Boolean (true
@@ -967,6 +1087,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
      *
      * @param f
      * @param c
+     * @param printDiff
      * @return Object[5] result: result[0] = Integer (change count); result[1] =
      * Boolean (true iff TitleNumber has changed; result[2] = Boolean (true iff
      * there has been some form of ownership change); result[3] = Boolean (true
@@ -1036,13 +1157,13 @@ public class LR_Transitions_Process extends LR_Main_Process {
         return result;
     }
 
-    void add(HashMap<LR_ID, ArrayList<LR_Record>> added,
-            HashMap<LR_ID, ArrayList<LR_Record>> deleted,
+    void add(HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>> added,
+            HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>> deleted,
             LR_CC_COU_Record r) {
-        LR_ID aID;
+        LR_ID2 aID;
         String changeIndicator;
-        ArrayList<LR_Record> l;
-        aID = r.getPropertyAddressID();
+        ArrayList<LR_CC_COU_Record> l;
+        aID = r.getID();
         changeIndicator = r.getChangeIndicator();
         if (changeIndicator.equalsIgnoreCase("A")) {
             Generic_Collections.addToMap(addedCCRCount, aID, 1);
@@ -1070,13 +1191,13 @@ public class LR_Transitions_Process extends LR_Main_Process {
         l.add(r);
     }
 
-    void add(HashMap<LR_ID, ArrayList<LR_Record>> added,
-            HashMap<LR_ID, ArrayList<LR_Record>> deleted,
+    void add(HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>> added,
+            HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>> deleted,
             LR_OC_COU_Record r) {
-        LR_ID aID;
+        LR_ID2 aID;
         String changeIndicator;
-        ArrayList<LR_Record> l;
-        aID = r.getPropertyAddressID();
+        ArrayList<LR_OC_COU_Record> l;
+        aID = r.getID();
         changeIndicator = r.getChangeIndicator();
         if (changeIndicator.equalsIgnoreCase("A")) {
             Generic_Collections.addToMap(addedOCRCount, aID, 1);
@@ -1112,18 +1233,18 @@ public class LR_Transitions_Process extends LR_Main_Process {
     }
 
     void printGeneralisation(PrintWriter pw, String type,
-            HashMap<LR_ID, Integer> counts, int min
+            HashMap<LR_ID2, Integer> counts, int min
     ) {
         pw.println(type);
         if (!counts.isEmpty()) {
-            Map<LR_ID, Integer> sortedCounts;
+            Map<LR_ID2, Integer> sortedCounts;
             sortedCounts = Generic_Collections.sortByValue(counts);
-            LR_ID aID;
+            LR_ID2 aID;
             int count;
             int smallCount = 0;
             boolean reportedSmallCount = false;
-            Iterator<LR_ID> ite;
-            pw.println("Address, Count");
+            Iterator<LR_ID2> ite;
+            pw.println("Address, TitleNumber, Count");
             ite = sortedCounts.keySet().iterator();
             while (ite.hasNext()) {
                 aID = ite.next();
@@ -1134,7 +1255,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
                         reportedSmallCount = true;
                     }
                     if (aID != null) {
-                        pw.println("\"" + Env.IDToPropertyAddress.get(aID) + "\"," + count);
+                        pw.println("\"" + Env.IDToPropertyAddress.get(aID.getPropertyAddressID()) + "\",\"" 
+                                + Env.IDToTitleNumber.get(aID.getTitleNumberID())+  "\"," + count);
                     } else {
                         System.out.println("null ID");
                     }

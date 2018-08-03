@@ -16,32 +16,47 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  *
  * @author Andy Turner
  */
-public class LR_ID implements Serializable {
-    
-    private final int ID;
-    
-    public LR_ID(int ID){
-        this.ID = ID;
+public class LR_ID2 implements Serializable {
+
+    private final LR_ID TitleNumberID;
+    private final LR_ID PropertyAddressID;
+
+    public LR_ID2(LR_ID titleNumberID, LR_ID propertyAddressID) {
+        TitleNumberID = titleNumberID;
+        PropertyAddressID = propertyAddressID;
     }
 
     /**
-     * @return the ID
+     * @return the TitleNumberID
      */
-    public int getID() {
-        return ID;
+    public LR_ID getTitleNumberID() {
+        return TitleNumberID;
     }
-    
-    
+
+    /**
+     * @return the AddressID
+     */
+    public LR_ID getPropertyAddressID() {
+        return PropertyAddressID;
+    }
+
     @Override
-    public boolean equals(Object o){
-        if (o instanceof LR_ID) {
-            if (((LR_ID) o).ID == ID) {
-                return true;
+    public boolean equals(Object o) {
+        if (o instanceof LR_ID2) {
+            LR_ID2 o2;
+            o2 = (LR_ID2) o;
+            if (o2.hashCode() == hashCode()) {
+                if (o2.TitleNumberID.equals(TitleNumberID)) {
+                    if (o2.PropertyAddressID.equals(PropertyAddressID)) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -50,9 +65,9 @@ public class LR_ID implements Serializable {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 59 * hash + this.ID;
+        hash = 47 * hash + Objects.hashCode(this.TitleNumberID);
+        hash = 47 * hash + Objects.hashCode(this.PropertyAddressID);
         return hash;
     }
-    
-    
+
 }

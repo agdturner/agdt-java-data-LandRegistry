@@ -28,17 +28,30 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public HashMap<LR_ID, String> IDToCountryIncorporated;
     public HashMap<String, LR_ID> CountryIncorporatedToID;
 
+    public boolean updatedPropertyAddressLookups;
+    public boolean updatedTitleNumberLookups;
+    public boolean updatedProprietorNameLookups;
+    public boolean updatedCompanyRegistrationNoLookups;
+    public boolean updatedCountryIncorporatedLookups;
+
     public LR_Environment() {
         Files = new LR_Files();
         Strings = new LR_Strings();
+        updatedPropertyAddressLookups = false;
+        updatedTitleNumberLookups = false;
+        updatedProprietorNameLookups = false;
+        updatedCompanyRegistrationNoLookups = false;
+        updatedCountryIncorporatedLookups = false;
     }
 
     public void writeIDToPropertyAddress() {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "IDToPropertyAddress.dat");
-        Generic_StaticIO.writeObject(IDToPropertyAddress, f);
-        f = new File(Files.getGeneratedDataDir(Strings), "PropertyAddressToID.dat");
-        Generic_StaticIO.writeObject(PropertyAddressToID, f);
+        if (updatedPropertyAddressLookups) {
+            File f;
+            f = new File(Files.getGeneratedDataDir(Strings), "IDToPropertyAddress.dat");
+            Generic_StaticIO.writeObject(IDToPropertyAddress, f);
+            f = new File(Files.getGeneratedDataDir(Strings), "PropertyAddressToID.dat");
+            Generic_StaticIO.writeObject(PropertyAddressToID, f);
+        }
     }
 
     public void loadIDToPropertyAddress() {
@@ -62,11 +75,13 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     public void writeIDToTitleNumber() {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "IDToTitleNumber.dat");
-        Generic_StaticIO.writeObject(IDToTitleNumber, f);
-        f = new File(Files.getGeneratedDataDir(Strings), "TitleNumberToID.dat");
-        Generic_StaticIO.writeObject(TitleNumberToID, f);
+        if (updatedTitleNumberLookups) {
+            File f;
+            f = new File(Files.getGeneratedDataDir(Strings), "IDToTitleNumber.dat");
+            Generic_StaticIO.writeObject(IDToTitleNumber, f);
+            f = new File(Files.getGeneratedDataDir(Strings), "TitleNumberToID.dat");
+            Generic_StaticIO.writeObject(TitleNumberToID, f);
+        }
     }
 
     public void loadIDToTitleNumber() {
@@ -90,11 +105,13 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     public void writeIDToProprietorName() {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "IDToProprietorName.dat");
-        Generic_StaticIO.writeObject(IDToProprietorName, f);
-        f = new File(Files.getGeneratedDataDir(Strings), "ProprietorNameToID.dat");
-        Generic_StaticIO.writeObject(ProprietorNameToID, f);
+        if (updatedProprietorNameLookups) {
+            File f;
+            f = new File(Files.getGeneratedDataDir(Strings), "IDToProprietorName.dat");
+            Generic_StaticIO.writeObject(IDToProprietorName, f);
+            f = new File(Files.getGeneratedDataDir(Strings), "ProprietorNameToID.dat");
+            Generic_StaticIO.writeObject(ProprietorNameToID, f);
+        }
     }
 
     public void loadIDToProprietorName() {
@@ -118,11 +135,13 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     public void writeIDToCompanyRegistrationNo() {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "IDToCompanyRegistrationNo.dat");
-        Generic_StaticIO.writeObject(IDToCompanyRegistrationNo, f);
-        f = new File(Files.getGeneratedDataDir(Strings), "CompanyRegistrationNoToID.dat");
-        Generic_StaticIO.writeObject(CompanyRegistrationNoToID, f);
+        if (updatedCompanyRegistrationNoLookups) {
+            File f;
+            f = new File(Files.getGeneratedDataDir(Strings), "IDToCompanyRegistrationNo.dat");
+            Generic_StaticIO.writeObject(IDToCompanyRegistrationNo, f);
+            f = new File(Files.getGeneratedDataDir(Strings), "CompanyRegistrationNoToID.dat");
+            Generic_StaticIO.writeObject(CompanyRegistrationNoToID, f);
+        }
     }
 
     public void loadIDToCompanyRegistrationNo() {
@@ -144,13 +163,15 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             CompanyRegistrationNoToID = (HashMap<String, LR_ID>) Generic_StaticIO.readObject(f);
         }
     }
-    
+
     public void writeIDToCountryIncorporated() {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "IDToCountryIncorporated.dat");
-        Generic_StaticIO.writeObject(IDToCountryIncorporated, f);
-        f = new File(Files.getGeneratedDataDir(Strings), "CountryIncorporatedToID.dat");
-        Generic_StaticIO.writeObject(CountryIncorporatedToID, f);
+        if (updatedCountryIncorporatedLookups) {
+            File f;
+            f = new File(Files.getGeneratedDataDir(Strings), "IDToCountryIncorporated.dat");
+            Generic_StaticIO.writeObject(IDToCountryIncorporated, f);
+            f = new File(Files.getGeneratedDataDir(Strings), "CountryIncorporatedToID.dat");
+            Generic_StaticIO.writeObject(CountryIncorporatedToID, f);
+        }
     }
 
     public void loadIDToCountryIncorporated() {
@@ -172,5 +193,5 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             CountryIncorporatedToID = (HashMap<String, LR_ID>) Generic_StaticIO.readObject(f);
         }
     }
-    
+
 }

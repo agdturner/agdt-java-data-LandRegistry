@@ -27,11 +27,14 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
     private String ChangeIndicator;
     private String ChangeDate;
 
-    public LR_CC_COU_Record(String line) {
-        super(line);
+    protected LR_CC_COU_Record() {
+    }
+
+    public LR_CC_COU_Record(LR_Environment env, String line) {
+        super(env, line);
         init(line);
     }
-    
+
     private void init(String line) {
         String[] ls;
         ls = line.split("\",\"");
@@ -39,11 +42,7 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
         lineLength = ls.length;
         ChangeIndicator = ls[lineLength - 2];
         ChangeDate = ls[lineLength - 1];
-    }
-        
-    public LR_CC_COU_Record(LR_Environment env, String line) {
-        super(env, line);
-        init(line);
+        updateIDs();
     }
 
     @Override
