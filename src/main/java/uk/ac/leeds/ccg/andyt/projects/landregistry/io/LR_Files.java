@@ -25,21 +25,39 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
  */
 public class LR_Files extends Generic_Files {
 
-    public LR_Files() {
+    protected LR_Strings Strings;
+
+    protected LR_Files(){}
+    
+    public LR_Files(LR_Strings Strings) {
+        this.Strings = Strings;
     }
 
     /**
      *
+     * @param Strings
      * @param dataDirName
      */
-    public LR_Files(String dataDirName) {
+    public LR_Files(LR_Strings Strings, String dataDirName) {
         super(dataDirName);
+        this.Strings = Strings;
     }
 
-    public File getTIDataFile(LR_Strings s) {
+    public File getInputDataDir() {
+        if (InputDataDir == null) {
+            InputDataDir = new File(getDataDir(), Strings.getS_input());
+        }
+        return InputDataDir;
+    }
+    
+    public File getInputDataDir(String s) {
+        return new File(getInputDataDir(), s);
+    }
+    
+    public File getTIDataFile() {
         File result;
         File dir;
-        dir = new File(getInputDataDir(s), "TransparencyInternational");
+        dir = new File(getInputDataDir(Strings), "TransparencyInternational");
         result = new File(dir, "Selection.csv");
         return result;
     }

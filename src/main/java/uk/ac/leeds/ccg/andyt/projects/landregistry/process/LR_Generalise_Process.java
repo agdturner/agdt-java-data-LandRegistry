@@ -49,19 +49,23 @@ public class LR_Generalise_Process extends LR_Main_Process {
         super(env);
     }
 
-    TreeMap<String, Integer> tenureCounts;
-//    TreeMap<String, Integer> districtCounts;
-//    TreeMap<String, Integer> countyCounts;
-//    TreeMap<String, Integer> regionCounts;
-//    TreeMap<String, Integer> postcodeCounts;
-//    TreeMap<String, Integer> multipleAddressIndicatorCounts;
-//    TreeMap<String, Integer> PricePaidCounts;
-    TreeMap<String, Integer> companyRegistrationNo1Counts;
-    TreeMap<String, Integer> proprietorshipCategory1Counts;
-//    TreeMap<String, Integer> proprietorNameID1s;
-    TreeMap<LR_ID, Integer> proprietorName1IDCounts;
-    TreeMap<String, Integer> countryIncorporated1Counts;
-    HashMap<String, Integer> transparencyMap;
+    HashMap<LR_ID, TreeMap<LR_ID, Integer>> Counts;
+    ArrayList<LR_ID> Types;
+    HashMap<LR_ID, String> IDToType;
+    HashMap<String, LR_ID> TypeToID;
+
+////    TreeMap<String, Integer> districtCounts;
+////    TreeMap<String, Integer> countyCounts;
+////    TreeMap<String, Integer> regionCounts;
+////    TreeMap<String, Integer> postcodeCounts;
+////    TreeMap<String, Integer> multipleAddressIndicatorCounts;
+////    TreeMap<String, Integer> PricePaidCounts;
+//    TreeMap<String, Integer> companyRegistrationNo1Counts;
+//    TreeMap<String, Integer> proprietorshipCategory1Counts;
+////    TreeMap<String, Integer> proprietorNameID1s;
+//    TreeMap<LR_ID, Integer> proprietorName1IDCounts;
+//    TreeMap<String, Integer> countryIncorporated1Counts;
+    HashMap<String, Integer> TransparencyMap;
 
     /**
      * @param area
@@ -88,13 +92,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
         String name00;
         names0 = new ArrayList<>();
         if (doCCOD) {
-            names0.add("CCOD");
+            names0.add(Env.Strings.S_CCOD);
         }
         if (doOCOD) {
-            names0.add("OCOD");
+            names0.add(Env.Strings.S_OCOD);
         }
         boolean isCCOD;
-        setNames = getSetNames(doFull);
 
         // Initialise transparencyMap
         loadTransparencyMap();
@@ -104,20 +107,29 @@ public class LR_Generalise_Process extends LR_Main_Process {
         File fin;
         File fout;
         ArrayList<String> lines;
-        PrintWriter pw = null;
+        HashMap<LR_ID, PrintWriter> pws;
+        // Initialise Types, IDToType and TypeToID.
+        Types = new ArrayList<>();
+        addType("Tenure");
+//        addType("District");
+//        addType("County");
+//        addType("Postcode");
+        addType("Company Registration No 1");
+        addType("Proprietorship Category 1");
+        addType("Country Incorporated 1");
+        pws = new HashMap<>();
+        Iterator<LR_ID> iteTypes;
+        String type;
+        LR_ID typeID;
 
         Iterator<String> ite0;
         Iterator<String> ite2;
         ite0 = names0.iterator();
         while (ite0.hasNext()) {
             name0 = ite0.next();
-            isCCOD = name0.equalsIgnoreCase("CCOD");
-            name00 = "";
-            if (doFull) {
-                name00 += name0 + "_FULL_";
-            } else {
-                name00 += name0 + "_COU_";
-            }
+            isCCOD = name0.equalsIgnoreCase(Env.Strings.S_CCOD);
+            name00 = getName00(doFull, name0);
+            setNames = getSetNames(doFull, name0);
             ite2 = setNames.iterator();
             while (ite2.hasNext()) {
                 name = name00;
@@ -142,33 +154,34 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 System.out.println("indir " + indir);
                 outdir = new File(outdir, name0);
                 outdir = new File(outdir, name);
+                outdir = new File(outdir, "Generalised");
                 System.out.println("outdir " + outdir);
                 fin = new File(indir, name + ".csv");
                 if (!fin.exists()) {
                     System.out.println("File " + fin + " does not exist.");
                 } else {
-                    outdir.mkdirs();
-                    fout = new File(outdir, name + "Generalised.csv");
-                    if (!overwrite || !fout.exists()) {
+                    if (overwrite || !outdir.exists()) {
                         lines = Generic_ReadCSV.read(fin, null, 7);
+                        // Initialise printwriters
                         try {
-                            pw = new PrintWriter(fout);
+                            outdir.mkdirs();
+                            iteTypes = Types.iterator();
+                            while (iteTypes.hasNext()) {
+                                typeID = iteTypes.next();
+                                type = IDToType.get(typeID);
+                                fout = new File(outdir, type.replaceAll(" ", "_") + ".csv");
+                                pws.put(typeID, new PrintWriter(fout));
+                            }
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(LR_Generalise_Process.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        // Initialisation
-                        tenureCounts = new TreeMap<>();
-//                districtCounts = new TreeMap<>();
-//                countyCounts = new TreeMap<>();
-//                regionCounts = new TreeMap<>();
-//                postcodeCounts = new TreeMap<>();
-//                multipleAddressIndicatorCounts = new TreeMap<>();
-//                PricePaidCounts = new TreeMap<>();
-                        companyRegistrationNo1Counts = new TreeMap<>();
-                        proprietorshipCategory1Counts = new TreeMap<>();
-                        proprietorName1IDCounts = new TreeMap<>();
-                        countryIncorporated1Counts = new TreeMap<>();
-
+                        // Initialise counts
+                        Counts = new HashMap<>();
+                        iteTypes = Types.iterator();
+                        while (iteTypes.hasNext()) {
+                            typeID = iteTypes.next();
+                            Counts.put(typeID, new TreeMap<>());
+                        }
                         LR_Record r;
                         for (int ID = 1; ID < lines.size(); ID++) {
                             try {
@@ -185,13 +198,22 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             }
                         }
                         if (isCCOD) {
-                            printGeneralisation(pw, minCC);
+                            printGeneralisation(pws, minCC);
                         } else {
-                            printGeneralisation(pw, minOC);
+                            printGeneralisation(pws, minOC);
                         }
-                        pw.close();
+                        // Close printWriters
+                        iteTypes = Types.iterator();
+                        while (iteTypes.hasNext()) {
+                            typeID = iteTypes.next();
+                            pws.get(typeID).close();
+                        }
                     } else {
-                        System.out.println("Output file " + fout + " already exists and is not being overwritten.");
+                        System.out.println("Output directory " + outdir
+                                + " already exists and overwrite is false. "
+                                + "Please delete output directory or set "
+                                + "overwrite to false in order to generate new "
+                                + "results.");
                     }
                 }
             }
@@ -202,37 +224,58 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
     }
 
+    protected void addType(String type) {
+        LR_ID id;
+        id = new LR_ID(TypeToID.size());
+        TypeToID.put(type, id);
+        IDToType.put(id, type);
+        Types.add(id);
+    }
+
     void addToCounts(LR_Record r) {
-        Generic_Collections.addToTreeMapStringInteger(tenureCounts, r.getTenure(), 1);
-//        Generic_Collections.addToTreeMapStringInteger(districtCounts, r.getDistrict(), 1);
-//        Generic_Collections.addToTreeMapStringInteger(countyCounts, r.getCounty(), 1);
-//        Generic_Collections.addToTreeMapStringInteger(postcodeCounts, r.getPostcode(), 1);
-//        Generic_Collections.addToTreeMapStringInteger(multipleAddressIndicatorCounts, r.getMultipleAddressIndicator(), 1);
-//        Generic_Collections.addToTreeMapStringInteger(PricePaidCounts, r.getPricePaid(), 1);
-        Generic_Collections.addToTreeMapStringInteger(companyRegistrationNo1Counts, r.getCompanyRegistrationNo1(), 1);
-        Generic_Collections.addToTreeMapStringInteger(proprietorshipCategory1Counts, r.getProprietorshipCategory1(), 1);
-//        LR_ID id;
-//        id = null;
-//        Generic_Collections.addToMap(proprietorName1Counts, id, 1);
-        Generic_Collections.addToMap(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
-//        Generic_Collections.addToTreeMapStringInteger(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
-        Generic_Collections.addToTreeMapStringInteger(countryIncorporated1Counts, r.getCountryIncorporated1(), 1);
+        Iterator<LR_ID> iteTypes;
+        iteTypes = Types.iterator();
+        LR_ID typeID;
+        while (iteTypes.hasNext()) {
+            typeID = iteTypes.next();
+            if (typeID.equals(TypeToID.get("Tenure"))) {
+                Generic_Collections.addToMap(Counts.get(typeID), r.getTenureID(), 1);
+            } else if (typeID.equals(TypeToID.get("Company Registration No 1"))) {
+                Generic_Collections.addToMap(Counts.get(typeID), r.getCompanyRegistrationNo1ID(), 1);
+            } else if (typeID.equals(TypeToID.get("Proprietorship Category 1"))) {
+                Generic_Collections.addToMap(Counts.get(typeID), r.getProprietorshipCategory1ID(), 1);
+            } else if (typeID.equals(TypeToID.get("Country Incorporated 1"))) {
+                Generic_Collections.addToMap(Counts.get(typeID), r.getCountryIncorporated1ID(), 1);
+            } else if (typeID.equals(TypeToID.get("Country Incorporated 1"))) {
+                Generic_Collections.addToMap(Counts.get(typeID), r.getCountryIncorporated1ID(), 1);
+            } else {
+
+            }
+        }
+//        Generic_Collections.addToMap(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
+////        Generic_Collections.addToTreeMapStringInteger(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
+//        Generic_Collections.addToTreeMapStringInteger(countryIncorporated1Counts, r.getCountryIncorporated1(), 1);
     }
 
-    void printGeneralisation(PrintWriter pw, int min) {
-        printGeneralisation(pw, "Tenure", tenureCounts, null, min);
-//        printGeneralisation(pw, "District", districtCounts);
-//        printGeneralisation(pw, "County", countyCounts);
-//        printGeneralisation(pw, "Postcode", postcodeCounts);
-        printGeneralisation(pw, "Company Registration No 1", companyRegistrationNo1Counts, null, min);
-        printGeneralisation(pw, "Proprietorship Category 1", proprietorshipCategory1Counts, null, min);
-        printGeneralisation(pw, "Proprietor Name 1", proprietorName1IDCounts, Env.IDToProprietorName, min);
-        printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, min, transparencyMap);
-        //printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, null, min);
+    void printGeneralisation(HashMap<LR_ID, PrintWriter> pws, int min) {
+        Iterator<LR_ID> iteTypes;
+        iteTypes = Types.iterator();
+        LR_ID typeID;
+        while (iteTypes.hasNext()) {
+            typeID = iteTypes.next();
+            printGeneralisation(pws, typeID, Counts.get(typeID), null, min);
+        }
+//        printGeneralisation(pws, "Tenure", tenureCounts, null, min);
+////        printGeneralisation(pws, "District", districtCounts);
+////        printGeneralisation(pws, "County", countyCounts);
+////        printGeneralisation(pws, "Postcode", postcodeCounts);
+//        printGeneralisation(pws, "Company Registration No 1", companyRegistrationNo1Counts, null, min);
+//        printGeneralisation(pws, "Proprietorship Category 1", proprietorshipCategory1Counts, null, min);
+//        printGeneralisation(pws, "Proprietor Name 1", proprietorName1IDCounts, Env.IDToProprietorName, min);
+//        printGeneralisation(pws, "Country Incorporated 1", countryIncorporated1Counts, min, TransparencyMap);
+//        //printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, null, min);
     }
 
-//    void printGeneralisation(PrintWriter pw, String type,
-//            TreeMap<String, Integer> counts, int min) {
     /**
      *
      * @param <K>
@@ -242,11 +285,13 @@ public class LR_Generalise_Process extends LR_Main_Process {
      * @param lookup
      * @param min
      */
-    <K> void printGeneralisation(PrintWriter pw, String type,
+    <K> void printGeneralisation(HashMap<LR_ID, PrintWriter> pws, LR_ID typeID,
             Map<K, Integer> counts, Map<K, String> lookup, int min) {
+        PrintWriter pw;
+        pw = pws.get(typeID);
         Map<K, Integer> sortedCounts;
         sortedCounts = Generic_Collections.sortByValue(counts);
-        pw.println(type);
+        pw.println(IDToType.get(typeID));
         K k;
         Integer count;
         int smallCount = 0;
@@ -286,9 +331,11 @@ public class LR_Generalise_Process extends LR_Main_Process {
         pw.println();
     }
 
-    void printGeneralisation(PrintWriter pw, String type,
-            TreeMap<String, Integer> counts, int min, 
+    void printGeneralisation(HashMap<String, PrintWriter> pws, String type,
+            TreeMap<String, Integer> counts, int min,
             HashMap<String, Integer> transparencyMap) {
+        PrintWriter pw;
+        pw = pws.get(type);
         Map<String, Integer> sortedCounts;
         sortedCounts = Generic_Collections.sortByValue(counts);
         pw.println(type);
@@ -331,9 +378,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
     // load transparencyMap
     protected void loadTransparencyMap() {
-        transparencyMap = new HashMap<>();
+        TransparencyMap = new HashMap<>();
         File f;
-        f = Files.getTIDataFile(Strings);
+        f = Files.getTIDataFile();
         ArrayList<String> lines;
         lines = Generic_ReadCSV.read(f, null, 7);
         Iterator<String> ite;
@@ -354,7 +401,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 cname = split[1];
                 split = split[2].split(",");
             }
-            transparencyMap.put(Generic_StaticString.getUpperCase(cname), 
+            TransparencyMap.put(Generic_StaticString.getUpperCase(cname),
                     Integer.valueOf(split[2]));
         }
     }

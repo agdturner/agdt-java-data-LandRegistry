@@ -22,6 +22,14 @@ import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
  * @author geoagdt
  */
 public class LR_Strings extends Generic_Strings {
-    
-    public LR_Strings() {super();}
+
+    public final String S_FULL = "FULL";
+    public final String S_COU = "COU";
+    public final String S_CCOD = "CCOD";
+    public final String S_OCOD = "OCOD";
+    public final String S_zip = "zip";
+
+    public LR_Strings() {
+        super();
+    }
 }

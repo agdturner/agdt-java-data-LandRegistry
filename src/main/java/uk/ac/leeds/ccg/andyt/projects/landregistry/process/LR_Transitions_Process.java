@@ -71,7 +71,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
     HashMap<LR_ID2, LR_OC_FULL_Record> fullOCR;
 
     public void run(String area, File inputDataDir,
-            int minCC, int minOC) {
+            int minCC, int minOC, boolean doFull, boolean overwrite) {
         boolean printDiff;
 //        printDiff = true;
         printDiff = false;
@@ -81,26 +81,18 @@ public class LR_Transitions_Process extends LR_Main_Process {
 
         ArrayList<String> names0;
         //ArrayList<String> names1;
-        ArrayList<String> names2;
+        ArrayList<String> names2 = null;
         String name;
         String name0;
         String name00;
         names0 = new ArrayList<>();
         //names1 = new ArrayList<>();
-        names2 = new ArrayList<>();
-        names0.add("CCOD");
-        names0.add("OCOD");
+        names0.add(Env.Strings.S_CCOD);
+        names0.add(Env.Strings.S_OCOD);
         boolean isCCOD;
         //names1.add("COU");
         //names1.add("FULL");
-        //names2.add("2017_11");
-        names2.add("2017_12");
-        names2.add("2018_01");
-        names2.add("2018_02");
-        names2.add("2018_03");
-        names2.add("2018_04");
-        names2.add("2018_05");
-        names2.add("2018_06");
+       
 
         addedCCRCount = new HashMap<>();
         deletedCCRCount = new HashMap<>();
@@ -188,6 +180,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
             isCCOD = name0.equalsIgnoreCase("CCOD");
             name00 = "";
             name00 += name0 + "_COU_";
+            names2 = getSetNames(doFull, name0);
+            names2.remove("2017_10");
             ites1 = names2.iterator();
             while (ites1.hasNext()) {
                 name = name00;

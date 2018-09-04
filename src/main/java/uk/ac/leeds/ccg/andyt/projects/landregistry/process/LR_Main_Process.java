@@ -16,6 +16,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
@@ -29,10 +30,12 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 public class LR_Main_Process extends LR_Object {
 
     int nInitialPropertyAddress;
+    int nInitialTitleNumber;
+    int nInitialTenure;
     int nInitialCompanyRegistrationNo;
     int nInitialCountryIncorporated;
     int nInitialProprietorName;
-    int nInitialTitleNumber;
+    int nInitialProprietorshipCategory;
 
     // For convenience
     public LR_Strings Strings;
@@ -58,17 +61,23 @@ public class LR_Main_Process extends LR_Object {
         p.Env.loadPropertyAddressToID();
         p.Env.loadIDToTitleNumber();
         p.Env.loadTitleNumberToID();
+        p.Env.loadIDToTenure();
+        p.Env.loadTenureToID();
         p.Env.loadIDToCompanyRegistrationNo();
         p.Env.loadCompanyRegistrationNoToID();
         p.Env.loadIDToCountryIncorporated();
         p.Env.loadCountryIncorporatedToID();
         p.Env.loadIDToProprietorName();
         p.Env.loadProprietorNameToID();
+        p.Env.loadIDToProprietorshipCategory();
+        p.Env.loadProprietorshipCategoryToID();
         p.nInitialPropertyAddress = p.Env.PropertyAddressToID.size();
+        p.nInitialTitleNumber = p.Env.TitleNumberToID.size();
+        p.nInitialTenure = p.Env.TenureToID.size();
         p.nInitialCompanyRegistrationNo = p.Env.CompanyRegistrationNoToID.size();
         p.nInitialCountryIncorporated = p.Env.CountryIncorporatedToID.size();
         p.nInitialProprietorName = p.Env.ProprietorNameToID.size();
-        p.nInitialTitleNumber = p.Env.TitleNumberToID.size();
+        p.nInitialProprietorshipCategory = p.Env.ProprietorshipCategoryToID.size();
         p.run();
     }
 
@@ -84,12 +93,12 @@ public class LR_Main_Process extends LR_Object {
     public void run() {
 
         // Main switches
-//        doSelectLeeds = true;
+        doSelectLeeds = true;
 //        doGeneralise = true;
 //        doGeneraliseLeeds = true;
 //        doGeneraliseAll = true;
-        doTransitions = true;
-        doTransitionsLeeds = true;
+//        doTransitions = true;
+//        doTransitionsLeeds = true;
 
         String area;
         area = "LEEDS";
@@ -100,16 +109,21 @@ public class LR_Main_Process extends LR_Object {
          */
         boolean doFull;
 
+        boolean overwrite;
+
+        // Select Leeds
         if (doSelectLeeds) {
-            // Select Leeds
+
+            // Options
             doFull = true;
 //            doFull = false;
+//            overwrite = true;
+            overwrite = false;
+
+            // Run
             LR_Select_Process sp;
             sp = new LR_Select_Process(Env);
             sp.Files.setDataDirectory(Files.getDataDir());
-            boolean overwrite;
-//            overwrite = true;
-            overwrite = false;
             if (doFull) {
                 sp.run(area, doFull, overwrite);
             }
@@ -139,15 +153,16 @@ public class LR_Main_Process extends LR_Object {
             boolean doAll;
             boolean doCCOD;
             boolean doOCOD;
-            boolean overwrite;
-            overwrite = true;
-//            overwrite = false;
+
             if (doGeneraliseLeeds) {
 
                 // Options
                 doFull = true;
 //                doFull = false;
+                overwrite = true;
+//            overwrite = false;
 
+                // Run
                 doAll = false;
                 doCCOD = true;
                 doOCOD = true;
@@ -168,7 +183,10 @@ public class LR_Main_Process extends LR_Object {
                 // Options
                 doFull = true;
 //                doFull = false;
+                overwrite = true;
+//            overwrite = false;
 
+                // Run
                 doAll = true;
                 doCCOD = true;
                 doOCOD = true;
@@ -188,13 +206,21 @@ public class LR_Main_Process extends LR_Object {
 
         if (doTransitions) {
             if (doTransitionsLeeds) {
+
+                // Options
+//                doFull = true;
+                doFull = false;
+                overwrite = true;
+//            overwrite = false;
+
+                // Run
                 minCC = 2;
                 minOC = 2;
                 inputDataDir = Files.getOutputDataDir(Strings);
                 LR_Transitions_Process tp;
                 tp = new LR_Transitions_Process(Env);
                 tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-                tp.run(area, inputDataDir, minCC, minOC);
+                tp.run(area, inputDataDir, minCC, minOC, doFull, overwrite);
             }
 //            if {doTransitionsAll) {
 //                
@@ -206,56 +232,72 @@ public class LR_Main_Process extends LR_Object {
          * again.
          */
         if (nInitialPropertyAddress < Env.IDToPropertyAddress.size()) {
-            Env.writeIDToPropertyAddress();
+            Env.writePropertyAddressLookups();
         }
         /**
          * If IDToCompanyRegistrationNo has increased in size, write out the
          * mappings again.
          */
         if (nInitialCompanyRegistrationNo < Env.IDToCompanyRegistrationNo.size()) {
-            Env.writeIDToCompanyRegistrationNo();
+            Env.writeCompanyRegistrationNoLookups();
         }
         /**
          * If IDToCountryIncorporated has increased in size, write out the
          * mappings again.
          */
         if (nInitialCountryIncorporated < Env.IDToCountryIncorporated.size()) {
-            Env.writeIDToCountryIncorporated();
+            Env.writeCountryIncorporatedLookups();
         }
         /**
          * If IDToProprietorName has increased in size, write out the mappings
          * again.
          */
         if (nInitialProprietorName < Env.IDToProprietorName.size()) {
-            Env.writeIDToProprietorName();
+            Env.writeProprietorNameLookups();
         }
         /**
          * If IDToTitleNumber has increased in size, write out the mappings
          * again.
          */
         if (nInitialTitleNumber < Env.IDToTitleNumber.size()) {
-            Env.writeIDToTitleNumber();
+            Env.writeTitleNumberLookups();
         }
     }
 
-    protected ArrayList<String> getSetNames(boolean doFull) {
+    protected String getName00(boolean doFull, String name0) {
+        String result = "";
+        if (doFull) {
+            result += name0 + "_" + Env.Strings.S_FULL + "_";
+        } else {
+            result += name0 + "_" + Env.Strings.S_COU + "_";
+        }
+        return result;
+    }
+
+    protected ArrayList<String> getSetNames(boolean doFull, String CCODorOCOD) {
         ArrayList<String> names2;
         names2 = new ArrayList<>();
+        String[] filenames;
+        filenames = Files.getInputDataDir(CCODorOCOD).list();
+        String[] filenamesSplit;
         if (doFull) {
-            names2.add("2017_11");
-            names2.add("2018_02");
-            names2.add("2018_07");
+            for (int i = 0; i < filenames.length; i++) {
+                if (filenames[i].contains(Env.Strings.S_FULL)) {
+                    if (!filenames[i].contains(Env.Strings.S_zip)) {
+                        filenamesSplit = filenames[i].split("_" + Env.Strings.S_FULL + "_");
+                        names2.add(filenamesSplit[1]);
+                    }
+                }
+            }
         } else {
-            names2.add("2017_11");
-            names2.add("2017_12");
-            names2.add("2018_01");
-            names2.add("2018_02");
-            names2.add("2018_03");
-            names2.add("2018_04");
-            names2.add("2018_05");
-            names2.add("2018_06");
-            names2.add("2018_07");
-            names2.add("2018_08");
+            for (int i = 0; i < filenames.length; i++) {
+                if (filenames[i].contains(Env.Strings.S_COU)) {
+                    if (!filenames[i].contains(Env.Strings.S_zip)) {
+                        filenamesSplit = filenames[i].split("_" + Env.Strings.S_COU + "_");
+                        names2.add(filenamesSplit[1]);
+                    }
+                }
+            }
         }
         return names2;
     }

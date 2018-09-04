@@ -100,6 +100,16 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             Env.updatedTitleNumberLookups = true;
         }
         ID = new LR_ID2(TitleNumberID, PropertyAddressID);
+        // Tenure
+        s = getTenure();
+        if (Env.TenureToID.containsKey(s)) {
+            TenureID = Env.TenureToID.get(s);
+        } else {
+            TenureID = new LR_ID(Env.TenureToID.size());
+            Env.TenureToID.put(s, TenureID);
+            Env.IDToTenure.put(TenureID, s);
+            Env.updatedTenureLookups = true;
+        }
         // ProprietorName
         s = getProprietorName1();
         updateProprietorNameLookups(1, s);
@@ -118,6 +128,15 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         updateCompanyRegistrationNoLookups(3, s);
         s = getCompanyRegistrationNo4();
         updateCompanyRegistrationNoLookups(4, s);
+        // ProprietorshipCategory
+        s = getProprietorshipCategory1();
+        updateProprietorshipCategoryLookups(1, s);
+        s = getProprietorshipCategory2();
+        updateProprietorshipCategoryLookups(2, s);
+        s = getProprietorshipCategory3();
+        updateProprietorshipCategoryLookups(3, s);
+        s = getProprietorshipCategory4();
+        updateProprietorshipCategoryLookups(4, s);
     }
 
     /**
@@ -214,6 +233,53 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         }
     }
 
+    /**
+     * @param i 1, 2, 3 or 4.
+     * @param s A potentially new ProprietorshipCategory.
+     */
+    public final void updateProprietorshipCategoryLookups(int i, String s) {
+        if (Env.ProprietorshipCategoryToID.containsKey(s)) {
+            switch (i) {
+                case 1:
+                    ProprietorshipCategory1ID = Env.ProprietorshipCategoryToID.get(s);
+                    break;
+                case 2:
+                    ProprietorshipCategory2ID = Env.ProprietorshipCategoryToID.get(s);
+                    break;
+                case 3:
+                    ProprietorshipCategory3ID = Env.ProprietorshipCategoryToID.get(s);
+                    break;
+                default:
+                    ProprietorshipCategory4ID = Env.ProprietorshipCategoryToID.get(s);
+                    break;
+            }
+        } else {
+            switch (i) {
+                case 1:
+                    ProprietorshipCategory1ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
+                    Env.CountryIncorporatedToID.put(s, ProprietorshipCategory1ID);
+                    Env.IDToCountryIncorporated.put(ProprietorshipCategory1ID, s);
+                    break;
+                case 2:
+                    ProprietorshipCategory2ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
+                    Env.CountryIncorporatedToID.put(s, ProprietorshipCategory2ID);
+                    Env.IDToCountryIncorporated.put(ProprietorshipCategory2ID, s);
+                    break;
+                case 3:
+                    ProprietorshipCategory3ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
+                    Env.CountryIncorporatedToID.put(s, ProprietorshipCategory3ID);
+                    Env.IDToCountryIncorporated.put(ProprietorshipCategory3ID, s);
+                    break;
+                default:
+                    ProprietorshipCategory4ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
+                    Env.CountryIncorporatedToID.put(s, ProprietorshipCategory4ID);
+                    Env.IDToCountryIncorporated.put(ProprietorshipCategory4ID, s);
+                    break;
+            }
+            Env.updatedProprietorshipCategoryLookups = true;
+        }
+    }
+    
     @Override
     public String toString() {
         return "TitleNumber " + getTitleNumber()

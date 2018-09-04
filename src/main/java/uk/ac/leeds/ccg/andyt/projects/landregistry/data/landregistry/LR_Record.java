@@ -26,8 +26,9 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
  */
 public abstract class LR_Record extends LR_Object {
 
-    protected LR_ID2 ID; 
+    protected LR_ID2 ID;
     protected LR_ID TitleNumberID;
+    protected LR_ID TenureID;
     protected LR_ID PropertyAddressID;
     protected LR_ID ProprietorName1ID;
     protected LR_ID ProprietorName2ID;
@@ -37,6 +38,10 @@ public abstract class LR_Record extends LR_Object {
     protected LR_ID CompanyRegistrationNo2ID;
     protected LR_ID CompanyRegistrationNo3ID;
     protected LR_ID CompanyRegistrationNo4ID;
+    protected LR_ID ProprietorshipCategory1ID;
+    protected LR_ID ProprietorshipCategory2ID;
+    protected LR_ID ProprietorshipCategory3ID;
+    protected LR_ID ProprietorshipCategory4ID;
     private String TitleNumber;
     private String Tenure;
     private String PropertyAddress;
@@ -115,7 +120,6 @@ public abstract class LR_Record extends LR_Object {
         setDateProprietorAdded(r.getDateProprietorAdded());
         setAdditionalProprietorIndicator(r.getAdditionalProprietorIndicator());
     }
-    
 
     public abstract String toCSV();
 
@@ -211,6 +215,13 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
+     * @return the TenureID
+     */
+    public final LR_ID getTenureID() {
+        return TenureID;
+    }
+
+    /**
      * @return the District
      */
     public final String getDistrict() {
@@ -264,6 +275,13 @@ public abstract class LR_Record extends LR_Object {
      */
     public final String getProprietorshipCategory1() {
         return ProprietorshipCategory1;
+    }
+
+    /**
+     * @return the ProprietorshipCategory1ID
+     */
+    public final LR_ID getProprietorshipCategory1ID() {
+        return ProprietorshipCategory1ID;
     }
 
     /**
@@ -428,10 +446,24 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
+     * @return the ProprietorshipCategory2ID
+     */
+    public final LR_ID getProprietorshipCategory2ID() {
+        return ProprietorshipCategory2ID;
+    }
+
+    /**
      * @return the ProprietorshipCategory3
      */
     public final String getProprietorshipCategory3() {
         return ProprietorshipCategory3;
+    }
+
+    /**
+     * @return the ProprietorshipCategory3ID
+     */
+    public final LR_ID getProprietorshipCategory3ID() {
+        return ProprietorshipCategory3ID;
     }
 
     /**
@@ -442,10 +474,24 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
+     * @return the ProprietorshipCategory4ID
+     */
+    public final LR_ID getProprietorshipCategory4ID() {
+        return ProprietorshipCategory4ID;
+    }
+
+    /**
      * @return the CountryIncorporated1
      */
     public String getCountryIncorporated1() {
         return "United Kingdom";
+    }
+    
+    /**
+     * @return the CountryIncorporated1ID
+     */
+    public LR_ID getCountryIncorporated1ID() {
+        return Env.CountryIncorporatedToID.get(getCountryIncorporated1());
     }
 
     /**
