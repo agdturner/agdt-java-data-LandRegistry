@@ -42,12 +42,14 @@ public abstract class LR_Record extends LR_Object {
     protected LR_ID ProprietorshipCategory2ID;
     protected LR_ID ProprietorshipCategory3ID;
     protected LR_ID ProprietorshipCategory4ID;
+    protected LR_ID PostcodeDistrictID;
     private String TitleNumber;
     private String Tenure;
     private String PropertyAddress;
     private String District;
     private String Region;
     private String Postcode;
+    private String PostcodeDistrict;
     private String MultipleAddressIndicator;
     private String PricePaid;
     private String CompanyRegistrationNo1;
@@ -240,6 +242,20 @@ public abstract class LR_Record extends LR_Object {
      */
     public final String getPostcode() {
         return Postcode;
+    }
+
+    /**
+     * @return the PostcodeDistrict
+     */
+    public final String getPostcodeDistrict() {
+        return PostcodeDistrict;
+    }
+
+    /**
+     * @return the PostcodeDistrictID
+     */
+    public final LR_ID getPostcodeDistrictID() {
+        return PostcodeDistrictID;
     }
 
     /**
@@ -484,7 +500,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the CountryIncorporated1
      */
     public String getCountryIncorporated1() {
-        return "United Kingdom";
+        return Env.Strings.S_United_Kingdom;
     }
     
     /**
@@ -534,6 +550,9 @@ public abstract class LR_Record extends LR_Object {
      */
     public final void setPostcode(String Postcode) {
         this.Postcode = Postcode;
+        String[] split;
+        split = this.Postcode.split(" ");
+        this.PostcodeDistrict = split[0];
     }
 
     /**

@@ -3,6 +3,7 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
@@ -15,7 +16,36 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 
     public LR_Strings Strings;
     public LR_Files Files;
+    
+    public LR_ID TypeIDTenure;
+    public LR_ID TypeIDCompanyRegistrationNo1;
+    public LR_ID TypeIDProprietorshipCategory1;
+    public LR_ID TypeIDProprietorName1;
+    public LR_ID TypeIDCountryIncorporated1;
+    public LR_ID TypeIDPostcodeDistrict;
 
+    //public HashMap<LR_ID, HashMap<LR_ID, String>> IDMaps;
+    
+    //protected <K> Map<K, String> getLookup(LR_ID typeID) {
+    //    Map<K, String> result;
+    public HashMap<LR_ID, String> getLookup(LR_ID typeID) {
+        if (typeID.equals(TypeIDTenure)) {
+            return IDToTenure;
+        } else if (typeID.equals(TypeIDCompanyRegistrationNo1)) {
+            return IDToCompanyRegistrationNo;
+        } else if (typeID.equals(TypeIDProprietorshipCategory1)) {
+            return IDToProprietorshipCategory;
+        } else if (typeID.equals(TypeIDProprietorName1)) {
+            return IDToProprietorName;
+        } else if (typeID.equals(TypeIDCountryIncorporated1)) {
+            return IDToCountryIncorporated;
+        } else if (typeID.equals(TypeIDPostcodeDistrict)) {
+            return IDToPostcodeDistrict;
+        } else {
+            return null;
+        }
+    }
+    
     // PropertyAddress, TitleNumber, ProprietorName, CompanyRegistrationNo, CountryIncorporated Lookups
     public HashMap<LR_ID, String> IDToPropertyAddress;
     public HashMap<String, LR_ID> PropertyAddressToID;
@@ -23,6 +53,10 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public HashMap<String, LR_ID> TitleNumberToID;
     public HashMap<LR_ID, String> IDToTenure;
     public HashMap<String, LR_ID> TenureToID;
+    
+    public HashMap<LR_ID, String> IDToPostcodeDistrict;
+    public HashMap<String, LR_ID> PostcodeDistrictToID;
+    
     public HashMap<LR_ID, String> IDToProprietorName;
     public HashMap<String, LR_ID> ProprietorNameToID;
     public HashMap<LR_ID, String> IDToCompanyRegistrationNo;
@@ -36,6 +70,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public boolean updatedPropertyAddressLookups;
     public boolean updatedTitleNumberLookups;
     public boolean updatedTenureLookups;
+    public boolean updatedPostcodeDistrictLookups;
     public boolean updatedProprietorNameLookups;
     public boolean updatedCompanyRegistrationNoLookups;
     public boolean updatedCountryIncorporatedLookups;
@@ -47,6 +82,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         updatedPropertyAddressLookups = false;
         updatedTitleNumberLookups = false;
         updatedTenureLookups = false;
+        updatedPostcodeDistrictLookups = false;
         updatedProprietorNameLookups = false;
         updatedCompanyRegistrationNoLookups = false;
         updatedCountryIncorporatedLookups = false;
@@ -143,6 +179,36 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         }
     }
     
+    public void writePostcodeDistrictLookups() {
+        if (updatedPostcodeDistrictLookups) {
+            File f;
+            f = new File(Files.getGeneratedDataDir(Strings), "IDToPostcodeDistrict.dat");
+            Generic_StaticIO.writeObject(IDToPostcodeDistrict, f);
+            f = new File(Files.getGeneratedDataDir(Strings), "PostcodeDistrictToID.dat");
+            Generic_StaticIO.writeObject(PostcodeDistrictToID, f);
+        }
+    }
+
+    public void loadIDToPostcodeDistrict() {
+        File f;
+        f = new File(Files.getGeneratedDataDir(Strings), "IDToPostcodeDistrict.dat");
+        if (!f.exists()) {
+            IDToPostcodeDistrict = new HashMap<>();
+        } else {
+            IDToPostcodeDistrict = (HashMap<LR_ID, String>) Generic_StaticIO.readObject(f);
+        }
+    }
+
+    public void loadPostcodeDistrictToID() {
+        File f;
+        f = new File(Files.getGeneratedDataDir(Strings), "PostcodeDistrictToID.dat");
+        if (!f.exists()) {
+            PostcodeDistrictToID = new HashMap<>();
+        } else {
+            PostcodeDistrictToID = (HashMap<String, LR_ID>) Generic_StaticIO.readObject(f);
+        }
+    }
+    
     public void writeProprietorNameLookups() {
         if (updatedProprietorNameLookups) {
             File f;
@@ -218,6 +284,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         f = new File(Files.getGeneratedDataDir(Strings), "IDToCountryIncorporated.dat");
         if (!f.exists()) {
             IDToCountryIncorporated = new HashMap<>();
+            IDToCountryIncorporated.put(new LR_ID(0), Strings.S_United_Kingdom);
         } else {
             IDToCountryIncorporated = (HashMap<LR_ID, String>) Generic_StaticIO.readObject(f);
         }
@@ -228,6 +295,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         f = new File(Files.getGeneratedDataDir(Strings), "CountryIncorporatedToID.dat");
         if (!f.exists()) {
             CountryIncorporatedToID = new HashMap<>();
+            CountryIncorporatedToID.put(Strings.S_United_Kingdom, new LR_ID(0));
         } else {
             CountryIncorporatedToID = (HashMap<String, LR_ID>) Generic_StaticIO.readObject(f);
         }

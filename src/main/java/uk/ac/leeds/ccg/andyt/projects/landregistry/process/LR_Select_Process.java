@@ -67,8 +67,8 @@ public class LR_Select_Process extends LR_Main_Process {
         String name0;
         String name00;
         names0 = new ArrayList<>();
-        names0.add(Env.Strings.S_CCOD);
-        names0.add(Env.Strings.S_OCOD);
+        names0.add(Strings.S_CCOD);
+        names0.add(Strings.S_OCOD);
         boolean isCCOD;
 
         File indir;
@@ -82,7 +82,7 @@ public class LR_Select_Process extends LR_Main_Process {
         ite0 = names0.iterator();
         while (ite0.hasNext()) {
             name0 = ite0.next();
-            isCCOD = name0.equalsIgnoreCase(Env.Strings.S_CCOD);
+            isCCOD = name0.equalsIgnoreCase(Strings.S_CCOD);
             name00 = getName00(doFull, name0);
             setNames = getSetNames(doFull, name0);
             ite2 = setNames.iterator();

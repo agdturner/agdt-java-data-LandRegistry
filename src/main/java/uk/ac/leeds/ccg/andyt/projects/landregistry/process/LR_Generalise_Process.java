@@ -92,10 +92,10 @@ public class LR_Generalise_Process extends LR_Main_Process {
         String name00;
         names0 = new ArrayList<>();
         if (doCCOD) {
-            names0.add(Env.Strings.S_CCOD);
+            names0.add(Strings.S_CCOD);
         }
         if (doOCOD) {
-            names0.add(Env.Strings.S_OCOD);
+            names0.add(Strings.S_OCOD);
         }
         boolean isCCOD;
 
@@ -109,14 +109,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
         ArrayList<String> lines;
         HashMap<LR_ID, PrintWriter> pws;
         // Initialise Types, IDToType and TypeToID.
-        Types = new ArrayList<>();
-        addType("Tenure");
-//        addType("District");
-//        addType("County");
-//        addType("Postcode");
-        addType("Company Registration No 1");
-        addType("Proprietorship Category 1");
-        addType("Country Incorporated 1");
+        initTypeIDs();
+
         pws = new HashMap<>();
         Iterator<LR_ID> iteTypes;
         String type;
@@ -127,7 +121,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         ite0 = names0.iterator();
         while (ite0.hasNext()) {
             name0 = ite0.next();
-            isCCOD = name0.equalsIgnoreCase(Env.Strings.S_CCOD);
+            isCCOD = name0.equalsIgnoreCase(Strings.S_CCOD);
             name00 = getName00(doFull, name0);
             setNames = getSetNames(doFull, name0);
             ite2 = setNames.iterator();
@@ -138,23 +132,26 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     indir = new File(inputDataDir, name0);
                     indir = new File(indir, name);
                     if (doAll) {
-                        outdir = new File(outputDataDir, "GeneralisedFull");
+                        outdir = new File(outputDataDir, 
+                                Strings.S_Generalised + "Full");
                     } else {
                         indir = new File(outputDataDir, area);
                         indir = new File(indir, name0);
                         indir = new File(indir, name);
-                        outdir = new File(outputDataDir, area + "GeneralisedFull");
+                        outdir = new File(outputDataDir, 
+                                area + Strings.S_Generalised + "Full");
                     }
                 } else {
                     indir = new File(outputDataDir, area);
                     indir = new File(indir, name0);
                     indir = new File(indir, name);
-                    outdir = new File(outputDataDir, area + "_Generalised");
+                    outdir = new File(outputDataDir, 
+                            area + "_" + Strings.S_Generalised);
                 }
                 System.out.println("indir " + indir);
                 outdir = new File(outdir, name0);
                 outdir = new File(outdir, name);
-                outdir = new File(outdir, "Generalised");
+                outdir = new File(outdir, Strings.S_Generalised);
                 System.out.println("outdir " + outdir);
                 fin = new File(indir, name + ".csv");
                 if (!fin.exists()) {
@@ -232,24 +229,56 @@ public class LR_Generalise_Process extends LR_Main_Process {
         Types.add(id);
     }
 
+    protected void initTypeIDs() {
+        Types = new ArrayList<>();
+        TypeToID = new HashMap<>();
+        IDToType = new HashMap<>();
+        String s;
+        LR_ID typeID;
+        s = "Tenure";
+        addType(s);
+        Env.TypeIDTenure = TypeToID.get(s);
+//        s = "District";
+//        addType(s);
+//        s = "County";
+//        addType(s);
+        s = "Company Registration No 1";
+        addType(s);
+        Env.TypeIDCompanyRegistrationNo1 = TypeToID.get(s);
+        s = "Proprietor Name1 1";
+        addType(s);
+        Env.TypeIDProprietorName1 = TypeToID.get(s);
+        s = "Proprietorship Category 1";
+        addType(s);
+        Env.TypeIDProprietorshipCategory1 = TypeToID.get(s);
+        s = "Country Incorporated 1";
+        addType(s);
+        Env.TypeIDCountryIncorporated1 = TypeToID.get(s);
+        s = "Postcode District";
+        addType(s);
+        Env.TypeIDPostcodeDistrict = TypeToID.get(s);
+    }
+
     void addToCounts(LR_Record r) {
         Iterator<LR_ID> iteTypes;
         iteTypes = Types.iterator();
         LR_ID typeID;
         while (iteTypes.hasNext()) {
             typeID = iteTypes.next();
-            if (typeID.equals(TypeToID.get("Tenure"))) {
+            if (typeID.equals(Env.TypeIDTenure)) {
                 Generic_Collections.addToMap(Counts.get(typeID), r.getTenureID(), 1);
-            } else if (typeID.equals(TypeToID.get("Company Registration No 1"))) {
+            } else if (typeID.equals(Env.TypeIDCompanyRegistrationNo1)) {
                 Generic_Collections.addToMap(Counts.get(typeID), r.getCompanyRegistrationNo1ID(), 1);
-            } else if (typeID.equals(TypeToID.get("Proprietorship Category 1"))) {
+            } else if (typeID.equals(Env.TypeIDProprietorshipCategory1)) {
                 Generic_Collections.addToMap(Counts.get(typeID), r.getProprietorshipCategory1ID(), 1);
-            } else if (typeID.equals(TypeToID.get("Country Incorporated 1"))) {
+            } else if (typeID.equals(Env.TypeIDProprietorName1)) {
+                Generic_Collections.addToMap(Counts.get(typeID), r.getProprietorName1ID(), 1);
+            } else if (typeID.equals(Env.TypeIDCountryIncorporated1)) {
                 Generic_Collections.addToMap(Counts.get(typeID), r.getCountryIncorporated1ID(), 1);
-            } else if (typeID.equals(TypeToID.get("Country Incorporated 1"))) {
-                Generic_Collections.addToMap(Counts.get(typeID), r.getCountryIncorporated1ID(), 1);
+            } else if (typeID.equals(Env.TypeIDPostcodeDistrict)) {
+                Generic_Collections.addToMap(Counts.get(typeID), r.getPostcodeDistrictID(), 1);
             } else {
-
+                int debug = 1; //not sure what should be happening here!
             }
         }
 //        Generic_Collections.addToMap(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
@@ -263,17 +292,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
         LR_ID typeID;
         while (iteTypes.hasNext()) {
             typeID = iteTypes.next();
-            printGeneralisation(pws, typeID, Counts.get(typeID), null, min);
+            printGeneralisation(pws, typeID, Counts.get(typeID), Env.getLookup(typeID), min);
         }
-//        printGeneralisation(pws, "Tenure", tenureCounts, null, min);
-////        printGeneralisation(pws, "District", districtCounts);
-////        printGeneralisation(pws, "County", countyCounts);
-////        printGeneralisation(pws, "Postcode", postcodeCounts);
-//        printGeneralisation(pws, "Company Registration No 1", companyRegistrationNo1Counts, null, min);
-//        printGeneralisation(pws, "Proprietorship Category 1", proprietorshipCategory1Counts, null, min);
-//        printGeneralisation(pws, "Proprietor Name 1", proprietorName1IDCounts, Env.IDToProprietorName, min);
-//        printGeneralisation(pws, "Country Incorporated 1", countryIncorporated1Counts, min, TransparencyMap);
-//        //printGeneralisation(pw, "Country Incorporated 1", countryIncorporated1Counts, null, min);
     }
 
     /**

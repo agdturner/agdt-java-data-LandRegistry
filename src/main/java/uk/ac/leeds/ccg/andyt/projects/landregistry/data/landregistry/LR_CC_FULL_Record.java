@@ -110,6 +110,16 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             Env.IDToTenure.put(TenureID, s);
             Env.updatedTenureLookups = true;
         }
+        // PostcodeDistrict
+        s = getPostcodeDistrict();
+        if (Env.PostcodeDistrictToID.containsKey(s)) {
+            PostcodeDistrictID = Env.PostcodeDistrictToID.get(s);
+        } else {
+            PostcodeDistrictID = new LR_ID(Env.PostcodeDistrictToID.size());
+            Env.PostcodeDistrictToID.put(s, PostcodeDistrictID);
+            Env.IDToPostcodeDistrict.put(PostcodeDistrictID, s);
+            Env.updatedPostcodeDistrictLookups = true;
+        }
         // ProprietorName
         s = getProprietorName1();
         updateProprietorNameLookups(1, s);
@@ -210,23 +220,23 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             switch (i) {
                 case 1:
                     CompanyRegistrationNo1ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
-                    Env.CountryIncorporatedToID.put(s, CompanyRegistrationNo1ID);
-                    Env.IDToCountryIncorporated.put(CompanyRegistrationNo1ID, s);
+                    Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo1ID);
+                    Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo1ID, s);
                     break;
                 case 2:
                     CompanyRegistrationNo2ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
-                    Env.CountryIncorporatedToID.put(s, CompanyRegistrationNo2ID);
-                    Env.IDToCountryIncorporated.put(CompanyRegistrationNo2ID, s);
+                    Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo2ID);
+                    Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo2ID, s);
                     break;
                 case 3:
                     CompanyRegistrationNo3ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
-                    Env.CountryIncorporatedToID.put(s, CompanyRegistrationNo3ID);
-                    Env.IDToCountryIncorporated.put(CompanyRegistrationNo3ID, s);
+                    Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo3ID);
+                    Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo3ID, s);
                     break;
                 default:
                     CompanyRegistrationNo4ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
-                    Env.CountryIncorporatedToID.put(s, CompanyRegistrationNo4ID);
-                    Env.IDToCountryIncorporated.put(CompanyRegistrationNo4ID, s);
+                    Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo4ID);
+                    Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo4ID, s);
                     break;
             }
             Env.updatedCompanyRegistrationNoLookups = true;
@@ -257,23 +267,23 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             switch (i) {
                 case 1:
                     ProprietorshipCategory1ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
-                    Env.CountryIncorporatedToID.put(s, ProprietorshipCategory1ID);
-                    Env.IDToCountryIncorporated.put(ProprietorshipCategory1ID, s);
+                    Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory1ID);
+                    Env.IDToProprietorshipCategory.put(ProprietorshipCategory1ID, s);
                     break;
                 case 2:
                     ProprietorshipCategory2ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
-                    Env.CountryIncorporatedToID.put(s, ProprietorshipCategory2ID);
-                    Env.IDToCountryIncorporated.put(ProprietorshipCategory2ID, s);
+                    Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory2ID);
+                    Env.IDToProprietorshipCategory.put(ProprietorshipCategory2ID, s);
                     break;
                 case 3:
                     ProprietorshipCategory3ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
-                    Env.CountryIncorporatedToID.put(s, ProprietorshipCategory3ID);
-                    Env.IDToCountryIncorporated.put(ProprietorshipCategory3ID, s);
+                    Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory3ID);
+                    Env.IDToProprietorshipCategory.put(ProprietorshipCategory3ID, s);
                     break;
                 default:
                     ProprietorshipCategory4ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
-                    Env.CountryIncorporatedToID.put(s, ProprietorshipCategory4ID);
-                    Env.IDToCountryIncorporated.put(ProprietorshipCategory4ID, s);
+                    Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory4ID);
+                    Env.IDToProprietorshipCategory.put(ProprietorshipCategory4ID, s);
                     break;
             }
             Env.updatedProprietorshipCategoryLookups = true;

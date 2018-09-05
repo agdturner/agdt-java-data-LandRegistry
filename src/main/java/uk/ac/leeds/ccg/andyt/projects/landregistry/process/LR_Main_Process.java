@@ -16,7 +16,6 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
@@ -32,6 +31,7 @@ public class LR_Main_Process extends LR_Object {
     int nInitialPropertyAddress;
     int nInitialTitleNumber;
     int nInitialTenure;
+    int nInitialPostcodeDistrict;
     int nInitialCompanyRegistrationNo;
     int nInitialCountryIncorporated;
     int nInitialProprietorName;
@@ -63,6 +63,8 @@ public class LR_Main_Process extends LR_Object {
         p.Env.loadTitleNumberToID();
         p.Env.loadIDToTenure();
         p.Env.loadTenureToID();
+        p.Env.loadPostcodeDistrictToID();
+        p.Env.loadIDToPostcodeDistrict();        
         p.Env.loadIDToCompanyRegistrationNo();
         p.Env.loadCompanyRegistrationNoToID();
         p.Env.loadIDToCountryIncorporated();
@@ -74,6 +76,7 @@ public class LR_Main_Process extends LR_Object {
         p.nInitialPropertyAddress = p.Env.PropertyAddressToID.size();
         p.nInitialTitleNumber = p.Env.TitleNumberToID.size();
         p.nInitialTenure = p.Env.TenureToID.size();
+        p.nInitialPostcodeDistrict = p.Env.PostcodeDistrictToID.size();
         p.nInitialCompanyRegistrationNo = p.Env.CompanyRegistrationNoToID.size();
         p.nInitialCountryIncorporated = p.Env.CountryIncorporatedToID.size();
         p.nInitialProprietorName = p.Env.ProprietorNameToID.size();
@@ -93,12 +96,12 @@ public class LR_Main_Process extends LR_Object {
     public void run() {
 
         // Main switches
-        doSelectLeeds = true;
+//        doSelectLeeds = true;
 //        doGeneralise = true;
 //        doGeneraliseLeeds = true;
 //        doGeneraliseAll = true;
-//        doTransitions = true;
-//        doTransitionsLeeds = true;
+        doTransitions = true;
+        doTransitionsLeeds = true;
 
         String area;
         area = "LEEDS";
@@ -274,27 +277,36 @@ public class LR_Main_Process extends LR_Object {
         return result;
     }
 
+    /**
+     * Returns names of data to process.
+     *
+     * @param doFull If true then names of FULL data are returned. Otherwise
+     * names of COU data are returned.
+     * @param CCODorOCOD For either Commercial or Overseas data depending
+     * respectively on whether CCODorOCOD = "CCOD" or "OCOD".
+     * @return
+     */
     protected ArrayList<String> getSetNames(boolean doFull, String CCODorOCOD) {
         ArrayList<String> names2;
         names2 = new ArrayList<>();
         String[] filenames;
         filenames = Files.getInputDataDir(CCODorOCOD).list();
-        String[] filenamesSplit;
+        String[] split;
         if (doFull) {
-            for (int i = 0; i < filenames.length; i++) {
-                if (filenames[i].contains(Env.Strings.S_FULL)) {
-                    if (!filenames[i].contains(Env.Strings.S_zip)) {
-                        filenamesSplit = filenames[i].split("_" + Env.Strings.S_FULL + "_");
-                        names2.add(filenamesSplit[1]);
+            for (String filename : filenames) {
+                if (filename.contains(Env.Strings.S_FULL)) {
+                    if (!filename.contains(Env.Strings.S_zip)) {
+                        split = filename.split("_" + Env.Strings.S_FULL + "_");
+                        names2.add(split[1]);
                     }
                 }
             }
         } else {
-            for (int i = 0; i < filenames.length; i++) {
-                if (filenames[i].contains(Env.Strings.S_COU)) {
-                    if (!filenames[i].contains(Env.Strings.S_zip)) {
-                        filenamesSplit = filenames[i].split("_" + Env.Strings.S_COU + "_");
-                        names2.add(filenamesSplit[1]);
+            for (String filename : filenames) {
+                if (filename.contains(Env.Strings.S_COU)) {
+                    if (!filename.contains(Env.Strings.S_zip)) {
+                        split = filename.split("_" + Env.Strings.S_COU + "_");
+                        names2.add(split[1]);
                     }
                 }
             }
