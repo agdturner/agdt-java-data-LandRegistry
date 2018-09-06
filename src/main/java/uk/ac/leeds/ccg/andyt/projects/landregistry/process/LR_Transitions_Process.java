@@ -28,7 +28,9 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
@@ -45,6 +47,46 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
  * @author Andy Turner
  */
 public class LR_Transitions_Process extends LR_Main_Process {
+
+    /**
+     * This provides a store to look up company registration numbers from
+     * TitleNumbers. If a TitleNumber is not known for a YearMonth, then the
+     * TitleNumber has either not yet been in the data, or is in a record for an
+     * earlier YearMonth. Keys are YearMonth, Values are HashMaps with Keys as
+     * TitleNumberIDs and Values as lists of CompanyRegistrationNoIDs where the
+     * first in the list is CompanyRegistrationNo1ID, the second is
+     * CompanyRegistrationNo2ID, the third is CompanyRegistrationNo3ID, and the
+     * fourth is CompanyRegistrationNo4ID.
+     */
+    public TreeMap<Generic_YearMonth, HashMap<LR_ID, ArrayList<LR_ID>>> YMTitleNumberIDToCompanyRegistrationNoID;
+    /**
+     * This provides a store to look up TitleNumbers for a company at any given
+     * YearMonth. If a company registration number is not known for the
+     * YearMonth, then either it is for a company not yet seen in the data, or
+     * it is for a company that has not gained any titles. To find the titles
+     * the company has, then search backwards. If a company gains any titles,
+     * all title numbers are added, so the search only needs to go back to find
+     * a record.
+     */
+    public TreeMap<Generic_YearMonth, HashMap<LR_ID, HashSet<LR_ID>>> YMCompanyRegistrationNoIDToTitleNumberID;
+    /**
+     * This provides a store to look up company registration numbers from
+     * proprietor names at any given YearMonth. (There may be multiple company
+     * registration numbers for a single proprietor name!)
+     */
+    public TreeMap<Generic_YearMonth, HashMap<LR_ID, HashSet<LR_ID>>> YMProprietorNameIDToCompanyRegistrationNoID;
+    /**
+     * This provides a store to look up a proprietor names from company
+     * registration numbers at any given YearMonth.
+     */
+    public TreeMap<Generic_YearMonth, HashMap<LR_ID, LR_ID>> YMCompanyRegistrationNoIDToProprietorNameID;
+
+    /**
+     * Set to true if TitleNumberID to CompanyRegistrationNoID lookups are
+     * modified.
+     */
+    public boolean UpdatedTitleNumberCompanyRegistrationNoLookups;
+    public boolean UpdatedProprietorNameIDCompanyRegistrationNoLookups;
 
     protected LR_Transitions_Process() {
         super();
@@ -70,8 +112,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
     HashMap<LR_ID2, LR_CC_FULL_Record> fullCCR;
     HashMap<LR_ID2, LR_OC_FULL_Record> fullOCR;
 
-    public void run(String area, File inputDataDir,
-            int minCC, int minOC, boolean doFull, boolean overwrite) {
+    public void run(String area, boolean doAll, File inputDataDir,
+            int minCC, int minOC, boolean overwrite) {
         boolean printDiff;
 //        printDiff = true;
         printDiff = false;
@@ -92,7 +134,15 @@ public class LR_Transitions_Process extends LR_Main_Process {
         boolean isCCOD;
         //names1.add("COU");
         //names1.add("FULL");
-       
+
+        YMTitleNumberIDToCompanyRegistrationNoID = new TreeMap<>();
+        YMCompanyRegistrationNoIDToTitleNumberID = new TreeMap<>();
+        YMProprietorNameIDToCompanyRegistrationNoID = new TreeMap<>();
+        YMCompanyRegistrationNoIDToProprietorNameID = new TreeMap<>();
+        HashMap<LR_ID, ArrayList<LR_ID>> TitleNumberIDToCompanyRegistrationNoID;
+        HashMap<LR_ID, HashSet<LR_ID>> CompanyRegistrationNoIDToTitleNumberID;
+        HashMap<LR_ID, HashSet<LR_ID>> ProprietorNameIDToCompanyRegistrationNoID;
+        HashMap<LR_ID, LR_ID> CompanyRegistrationNoIDToProprietorNameID;
 
         addedCCRCount = new HashMap<>();
         deletedCCRCount = new HashMap<>();
@@ -115,7 +165,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
         File fout;
         ArrayList<String> lines;
         PrintWriter pw = null;
-        outdir = new File(outputDataDir, area + "Transitions");
+        if (doAll) {
+            outdir = new File(outputDataDir, Strings.S_Transitions);
+        } else {
+            outdir = new File(outputDataDir, area + Strings.S_Transitions);
+        }
         System.out.println("outdir " + outdir);
         outdir.mkdirs();
         fout = new File(outdir, "TransitionsGeneralisation.csv");
@@ -131,6 +185,32 @@ public class LR_Transitions_Process extends LR_Main_Process {
         LR_CC_FULL_Record fullccr;
         LR_OC_FULL_Record fullocr;
 
+        Generic_YearMonth ym;
+        ym = new Generic_YearMonth(Env.ge, "2017-11");
+
+        TitleNumberIDToCompanyRegistrationNoID = new HashMap<>();
+        CompanyRegistrationNoIDToTitleNumberID = new HashMap<>();
+        ProprietorNameIDToCompanyRegistrationNoID = new HashMap<>();
+        CompanyRegistrationNoIDToProprietorNameID = new HashMap<>();
+        YMTitleNumberIDToCompanyRegistrationNoID.put(ym, TitleNumberIDToCompanyRegistrationNoID);
+        YMCompanyRegistrationNoIDToTitleNumberID.put(ym, CompanyRegistrationNoIDToTitleNumberID);
+        YMProprietorNameIDToCompanyRegistrationNoID.put(ym, ProprietorNameIDToCompanyRegistrationNoID);;
+        YMCompanyRegistrationNoIDToProprietorNameID.put(ym, CompanyRegistrationNoIDToProprietorNameID);
+        ArrayList<LR_ID> CompanyRegistrationNoIDs;
+        HashSet<LR_ID> TitleNumberIDs;
+        HashSet<LR_ID> CompanyRegistrationNoIDs2;
+        LR_ID ProprietorNameID;
+
+        LR_ID CompanyRegistrationNo1ID;
+        LR_ID CompanyRegistrationNo2ID;
+        LR_ID CompanyRegistrationNo3ID;
+        LR_ID CompanyRegistrationNo4ID;
+        LR_ID TitleNumberID;
+        LR_ID ProprietorName1ID;
+        LR_ID ProprietorName2ID;
+        LR_ID ProprietorName3ID;
+        LR_ID ProprietorName4ID;
+
         // init fullCCR
         fullCCR = new HashMap<>();
         indir = new File(outputDataDir, area);
@@ -141,8 +221,82 @@ public class LR_Transitions_Process extends LR_Main_Process {
         lines = Generic_ReadCSV.read(fin, null, 7);
         for (int ID = 1; ID < lines.size(); ID++) {
             try {
-                fullccr = new LR_CC_FULL_Record(Env, lines.get(ID));
+                fullccr = new LR_CC_FULL_Record(Env, ym, lines.get(ID));
                 fullCCR.put(fullccr.getID(), fullccr);
+                CompanyRegistrationNo1ID = fullccr.getCompanyRegistrationNo1ID();
+                CompanyRegistrationNo2ID = fullccr.getCompanyRegistrationNo2ID();
+                CompanyRegistrationNo3ID = fullccr.getCompanyRegistrationNo3ID();
+                CompanyRegistrationNo4ID = fullccr.getCompanyRegistrationNo4ID();
+                TitleNumberID = fullccr.getTitleNumberID();
+                ProprietorName1ID = fullccr.getProprietorName1ID();
+                ProprietorName2ID = fullccr.getProprietorName2ID();
+                ProprietorName3ID = fullccr.getProprietorName3ID();
+                ProprietorName4ID = fullccr.getProprietorName4ID();
+                // Update key lookups
+                // Update TitleNumberIDToCompanyRegistrationNoID
+                if (TitleNumberIDToCompanyRegistrationNoID.containsKey(TitleNumberID)) {
+                    CompanyRegistrationNoIDs = TitleNumberIDToCompanyRegistrationNoID.get(TitleNumberID);
+                } else {
+                    CompanyRegistrationNoIDs = new ArrayList<>();
+                    TitleNumberIDToCompanyRegistrationNoID.put(TitleNumberID, CompanyRegistrationNoIDs);
+                }
+                CompanyRegistrationNoIDs.add(CompanyRegistrationNo1ID);
+                CompanyRegistrationNoIDs.add(CompanyRegistrationNo2ID);
+                CompanyRegistrationNoIDs.add(CompanyRegistrationNo3ID);
+                CompanyRegistrationNoIDs.add(CompanyRegistrationNo4ID);
+                // Update CompanyRegistrationNoIDToTitleNumberID
+                if (CompanyRegistrationNoIDToTitleNumberID.containsKey(CompanyRegistrationNo1ID)) {
+                    TitleNumberIDs = CompanyRegistrationNoIDToTitleNumberID.get(TitleNumberID);
+                } else {
+                    TitleNumberIDs = new HashSet<>();
+                    CompanyRegistrationNoIDToTitleNumberID.put(CompanyRegistrationNo1ID, TitleNumberIDs);
+                }
+                TitleNumberIDs.add(TitleNumberID);
+                // Update ProprietorNameIDToCompanyRegistrationNoID
+                // ProprietorName1ID
+                if (ProprietorNameIDToCompanyRegistrationNoID.containsKey(ProprietorName1ID)) {
+                    CompanyRegistrationNoIDs2 = ProprietorNameIDToCompanyRegistrationNoID.get(ProprietorName1ID);
+                } else {
+                    CompanyRegistrationNoIDs2 = new HashSet<>();
+                    ProprietorNameIDToCompanyRegistrationNoID.put(ProprietorName1ID, TitleNumberIDs);
+                }
+                CompanyRegistrationNoIDs2.add(CompanyRegistrationNo1ID);
+                // ProprietorName2ID
+                if (ProprietorNameIDToCompanyRegistrationNoID.containsKey(ProprietorName2ID)) {
+                    CompanyRegistrationNoIDs2 = ProprietorNameIDToCompanyRegistrationNoID.get(ProprietorName2ID);
+                } else {
+                    CompanyRegistrationNoIDs2 = new HashSet<>();
+                    ProprietorNameIDToCompanyRegistrationNoID.put(ProprietorName2ID, TitleNumberIDs);
+                }
+                CompanyRegistrationNoIDs2.add(CompanyRegistrationNo2ID);
+                // ProprietorName3ID
+                if (ProprietorNameIDToCompanyRegistrationNoID.containsKey(ProprietorName3ID)) {
+                    CompanyRegistrationNoIDs2 = ProprietorNameIDToCompanyRegistrationNoID.get(ProprietorName3ID);
+                } else {
+                    CompanyRegistrationNoIDs2 = new HashSet<>();
+                    ProprietorNameIDToCompanyRegistrationNoID.put(ProprietorName3ID, TitleNumberIDs);
+                }
+                CompanyRegistrationNoIDs2.add(CompanyRegistrationNo3ID);
+                // ProprietorName4ID
+                if (ProprietorNameIDToCompanyRegistrationNoID.containsKey(ProprietorName4ID)) {
+                    CompanyRegistrationNoIDs2 = ProprietorNameIDToCompanyRegistrationNoID.get(ProprietorName4ID);
+                } else {
+                    CompanyRegistrationNoIDs2 = new HashSet<>();
+                    ProprietorNameIDToCompanyRegistrationNoID.put(ProprietorName4ID, TitleNumberIDs);
+                }
+                CompanyRegistrationNoIDs2.add(CompanyRegistrationNo4ID);
+                // Update CompanyRegistrationNoIDToProprietorNameID
+                // CompanyRegistrationNo1ID
+                if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo1ID)) {
+                    ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo1ID);
+                    if (!ProprietorNameID.equals(ProprietorName1ID)) {
+                        // This is unexpected, the proprietor name has changed!
+                        int debug = 1;
+                    }
+                } else {
+                    ProprietorNameID = ProprietorName1ID;
+                    CompanyRegistrationNoIDToProprietorNameID.put(CompanyRegistrationNo1ID, ProprietorNameID);
+                }
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             }
@@ -158,19 +312,44 @@ public class LR_Transitions_Process extends LR_Main_Process {
         lines = Generic_ReadCSV.read(fin, null, 7);
         for (int ID = 1; ID < lines.size(); ID++) {
             try {
-                fullocr = new LR_OC_FULL_Record(Env, lines.get(ID));
+                fullocr = new LR_OC_FULL_Record(Env, ym, lines.get(ID));
                 fullOCR.put(fullocr.getID(), fullocr);
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             }
         }
 
-        // check if there are OCR in CCR
+        writeTitleNumberCompanyRegistrationNoIDLookups(ym);
+        writeProprietorNameIDCompanyRegistrationNoIDLookups(ym);
+
+        // Check if there are OCR in CCR
         Set<LR_ID2> s;
         s = new HashSet<>();
         s.addAll(fullCCR.keySet());
         s.retainAll(fullOCR.keySet());
         System.out.println("There are " + s.size() + " oversees corporate owners.");
+        Iterator<LR_ID2> ite;
+        LR_ID2 id2;
+        String address;
+        String titleNumber;
+        LR_ID companyRegistrationNoID;
+        LR_ID proprietorNameID;
+        String companyRegistrationNo;
+        String proprietorName;
+        ite = s.iterator();
+        System.out.println("CompanyRegistrationNo, TitleNumber, ProprietorName, Address");
+        while (ite.hasNext()) {
+            id2 = ite.next();
+            address = Env.IDToPropertyAddress.get(id2.getPropertyAddressID());
+            titleNumber = Env.IDToTitleNumber.get(id2.getTitleNumberID());
+            ArrayList<LR_ID> companyRegistrationNoIDs;
+            companyRegistrationNoIDs = TitleNumberIDToCompanyRegistrationNoID.get(id2.getTitleNumberID());
+            companyRegistrationNoID = companyRegistrationNoIDs.get(companyRegistrationNoIDs.size() - 1);
+            proprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(companyRegistrationNoID);
+            companyRegistrationNo = Env.IDToCompanyRegistrationNo.get(companyRegistrationNoID);
+            proprietorName = Env.IDToProprietorName.get(proprietorNameID);
+            System.out.println(companyRegistrationNo + ", " + titleNumber + ", " + proprietorName + ", " + address);
+        }
 
         Iterator<String> ites0;
         Iterator<String> ites1;
@@ -180,13 +359,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
             isCCOD = name0.equalsIgnoreCase("CCOD");
             name00 = "";
             name00 += name0 + "_COU_";
-            names2 = getSetNames(doFull, name0);
+            names2 = getSetNames(false, name0);
             names2.remove("2017_10");
             ites1 = names2.iterator();
             while (ites1.hasNext()) {
                 name = name00;
                 String time;
                 time = ites1.next();
+                ym = new Generic_YearMonth(Env.ge, time.replaceAll("_", "-"));
                 name += time;
                 if (isCCOD) {
                     addedCCRTime = new HashMap<>();
@@ -199,23 +379,27 @@ public class LR_Transitions_Process extends LR_Main_Process {
                     deletedOCRTime = new HashMap<>();
                     deletedOCR.put(time, deletedOCRTime);
                 }
-                indir = new File(outputDataDir, area);
+                if (doAll) {
+                    indir = inputDataDir;
+                } else {
+                    indir = new File(outputDataDir, area);
+                }
                 indir = new File(indir, name0);
                 indir = new File(indir, name);
                 System.out.println("indir " + indir);
-                fout = new File(indir, name + ".csv");
-                if (!fout.exists()) {
-                    System.out.println("File " + fout + " does not exist.");
+                fin = new File(indir, name + ".csv");
+                if (!fin.exists()) {
+                    System.out.println("File " + fin + " does not exist.");
                 }
-                lines = Generic_ReadCSV.read(fout, null, 7);
+                lines = Generic_ReadCSV.read(fin, null, 7);
                 //LR_Record r;
                 for (int ID = 1; ID < lines.size(); ID++) {
                     try {
                         if (isCCOD) {
-                            ccr = new LR_CC_COU_Record(Env, lines.get(ID));
+                            ccr = new LR_CC_COU_Record(Env, ym, lines.get(ID));
                             add(addedCCRTime, deletedCCRTime, ccr);
                         } else {
-                            ocr = new LR_OC_COU_Record(Env, lines.get(ID));
+                            ocr = new LR_OC_COU_Record(Env, ym, lines.get(ID));
                             add(addedOCRTime, deletedOCRTime, ocr);
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -441,9 +625,9 @@ public class LR_Transitions_Process extends LR_Main_Process {
                                     LR_CC_FULL_Record r;
                                     r = fullCCR.get(aID);
                                     //diff = difference(r, recca, printDiff);
-                                    
+
                                     System.out.println("Difference between existing and added:");
-                                    
+
                                     diff = difference(r, recca, true);
                                     if ((Boolean) diff[2]) {
                                         int debug = 1;
@@ -471,21 +655,20 @@ public class LR_Transitions_Process extends LR_Main_Process {
                                     } else {
                                         int debug = 1;
                                     }
-                                    
+
                                     String date2;
                                     date2 = recca.getChangeDate();
                                     System.out.println(date2);
 
                                     tt = addTransition(tt, "CU__" + origc + "_" + destc, d);
-                                    
+
                                     System.out.println(tt);
-                                    
+
                                     fullCCR.put(aID, recca);
                                 }
-                                
+
                                 System.out.println(tt);
-                                
-                                
+
                             }
                             if (fullOCR.containsKey(aID)) {
                                 int debug = 1;
@@ -803,6 +986,13 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
     }
 
+    /**
+     *
+     * @param l
+     * @param aID
+     * @param name
+     * @return
+     */
     protected int checkList(ArrayList<? extends LR_Record> l, LR_ID2 aID, String name) {
         int result;
         result = l.size();
@@ -884,35 +1074,35 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getTitleNumber();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setTitleNumber(s1);
-            titleNumberChange = doDiff("TitleNumber", s0, s1, printDiff, titleNumberChange);
+            titleNumberChange = doDiff(Strings.S_TitleNumber, s0, s1, printDiff, titleNumberChange);
             changeCount++;
         }
         s0 = f.getCompanyRegistrationNo1();
         s1 = c.getCompanyRegistrationNo1();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setCompanyRegistrationNo1(s1);
-            ownershipChange = doDiff("CompanyRegistrationNo1", s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_CompanyRegistrationNo1, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getCompanyRegistrationNo2();
         s1 = c.getCompanyRegistrationNo2();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setCompanyRegistrationNo2(s1);
-            ownershipChange = doDiff("CompanyRegistrationNo2", s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_CompanyRegistrationNo2, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getCompanyRegistrationNo3();
         s1 = c.getCompanyRegistrationNo3();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setCompanyRegistrationNo3(s1);
-            ownershipChange = doDiff("CompanyRegistrationNo3", s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_CompanyRegistrationNo3, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getCompanyRegistrationNo4();
         s1 = c.getCompanyRegistrationNo4();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setCompanyRegistrationNo4(s1);
-            ownershipChange = doDiff("CompanyRegistrationNo4", s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_CompanyRegistrationNo4, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getPricePaid();
@@ -937,7 +1127,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getTenure();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setTenure(s1);
-            tenureChange = doDiff("Tenure", s0, s1, printDiff, tenureChange);
+            tenureChange = doDiff(Strings.S_Tenure, s0, s1, printDiff, tenureChange);
             changeCount++;
         }
         // MultipleAddressIndicator
@@ -952,14 +1142,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getPostcode();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setPostcode(s1);
-            doDiff("Postcode", s0, s1, printDiff, true);
+            doDiff(Strings.S_Postcode, s0, s1, printDiff, true);
             changeCount++;
         }
         s0 = f.getPropertyAddress();
         s1 = c.getPropertyAddress();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setPropertyAddress(s1);
-            doDiff("PropertyAddress", s0, s1, printDiff, true);
+            doDiff(Strings.S_PropertyAddress, s0, s1, printDiff, true);
             changeCount++;
         }
         // ProprietorNames
@@ -968,7 +1158,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName1(s1);
             ownershipChange = doDiff(
-                    "ProprietorName1", s0, s1, printDiff, ownershipChange);
+                    Strings.S_ProprietorName1, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorName2();
@@ -976,14 +1166,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName2(s1);
             ownershipChange = doDiff(
-                    "ProprietorName2", s0, s1, printDiff, ownershipChange);
+                    Strings.S_ProprietorName2, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorName3();
         s1 = c.getProprietorName3();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName3(s1);
-            ownershipChange = doDiff("ProprietorName3",
+            ownershipChange = doDiff(Strings.S_ProprietorName3,
                     s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
@@ -991,7 +1181,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorName4();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName4(s1);
-            ownershipChange = doDiff("ProprietorName4",
+            ownershipChange = doDiff(Strings.S_ProprietorName4,
                     s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
@@ -1000,7 +1190,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorshipCategory1();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory1(s1);
-            ownershipChange = doDiff("ProprietorshipCategory1",
+            ownershipChange = doDiff(Strings.S_ProprietorshipCategory1,
                     s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
@@ -1008,7 +1198,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorshipCategory2();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory2(s1);
-            ownershipChange = doDiff("ProprietorshipCategory2",
+            ownershipChange = doDiff(Strings.S_ProprietorshipCategory2,
                     s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
@@ -1016,7 +1206,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorshipCategory3();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory3(s1);
-            ownershipChange = doDiff("ProprietorshipCategory3",
+            ownershipChange = doDiff(Strings.S_ProprietorshipCategory3,
                     s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
@@ -1024,7 +1214,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorshipCategory4();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory4(s1);
-            ownershipChange = doDiff("ProprietorshipCategory4",
+            ownershipChange = doDiff(Strings.S_ProprietorshipCategory4,
                     s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
@@ -1249,8 +1439,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
                         reportedSmallCount = true;
                     }
                     if (aID != null) {
-                        pw.println("\"" + Env.IDToPropertyAddress.get(aID.getPropertyAddressID()) + "\",\"" 
-                                + Env.IDToTitleNumber.get(aID.getTitleNumberID())+  "\"," + count);
+                        pw.println("\"" + Env.IDToPropertyAddress.get(aID.getPropertyAddressID()) + "\",\""
+                                + Env.IDToTitleNumber.get(aID.getTitleNumberID()) + "\"," + count);
                     } else {
                         System.out.println("null ID");
                     }
@@ -1263,4 +1453,75 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
         pw.println();
     }
+
+    public void writeTitleNumberCompanyRegistrationNoIDLookups(Generic_YearMonth ym) {
+        if (UpdatedTitleNumberCompanyRegistrationNoLookups) {
+            File dir;
+            dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
+            File f;
+            f = new File(dir, "TitleNumberIDToCompanyRegistrationNoID.dat");
+            Generic_StaticIO.writeObject(YMTitleNumberIDToCompanyRegistrationNoID.get(ym), f);
+            f = new File(dir, "CompanyRegistrationNoIDToTitleNumberID.dat");
+            Generic_StaticIO.writeObject(YMCompanyRegistrationNoIDToTitleNumberID.get(ym), f);
+        }
+    }
+
+    public HashMap<LR_ID, ArrayList<LR_ID>> loadTitleNumberIDToCompanyRegistrationNoID(Generic_YearMonth ym) {
+        File dir;
+        dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
+        File f;
+        f = new File(dir, "TitleNumberIDToCompanyRegistrationNoID.dat");
+        if (!f.exists()) {
+            return new HashMap<>();
+        } else {
+            return (HashMap<LR_ID, ArrayList<LR_ID>>) Generic_StaticIO.readObject(f);
+        }
+    }
+
+    public HashMap<LR_ID, HashSet<LR_ID>> loadCompanyRegistrationNoIDToTitleNumberID(Generic_YearMonth ym) {
+        File f;
+        f = new File(Files.getGeneratedDataDir(Strings), "CompanyRegistrationNoIDToTitleNumberID.dat");
+        if (!f.exists()) {
+            return new HashMap<>();
+        } else {
+            return (HashMap<LR_ID, HashSet<LR_ID>>) Generic_StaticIO.readObject(f);
+        }
+    }
+
+    public void writeProprietorNameIDCompanyRegistrationNoIDLookups(Generic_YearMonth ym) {
+        if (UpdatedProprietorNameIDCompanyRegistrationNoLookups) {
+            File dir;
+            dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
+            File f;
+            f = new File(dir, "ProprietorNameIDToCompanyRegistrationNoID.dat");
+            Generic_StaticIO.writeObject(YMProprietorNameIDToCompanyRegistrationNoID.get(ym), f);
+            f = new File(dir, "CompanyRegistrationNoIDToProprietorNameID.dat");
+            Generic_StaticIO.writeObject(YMCompanyRegistrationNoIDToProprietorNameID.get(ym), f);
+        }
+    }
+
+    public HashMap<LR_ID, HashSet<LR_ID>> loadProprietorNameIDToCompanyRegistrationNoIDLookup(Generic_YearMonth ym) {
+        File dir;
+        dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
+        File f;
+        f = new File(dir, "ProprietorNameIDToCompanyRegistrationNoID.dat");
+        if (!f.exists()) {
+            return new HashMap<>();
+        } else {
+            return (HashMap<LR_ID, HashSet<LR_ID>>) Generic_StaticIO.readObject(f);
+        }
+    }
+
+    public HashMap<LR_ID, ArrayList<LR_ID>> loadCompanyRegistrationNoIDToProprietorNameLookup(Generic_YearMonth ym) {
+        File dir;
+        dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
+        File f;
+        f = new File(dir, "CompanyRegistrationNoIDToProprietorNameID.dat");
+        if (!f.exists()) {
+            return new HashMap<>();
+        } else {
+            return (HashMap<LR_ID, ArrayList<LR_ID>>) Generic_StaticIO.readObject(f);
+        }
+    }
+
 }

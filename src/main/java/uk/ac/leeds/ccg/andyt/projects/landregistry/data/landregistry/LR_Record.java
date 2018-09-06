@@ -16,6 +16,7 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
@@ -26,6 +27,7 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
  */
 public abstract class LR_Record extends LR_Object {
 
+    protected Generic_YearMonth YM;
     protected LR_ID2 ID;
     protected LR_ID TitleNumberID;
     protected LR_ID TenureID;
@@ -49,7 +51,7 @@ public abstract class LR_Record extends LR_Object {
     private String District;
     private String Region;
     private String Postcode;
-    private String PostcodeDistrict;
+    private String PostcodeDistrict; // Set from Postcode
     private String MultipleAddressIndicator;
     private String PricePaid;
     private String CompanyRegistrationNo1;
@@ -80,11 +82,12 @@ public abstract class LR_Record extends LR_Object {
     private String ProprietorshipCategory3;
     private String ProprietorshipCategory4;
 
-    public LR_Record() {
+    protected LR_Record() {
     }
 
     public LR_Record(LR_Record r) {
         Env = r.Env;
+        YM = r.YM;
         ID = r.ID;
         setTitleNumber(r.getTitleNumber());
         setTenure(r.getTenure());

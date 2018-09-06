@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_FULL_Record;
@@ -134,6 +135,9 @@ public class LR_Select_Process extends LR_Main_Process {
                         Generic_ReadCSV.readLine(st, null);
                         int ID;
                         ID = 1;
+                        
+                        Generic_YearMonth YM = null;
+                        
                         while (!read) {
                             line = Generic_ReadCSV.readLine(st, null);
                             if (line == null) {
@@ -142,15 +146,15 @@ public class LR_Select_Process extends LR_Main_Process {
                                 try {
                                     if (isCCOD) {
                                         if (doFull) {
-                                             r = new LR_CC_FULL_Record(Env, line);
+                                             r = new LR_CC_FULL_Record(Env, YM, line);
                                         }else {
-                                            r = new LR_CC_COU_Record(Env, line);
+                                            r = new LR_CC_COU_Record(Env, YM, line);
                                         }
                                     } else {
                                         if (doFull) {
-                                            r = new LR_OC_FULL_Record(Env, line);
+                                            r = new LR_OC_FULL_Record(Env, YM, line);
                                         } else {
-                                            r = new LR_OC_COU_Record(Env, line);
+                                            r = new LR_OC_COU_Record(Env, YM, line);
                                         }
                                     }
                                     if (r.getDistrict().equalsIgnoreCase(area)) {

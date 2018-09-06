@@ -30,6 +30,24 @@ public class LR_Strings extends Generic_Strings {
     public final String S_zip = "zip";
     public final String S_United_Kingdom = "United Kingdom";
     public final String S_Generalised = "Generalised";
+    public final String S_Transitions = "Transitions";
+    
+    public final String S_CompanyRegistrationNo1 = "CompanyRegistrationNo1";
+    public final String S_CompanyRegistrationNo2 = "CompanyRegistrationNo2";
+    public final String S_CompanyRegistrationNo3 = "CompanyRegistrationNo3";
+    public final String S_CompanyRegistrationNo4 = "CompanyRegistrationNo4";
+    public final String S_Postcode = "Postcode";
+    public final String S_PropertyAddress = "PropertyAddress";
+    public final String S_ProprietorName1 = "S_ProprietorName1";
+    public final String S_ProprietorName2 = "S_ProprietorName2";
+    public final String S_ProprietorName3 = "S_ProprietorName3";
+    public final String S_ProprietorName4 = "S_ProprietorName4";
+    public final String S_ProprietorshipCategory1 = "ProprietorshipCategory1";
+    public final String S_ProprietorshipCategory2 = "ProprietorshipCategory2";
+    public final String S_ProprietorshipCategory3 = "ProprietorshipCategory3";
+    public final String S_ProprietorshipCategory4 = "ProprietorshipCategory4";
+    public final String S_Tenure = "Tenure";
+    public final String S_TitleNumber = "TitleNumber";
 
     public LR_Strings() {
         super();

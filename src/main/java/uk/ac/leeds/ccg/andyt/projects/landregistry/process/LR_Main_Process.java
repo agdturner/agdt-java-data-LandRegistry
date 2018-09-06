@@ -64,7 +64,7 @@ public class LR_Main_Process extends LR_Object {
         p.Env.loadIDToTenure();
         p.Env.loadTenureToID();
         p.Env.loadPostcodeDistrictToID();
-        p.Env.loadIDToPostcodeDistrict();        
+        p.Env.loadIDToPostcodeDistrict();
         p.Env.loadIDToCompanyRegistrationNo();
         p.Env.loadCompanyRegistrationNoToID();
         p.Env.loadIDToCountryIncorporated();
@@ -96,12 +96,13 @@ public class LR_Main_Process extends LR_Object {
     public void run() {
 
         // Main switches
-//        doSelectLeeds = true;
+        doSelectLeeds = true;
 //        doGeneralise = true;
 //        doGeneraliseLeeds = true;
 //        doGeneraliseAll = true;
-        doTransitions = true;
-        doTransitionsLeeds = true;
+//        doTransitions = true;
+//        doTransitionsLeeds = true;
+//        doTransitionsAll = true;
 
         String area;
         area = "LEEDS";
@@ -116,13 +117,11 @@ public class LR_Main_Process extends LR_Object {
 
         // Select Leeds
         if (doSelectLeeds) {
-
             // Options
             doFull = true;
 //            doFull = false;
 //            overwrite = true;
             overwrite = false;
-
             // Run
             LR_Select_Process sp;
             sp = new LR_Select_Process(Env);
@@ -156,15 +155,12 @@ public class LR_Main_Process extends LR_Object {
             boolean doAll;
             boolean doCCOD;
             boolean doOCOD;
-
             if (doGeneraliseLeeds) {
-
                 // Options
                 doFull = true;
 //                doFull = false;
                 overwrite = true;
 //            overwrite = false;
-
                 // Run
                 doAll = false;
                 doCCOD = true;
@@ -182,13 +178,11 @@ public class LR_Main_Process extends LR_Object {
                 gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
             }
             if (doGeneraliseAll) {
-
                 // Options
                 doFull = true;
 //                doFull = false;
                 overwrite = true;
 //            overwrite = false;
-
                 // Run
                 doAll = true;
                 doCCOD = true;
@@ -208,14 +202,13 @@ public class LR_Main_Process extends LR_Object {
         }
 
         if (doTransitions) {
+            doFull = false;
+            boolean doAll;
             if (doTransitionsLeeds) {
-
+                doAll = false;
                 // Options
-//                doFull = true;
-                doFull = false;
                 overwrite = true;
 //            overwrite = false;
-
                 // Run
                 minCC = 2;
                 minOC = 2;
@@ -223,11 +216,22 @@ public class LR_Main_Process extends LR_Object {
                 LR_Transitions_Process tp;
                 tp = new LR_Transitions_Process(Env);
                 tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-                tp.run(area, inputDataDir, minCC, minOC, doFull, overwrite);
+                tp.run(area, doAll, inputDataDir, minCC, minOC, overwrite);
             }
-//            if {doTransitionsAll) {
-//                
-//            }
+            if (doTransitionsAll) {
+                doAll = true;
+                // Options
+                overwrite = true;
+//            overwrite = false;
+                // Run
+                minCC = 2;
+                minOC = 2;
+                inputDataDir = Files.getOutputDataDir(Strings);
+                LR_Transitions_Process tp;
+                tp = new LR_Transitions_Process(Env);
+                tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                tp.run(area, doAll, inputDataDir, minCC, minOC, overwrite);
+            }
         }
 
         /**

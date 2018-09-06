@@ -16,9 +16,8 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 
 /**
  *
@@ -32,8 +31,8 @@ public class LR_OC_COU_Record extends LR_OC_FULL_Record implements Serializable 
     protected LR_OC_COU_Record() {
     }
 
-    public LR_OC_COU_Record(LR_Environment env, String line) {
-        super(env, line);
+    public LR_OC_COU_Record(LR_Environment env, Generic_YearMonth YM, String line) {
+        super(env, YM, line);
         init(line);
     }
 

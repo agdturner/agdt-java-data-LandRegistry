@@ -16,6 +16,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 
@@ -34,10 +35,11 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     private String CountryIncorporated3;
     private String CountryIncorporated4;
 
-    public LR_OC_FULL_Record() {
+    protected LR_OC_FULL_Record() {
     }
 
-    public LR_OC_FULL_Record(String line) {
+    public LR_OC_FULL_Record(Generic_YearMonth YM, String line) {
+        this.YM = YM;
         String[] ls;
         ls = line.split("\",\"");
         setTitleNumber(ls[0].substring(1));
@@ -81,8 +83,8 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         setAdditionalProprietorIndicator(ls[38]);
     }
 
-    public LR_OC_FULL_Record(LR_Environment env, String line) {
-        this(line);
+    public LR_OC_FULL_Record(LR_Environment env, Generic_YearMonth YM, String line) {
+        this(YM, line);
         Env = env;
         updateIDs();
         String s;
@@ -95,7 +97,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         s = getCountryIncorporated4();
         updateCountryIncorporatedLookups(4, s);
     }
-    
+
     public LR_OC_FULL_Record(LR_OC_FULL_Record r) {
         super(r);
         setCountryIncorporated1(r.getCountryIncorporated1());
@@ -131,21 +133,25 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
                     CountryIncorporated1ID = new LR_ID(Env.CountryIncorporatedToID.size());
                     Env.CountryIncorporatedToID.put(s, CountryIncorporated1ID);
                     Env.IDToCountryIncorporated.put(CountryIncorporated1ID, s);
+                    Env.UpdatedCountryIncorporatedLookups = true;
                     break;
                 case 2:
                     CountryIncorporated2ID = new LR_ID(Env.CountryIncorporatedToID.size());
                     Env.CountryIncorporatedToID.put(s, CountryIncorporated2ID);
                     Env.IDToCountryIncorporated.put(CountryIncorporated2ID, s);
+                    Env.UpdatedCountryIncorporatedLookups = true;
                     break;
                 case 3:
                     CountryIncorporated3ID = new LR_ID(Env.CountryIncorporatedToID.size());
                     Env.CountryIncorporatedToID.put(s, CountryIncorporated3ID);
                     Env.IDToCountryIncorporated.put(CountryIncorporated3ID, s);
+                    Env.UpdatedCountryIncorporatedLookups = true;
                     break;
                 default:
                     CountryIncorporated4ID = new LR_ID(Env.CountryIncorporatedToID.size());
                     Env.CountryIncorporatedToID.put(s, CountryIncorporated4ID);
                     Env.IDToCountryIncorporated.put(CountryIncorporated4ID, s);
+                    Env.UpdatedCountryIncorporatedLookups = true;
                     break;
             }
         }

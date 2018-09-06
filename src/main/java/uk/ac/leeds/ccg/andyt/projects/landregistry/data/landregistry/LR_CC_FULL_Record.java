@@ -16,6 +16,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
@@ -26,10 +27,11 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
  */
 public class LR_CC_FULL_Record extends LR_Record implements Serializable {
 
-    public LR_CC_FULL_Record() {
+    protected LR_CC_FULL_Record() {
     }
 
-    public LR_CC_FULL_Record(String line) {
+    public LR_CC_FULL_Record(Generic_YearMonth YM, String line) {
+        this.YM = YM;
         String[] ls;
         ls = line.split("\",\"");
         setTitleNumber(ls[0].substring(1));
@@ -69,12 +71,12 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         setAdditionalProprietorIndicator(ls[34]);
     }
 
-    public LR_CC_FULL_Record(LR_Environment env, String line) {
-        this(line);
+    public LR_CC_FULL_Record(LR_Environment env, Generic_YearMonth YM, String line) {
+        this(YM, line);
         Env = env;
         updateIDs();
     }
-    
+
     public LR_CC_FULL_Record(LR_Record r) {
         super(r);
     }
@@ -88,7 +90,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             PropertyAddressID = new LR_ID(Env.PropertyAddressToID.size());
             Env.PropertyAddressToID.put(s, PropertyAddressID);
             Env.IDToPropertyAddress.put(PropertyAddressID, s);
-            Env.updatedPropertyAddressLookups = true;
+            Env.UpdatedPropertyAddressLookups = true;
         }
         s = getTitleNumber();
         if (Env.TitleNumberToID.containsKey(s)) {
@@ -97,7 +99,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             TitleNumberID = new LR_ID(Env.TitleNumberToID.size());
             Env.TitleNumberToID.put(s, TitleNumberID);
             Env.IDToTitleNumber.put(TitleNumberID, s);
-            Env.updatedTitleNumberLookups = true;
+            Env.UpdatedTitleNumberLookups = true;
         }
         ID = new LR_ID2(TitleNumberID, PropertyAddressID);
         // Tenure
@@ -108,7 +110,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             TenureID = new LR_ID(Env.TenureToID.size());
             Env.TenureToID.put(s, TenureID);
             Env.IDToTenure.put(TenureID, s);
-            Env.updatedTenureLookups = true;
+            Env.UpdatedTenureLookups = true;
         }
         // PostcodeDistrict
         s = getPostcodeDistrict();
@@ -118,7 +120,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
             PostcodeDistrictID = new LR_ID(Env.PostcodeDistrictToID.size());
             Env.PostcodeDistrictToID.put(s, PostcodeDistrictID);
             Env.IDToPostcodeDistrict.put(PostcodeDistrictID, s);
-            Env.updatedPostcodeDistrictLookups = true;
+            Env.UpdatedPostcodeDistrictLookups = true;
         }
         // ProprietorName
         s = getProprietorName1();
@@ -175,24 +177,28 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
                     ProprietorName1ID = new LR_ID(Env.ProprietorNameToID.size());
                     Env.ProprietorNameToID.put(s, ProprietorName1ID);
                     Env.IDToProprietorName.put(ProprietorName1ID, s);
+                    Env.UpdatedProprietorNameLookups = true;
                     break;
                 case 2:
                     ProprietorName2ID = new LR_ID(Env.ProprietorNameToID.size());
                     Env.ProprietorNameToID.put(s, ProprietorName2ID);
                     Env.IDToProprietorName.put(ProprietorName2ID, s);
+                    Env.UpdatedProprietorNameLookups = true;
                     break;
                 case 3:
                     ProprietorName3ID = new LR_ID(Env.ProprietorNameToID.size());
                     Env.ProprietorNameToID.put(s, ProprietorName3ID);
                     Env.IDToProprietorName.put(ProprietorName3ID, s);
+                    Env.UpdatedProprietorNameLookups = true;
                     break;
                 default:
                     ProprietorName4ID = new LR_ID(Env.ProprietorNameToID.size());
                     Env.ProprietorNameToID.put(s, ProprietorName4ID);
                     Env.IDToProprietorName.put(ProprietorName4ID, s);
+                    Env.UpdatedProprietorNameLookups = true;
                     break;
             }
-            Env.updatedProprietorNameLookups = true;
+            Env.UpdatedProprietorNameLookups = true;
         }
     }
 
@@ -222,24 +228,28 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
                     CompanyRegistrationNo1ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
                     Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo1ID);
                     Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo1ID, s);
+                    Env.UpdatedCompanyRegistrationNoLookups = true;
                     break;
                 case 2:
                     CompanyRegistrationNo2ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
                     Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo2ID);
                     Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo2ID, s);
+                    Env.UpdatedCompanyRegistrationNoLookups = true;
                     break;
                 case 3:
                     CompanyRegistrationNo3ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
                     Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo3ID);
                     Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo3ID, s);
+                    Env.UpdatedCompanyRegistrationNoLookups = true;
                     break;
                 default:
                     CompanyRegistrationNo4ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
                     Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo4ID);
                     Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo4ID, s);
+                    Env.UpdatedCompanyRegistrationNoLookups = true;
                     break;
             }
-            Env.updatedCompanyRegistrationNoLookups = true;
+            Env.UpdatedCompanyRegistrationNoLookups = true;
         }
     }
 
@@ -269,27 +279,31 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
                     ProprietorshipCategory1ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
                     Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory1ID);
                     Env.IDToProprietorshipCategory.put(ProprietorshipCategory1ID, s);
+                    Env.UpdatedProprietorshipCategoryLookups = true;
                     break;
                 case 2:
                     ProprietorshipCategory2ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
                     Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory2ID);
                     Env.IDToProprietorshipCategory.put(ProprietorshipCategory2ID, s);
+                    Env.UpdatedProprietorshipCategoryLookups = true;
                     break;
                 case 3:
                     ProprietorshipCategory3ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
                     Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory3ID);
                     Env.IDToProprietorshipCategory.put(ProprietorshipCategory3ID, s);
+                    Env.UpdatedProprietorshipCategoryLookups = true;
                     break;
                 default:
                     ProprietorshipCategory4ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
                     Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory4ID);
                     Env.IDToProprietorshipCategory.put(ProprietorshipCategory4ID, s);
+                    Env.UpdatedProprietorshipCategoryLookups = true;
                     break;
             }
-            Env.updatedProprietorshipCategoryLookups = true;
+            Env.UpdatedProprietorshipCategoryLookups = true;
         }
     }
-    
+
     @Override
     public String toString() {
         return "TitleNumber " + getTitleNumber()

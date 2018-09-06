@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
+import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
@@ -133,20 +134,20 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     indir = new File(indir, name);
                     if (doAll) {
                         outdir = new File(outputDataDir, 
-                                Strings.S_Generalised + "Full");
+                                Strings.S_Generalised + Strings.S_FULL);
                     } else {
                         indir = new File(outputDataDir, area);
                         indir = new File(indir, name0);
                         indir = new File(indir, name);
                         outdir = new File(outputDataDir, 
-                                area + Strings.S_Generalised + "Full");
+                                area + Strings.S_Generalised + Strings.S_FULL);
                     }
                 } else {
                     indir = new File(outputDataDir, area);
                     indir = new File(indir, name0);
                     indir = new File(indir, name);
                     outdir = new File(outputDataDir, 
-                            area + "_" + Strings.S_Generalised);
+                            area + Strings.S_Generalised + Strings.S_COU);
                 }
                 System.out.println("indir " + indir);
                 outdir = new File(outdir, name0);
@@ -179,14 +180,17 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             typeID = iteTypes.next();
                             Counts.put(typeID, new TreeMap<>());
                         }
+                        
+                        Generic_YearMonth YM = null;
+                        
                         LR_Record r;
                         for (int ID = 1; ID < lines.size(); ID++) {
                             try {
                                 if (isCCOD) {
-                                    r = new LR_CC_COU_Record(Env,
+                                    r = new LR_CC_COU_Record(Env, YM,
                                             lines.get((int) ID));
                                 } else {
-                                    r = new LR_OC_COU_Record(Env,
+                                    r = new LR_OC_COU_Record(Env, YM,
                                             lines.get((int) ID));
                                 }
                                 addToCounts(r);
