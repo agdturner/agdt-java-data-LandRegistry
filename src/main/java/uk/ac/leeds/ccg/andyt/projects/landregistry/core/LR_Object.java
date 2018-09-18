@@ -12,10 +12,12 @@ public abstract class LR_Object implements Serializable {
      */
     protected transient LR_Environment Env;
 
-    public LR_Object(){
-        Env = new LR_Environment();
+//    public LR_Object(){
+//        Env = new LR_Environment();
+//    }
+    protected LR_Object() {
     }
-    
+
     public LR_Object(LR_Environment env) {
         Env = env;
     }

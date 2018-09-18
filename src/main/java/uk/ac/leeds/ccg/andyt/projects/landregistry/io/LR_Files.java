@@ -61,4 +61,12 @@ public class LR_Files extends Generic_Files {
         result = new File(dir, "Selection.csv");
         return result;
     }
+    
+    public File getGeneratedDataFile(String name, String type) {
+        File dir;
+        dir = getGeneratedDataDir(Strings);
+        File f;
+        f = new File(dir, name + "_" + type + "." + Strings.S_dat);
+        return f;
+    }
 }

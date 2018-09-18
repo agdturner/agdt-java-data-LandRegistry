@@ -53,8 +53,18 @@ public class LR_ID2 implements Serializable {
             o2 = (LR_ID2) o;
             if (o2.hashCode() == hashCode()) {
                 if (o2.TitleNumberID.equals(TitleNumberID)) {
-                    if (o2.PropertyAddressID.equals(PropertyAddressID)) {
-                        return true;
+                    if (o2.PropertyAddressID == null) {
+                        if (PropertyAddressID == null) {
+                            return true;
+                        }
+                    } else {
+                        if (PropertyAddressID == null) {
+                            return false;
+                        } else {
+                            if (o2.PropertyAddressID.equals(PropertyAddressID)) {
+                                return true;
+                            }
+                        }
                     }
                 }
             }

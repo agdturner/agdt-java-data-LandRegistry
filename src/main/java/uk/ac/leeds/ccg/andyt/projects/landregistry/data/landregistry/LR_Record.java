@@ -16,7 +16,11 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
@@ -29,22 +33,23 @@ public abstract class LR_Record extends LR_Object {
 
     protected Generic_YearMonth YM;
     protected LR_ID2 ID;
+//    //protected HashMap<LR_ID, LR_ID> TypeIDs;
     protected LR_ID TitleNumberID;
-    protected LR_ID TenureID;
-    protected LR_ID PropertyAddressID;
-    protected LR_ID ProprietorName1ID;
-    protected LR_ID ProprietorName2ID;
-    protected LR_ID ProprietorName3ID;
-    protected LR_ID ProprietorName4ID;
-    protected LR_ID CompanyRegistrationNo1ID;
-    protected LR_ID CompanyRegistrationNo2ID;
-    protected LR_ID CompanyRegistrationNo3ID;
-    protected LR_ID CompanyRegistrationNo4ID;
-    protected LR_ID ProprietorshipCategory1ID;
-    protected LR_ID ProprietorshipCategory2ID;
-    protected LR_ID ProprietorshipCategory3ID;
-    protected LR_ID ProprietorshipCategory4ID;
-    protected LR_ID PostcodeDistrictID;
+//    protected LR_ID TenureID;
+//    protected LR_ID PropertyAddressID;
+//    protected LR_ID ProprietorName1ID;
+//    protected LR_ID ProprietorName2ID;
+//    protected LR_ID ProprietorName3ID;
+//    protected LR_ID ProprietorName4ID;
+//    protected LR_ID CompanyRegistrationNo1ID;
+//    protected LR_ID CompanyRegistrationNo2ID;
+//    protected LR_ID CompanyRegistrationNo3ID;
+//    protected LR_ID CompanyRegistrationNo4ID;
+//    protected LR_ID ProprietorshipCategory1ID;
+//    protected LR_ID ProprietorshipCategory2ID;
+//    protected LR_ID ProprietorshipCategory3ID;
+//    protected LR_ID ProprietorshipCategory4ID;
+//    protected LR_ID PostcodeDistrictID;
     private String TitleNumber;
     private String Tenure;
     private String PropertyAddress;
@@ -53,7 +58,7 @@ public abstract class LR_Record extends LR_Object {
     private String Postcode;
     private String PostcodeDistrict; // Set from Postcode
     private String MultipleAddressIndicator;
-    private String PricePaid;
+    private long PricePaid;
     private String CompanyRegistrationNo1;
     private String County;
     private String ProprietorName1;
@@ -95,7 +100,7 @@ public abstract class LR_Record extends LR_Object {
         setDistrict(r.getDistrict());
         setCounty(r.getCounty());
         setRegion(r.getRegion());
-        setPostcode(r.getPostcode());
+        initPostcodeAndPostcodeDistrict(r.getPostcode());
         setMultipleAddressIndicator(r.getMultipleAddressIndicator());
         setPricePaid(r.getPricePaid());
         setProprietorName1(r.getProprietorName1());
@@ -126,6 +131,52 @@ public abstract class LR_Record extends LR_Object {
         setAdditionalProprietorIndicator(r.getAdditionalProprietorIndicator());
     }
 
+    public static LR_Record create(boolean isCCOD, boolean doFull,
+            LR_Environment env, Generic_YearMonth YM, String line,
+            boolean upDateIDs) throws Exception {
+        if (Generic_StaticString.getCount(line, ",") > 10) {
+            if (isCCOD) {
+                if (doFull) {
+                    return new LR_CC_FULL_Record(env, YM, line, upDateIDs);
+                } else {
+                    return new LR_CC_COU_Record(env, YM, line);
+                }
+            } else {
+                if (doFull) {
+                    return new LR_OC_FULL_Record(env, YM, line, upDateIDs);
+                } else {
+                    return new LR_OC_COU_Record(env, YM, line);
+                }
+            }
+        }
+        return null;
+    }
+
+    public final String[] getSplitAndTrim(String line) {
+        String[] ls;
+        ls = line.split("\",\"");
+        for (int i = 0; i < ls.length; i++) {
+            ls[i] = ls[i].trim();
+        }
+        return ls;
+    }
+
+    public static String header(boolean isCCOD, boolean doFull) {
+        if (isCCOD) {
+            if (doFull) {
+                return LR_CC_FULL_Record.header();
+            } else {
+                return LR_CC_COU_Record.header();
+            }
+        } else {
+            if (doFull) {
+                return LR_OC_FULL_Record.header();
+            } else {
+                return LR_OC_COU_Record.header();
+            }
+        }
+    }
+
     public abstract String toCSV();
 
     /**
@@ -133,6 +184,190 @@ public abstract class LR_Record extends LR_Object {
      */
     public final LR_ID2 getID() {
         return ID;
+    }
+
+    protected void addToCollections(String s, String sType) {
+        // Tenure
+        LR_ID idType;
+        HashMap<String, LR_ID> ToID;
+        HashMap<LR_ID, String> IDTo;
+        idType = Env.TypeToID.get(sType);
+        ToID = Env.ToIDLookups.get(idType);
+        if (!ToID.containsKey(s)) {
+            LR_ID id = new LR_ID(ToID.size());
+            ToID.put(s, id);
+            IDTo = Env.IDToLookups.get(idType);
+            IDTo.put(id, s);
+            Env.UpdatedTypes.put(idType, true);
+        }
+    }
+
+    /**
+     * @param s TitleNumber
+     * @throws Exception
+     */
+    public final void initTitleNumber(String s) throws Exception {
+        if (s.isEmpty()) {
+            throw new Exception("TitleNumber is empty");
+        }
+        setTitleNumber(s);
+        String sType;
+        sType = Env.Strings.S_TitleNumber;
+        addToCollections(s, sType);
+        LR_ID idType;
+        HashMap<String, LR_ID> ToID;
+        HashMap<LR_ID, String> IDTo;
+        idType = Env.TypeToID.get(sType);
+        ToID = Env.ToIDLookups.get(idType);
+        TitleNumberID = ToID.get(s);
+    }
+
+    /**
+     *
+     * @param s Tenure
+     * @throws Exception
+     */
+    public final void initTenure(String s) throws Exception {
+        if (!(s.equalsIgnoreCase(Env.Strings.S_Leasehold)
+                || s.equalsIgnoreCase(Env.Strings.S_Freehold))) {
+            throw new Exception("Unexpected Tenure: \"" + s + "\"");
+        }
+        setTenure(s);
+        addToCollections(s, Env.Strings.S_Tenure);
+    }
+
+    /**
+     * If s is blank then PropertyAddress is set to a unique number and
+     * TitleNumberID is added to Env.TitleNumberIDsOfNullPropertyAddress.
+     *
+     * @param s PropertyAddress
+     */
+    public final void initPropertyAddress(String s) {
+        if (s.isEmpty()) {
+            LR_ID typeID;
+            typeID = Env.TypeToID.get(Env.Strings.S_PropertyAddress);
+            HashSet<LR_ID> c;
+            c = Env.getNullTitleNumberIDCollections(typeID);
+            int i = c.size();
+            setPropertyAddress(Integer.toString(i));
+            s = getPropertyAddress();
+            c.add(TitleNumberID);
+            Env.UpdatedTypes.put(typeID, true);
+        } else {
+            setPropertyAddress(s);
+        }
+        String sType;
+        LR_ID idType;
+        sType = Env.Strings.S_PropertyAddress;
+        addToCollections(s, sType);
+        HashMap<String, LR_ID> ToID;
+        idType = Env.TypeToID.get(sType);
+        ToID = Env.ToIDLookups.get(idType);
+        ID = new LR_ID2(TitleNumberID, ToID.get(s));
+        if (!Env.IDs.contains(ID)) {
+            Env.IDs.add(ID);
+            Env.UpdatedIDs = true;
+        }
+    }
+
+    /**
+     * If s is blank then PricePaid is set to a negative unique number and
+     * TitleNumberID is added to Env.TitleNumberIDsOfNullPricePaid.
+     *
+     * @param s PricePaid
+     */
+    public final void initPricePaid(String s) {
+        if (s.isEmpty()) {
+            LR_ID typeID;
+            typeID = Env.TypeToID.get(Env.Strings.S_PricePaid);
+            HashSet<LR_ID> c;
+            c = Env.getNullTitleNumberIDCollections(typeID);
+            int i = c.size();
+            setPricePaid(-i);
+            c.add(TitleNumberID);
+            Env.UpdatedTypes.put(typeID, true);
+        } else {
+            try {
+                setPricePaid(Long.valueOf(s));
+            } catch (NumberFormatException e) {
+                System.err.println("PricePaid is: \"" + s + "\" which is not "
+                        + "recognised as a long.");
+                LR_ID typeID;
+                typeID = Env.TypeToID.get(Env.Strings.S_PricePaid);
+                HashSet<LR_ID> c;
+                c = Env.getNullTitleNumberIDCollections(typeID);
+                int i = c.size();
+                setPricePaid(-i);
+                c.add(TitleNumberID);
+            }
+        }
+    }
+
+    /**
+     * If s is blank then ProprietorName1 is set to a unique number and
+     * TitleNumberID is added to Env.TitleNumberIDsOfNullProprietorName1.
+     *
+     * @param s ProprietorName1
+     */
+    public final void initProprietorName1(String s) {
+        if (s.isEmpty()) {
+            LR_ID typeID;
+            typeID = Env.TypeToID.get(Env.Strings.S_ProprietorName);
+            HashSet<LR_ID> c;
+            c = Env.getNullTitleNumberIDCollections(typeID);
+            int i = c.size();
+            setProprietorName1(Integer.toString(i));
+            c.add(TitleNumberID);
+            Env.UpdatedTypes.put(typeID, true);
+        } else {
+            setProprietorName1(s);
+        }
+        updateProprietorNameCollections(getProprietorName1());
+    }
+    
+    /**
+     * If s is blank then CompanyRegistrationNo1 is set to a unique number and
+     * TitleNumberID is added to Env.TitleNumberIDsOfNullCompanyRegistrationNo1.
+     *
+     * @param s CompanyRegistrationNo1
+     */
+    public final void initCompanyRegistrationNo1(String s) {
+        if (s.isEmpty()) {
+            LR_ID typeID;
+            typeID = Env.TypeToID.get(Env.Strings.S_CompanyRegistrationNo);
+            HashSet<LR_ID> c;
+            c = Env.getNullTitleNumberIDCollections(typeID);
+            int i = c.size();
+            setCompanyRegistrationNo1(Integer.toString(i));
+            c.add(TitleNumberID);
+            Env.UpdatedTypes.put(typeID, true);
+        } else {
+            setCompanyRegistrationNo1(s);
+        }
+        updateCompanyRegistrationNoCollections(getCompanyRegistrationNo1());
+    }
+
+    /**
+     * If s is blank then ProprietorshipCategory1 is set to a unique number and
+     * TitleNumberID is added to
+     * Env.TitleNumberIDsOfNullProprietorshipCategory1.
+     *
+     * @param s ProprietorshipCategory1
+     */
+    public final void initProprietorshipCategory1(String s) {
+        if (s.isEmpty()) {
+            LR_ID typeID;
+            typeID = Env.TypeToID.get(Env.Strings.S_ProprietorshipCategory);
+            HashSet<LR_ID> c;
+            c = Env.getNullTitleNumberIDCollections(typeID);
+            int i = c.size();
+            setProprietorshipCategory1(Integer.toString(i));
+            c.add(TitleNumberID);
+            Env.UpdatedTypes.put(typeID, true);
+        } else {
+            setProprietorshipCategory1(s);
+        }
+        
     }
 
     /**
@@ -146,63 +381,79 @@ public abstract class LR_Record extends LR_Object {
      * @return the PropertyAddressID
      */
     public final LR_ID getPropertyAddressID() {
-        return PropertyAddressID;
+        return ID.getPropertyAddressID();
     }
 
     /**
      * @return the ProprietorName1ID
      */
     public final LR_ID getProprietorName1ID() {
-        return ProprietorName1ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorName);
+        return Env.ToIDLookups.get(typeID).get(getProprietorName1());
     }
 
     /**
      * @return the ProprietorName2ID
      */
     public final LR_ID getProprietorName2ID() {
-        return ProprietorName2ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorName);
+        return Env.ToIDLookups.get(typeID).get(getProprietorName2());
     }
 
     /**
      * @return the ProprietorName3ID
      */
     public final LR_ID getProprietorName3ID() {
-        return ProprietorName3ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorName);
+        return Env.ToIDLookups.get(typeID).get(getProprietorName3());
     }
 
     /**
      * @return the ProprietorName4ID
      */
     public final LR_ID getProprietorName4ID() {
-        return ProprietorName4ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorName);
+        return Env.ToIDLookups.get(typeID).get(getProprietorName4());
     }
 
     /**
      * @return the CompanyRegistrationNo1ID
      */
     public final LR_ID getCompanyRegistrationNo1ID() {
-        return CompanyRegistrationNo1ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_CompanyRegistrationNo);
+        return Env.ToIDLookups.get(typeID).get(getCompanyRegistrationNo1());
     }
 
     /**
      * @return the CompanyRegistrationNo2ID
      */
     public final LR_ID getCompanyRegistrationNo2ID() {
-        return CompanyRegistrationNo2ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_CompanyRegistrationNo);
+        return Env.ToIDLookups.get(typeID).get(getCompanyRegistrationNo2());
     }
 
     /**
      * @return the CompanyRegistrationNo3ID
      */
     public final LR_ID getCompanyRegistrationNo3ID() {
-        return CompanyRegistrationNo3ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_CompanyRegistrationNo);
+        return Env.ToIDLookups.get(typeID).get(getCompanyRegistrationNo3());
     }
 
     /**
      * @return the CompanyRegistrationNo4ID
      */
     public final LR_ID getCompanyRegistrationNo4ID() {
-        return CompanyRegistrationNo4ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_CompanyRegistrationNo);
+        return Env.ToIDLookups.get(typeID).get(getCompanyRegistrationNo4());
     }
 
     /**
@@ -223,7 +474,9 @@ public abstract class LR_Record extends LR_Object {
      * @return the TenureID
      */
     public final LR_ID getTenureID() {
-        return TenureID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_Tenure);
+        return Env.ToIDLookups.get(typeID).get(getTenure());
     }
 
     /**
@@ -258,13 +511,15 @@ public abstract class LR_Record extends LR_Object {
      * @return the PostcodeDistrictID
      */
     public final LR_ID getPostcodeDistrictID() {
-        return PostcodeDistrictID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_PostcodeDistrict);
+        return Env.ToIDLookups.get(typeID).get(getPostcodeDistrict());
     }
 
     /**
      * @return the PricePaid
      */
-    public final String getPricePaid() {
+    public final long getPricePaid() {
         return PricePaid;
     }
 
@@ -300,7 +555,9 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorshipCategory1ID
      */
     public final LR_ID getProprietorshipCategory1ID() {
-        return ProprietorshipCategory1ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorshipCategory);
+        return Env.ToIDLookups.get(typeID).get(getProprietorshipCategory1());
     }
 
     /**
@@ -468,7 +725,9 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorshipCategory2ID
      */
     public final LR_ID getProprietorshipCategory2ID() {
-        return ProprietorshipCategory2ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorshipCategory);
+        return Env.ToIDLookups.get(typeID).get(getProprietorshipCategory2());
     }
 
     /**
@@ -482,7 +741,9 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorshipCategory3ID
      */
     public final LR_ID getProprietorshipCategory3ID() {
-        return ProprietorshipCategory3ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorshipCategory);
+        return Env.ToIDLookups.get(typeID).get(getProprietorshipCategory3());
     }
 
     /**
@@ -496,7 +757,9 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorshipCategory4ID
      */
     public final LR_ID getProprietorshipCategory4ID() {
-        return ProprietorshipCategory4ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorshipCategory);
+        return Env.ToIDLookups.get(typeID).get(getProprietorshipCategory4());
     }
 
     /**
@@ -505,12 +768,14 @@ public abstract class LR_Record extends LR_Object {
     public String getCountryIncorporated1() {
         return Env.Strings.S_United_Kingdom;
     }
-    
+
     /**
      * @return the CountryIncorporated1ID
      */
     public LR_ID getCountryIncorporated1ID() {
-        return Env.CountryIncorporatedToID.get(getCountryIncorporated1());
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated1);
+        return Env.ToIDLookups.get(typeID).get(getCountryIncorporated1());
     }
 
     /**
@@ -528,10 +793,66 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * @param PropertyAddress the PropertyAddress to set
+     * @param s the PropertyAddress to set
      */
-    public final void setPropertyAddress(String PropertyAddress) {
-        this.PropertyAddress = PropertyAddress;
+    public final void setPropertyAddress(String s) {
+        this.PropertyAddress = s;
+        String sType;
+        sType = Env.Strings.S_PropertyAddress;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(sType);
+        boolean updated;
+        updated = addToLookups(s, typeID);
+        Env.UpdatedTypes.put(typeID, updated);
+    }
+
+    /**
+     *
+     * @param s
+     * @param typeID
+     * @return
+     */
+    protected boolean addToLookups(String s, LR_ID typeID) {
+        HashMap<String, LR_ID> l;
+        l = Env.ToIDLookups.get(typeID);
+        if (!l.containsKey(s)) {
+            LR_ID id;
+            id = new LR_ID(l.size());
+            l.put(s, id);
+            Env.IDToLookups.get(typeID).put(id, s);
+            return true;
+        }
+        return false;
+    }
+    
+    public final void updateProprietorNameCollections(String s) {
+        String sType;
+        sType = Env.Strings.S_ProprietorName;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(sType);
+        boolean updated;
+        updated = addToLookups(s, typeID);
+        Env.UpdatedTypes.put(typeID, updated);
+    }
+    
+    public final void updateCompanyRegistrationNoCollections(String s) {
+        String sType;
+        sType = Env.Strings.S_CompanyRegistrationNo;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(sType);
+        boolean updated;
+        updated = addToLookups(s, typeID);
+        Env.UpdatedTypes.put(typeID, updated);
+    }
+
+    public final void updateProprietorshipCategoryCollections(String s) {
+        String sType;
+        sType = Env.Strings.S_ProprietorshipCategory;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(sType);
+        boolean updated;
+        updated = addToLookups(s, typeID);
+        Env.UpdatedTypes.put(typeID, updated);
     }
 
     /**
@@ -551,37 +872,46 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @param Postcode the Postcode to set
      */
-    public final void setPostcode(String Postcode) {
+    public final void initPostcodeAndPostcodeDistrict(String Postcode) {
         this.Postcode = Postcode;
         String[] split;
         split = this.Postcode.split(" ");
+        // Todo: add validation.
         this.PostcodeDistrict = split[0];
+        // PostcodeDistrict
+        String s;
+        String sType;
+        LR_ID idType;
+        s = getPostcodeDistrict();
+        sType = Env.Strings.S_PostcodeDistrict;
+        idType = Env.TypeToID.get(sType);
+        addToLookups(s, idType);
     }
 
     /**
-     * @param MultipleAddressIndicator the MultipleAddressIndicator to set
+     * @param s the MultipleAddressIndicator to set
      */
-    public final void setMultipleAddressIndicator(String MultipleAddressIndicator) {
-        this.MultipleAddressIndicator = MultipleAddressIndicator;
+    public final void setMultipleAddressIndicator(String s) {
+        this.MultipleAddressIndicator = s;
     }
 
     /**
      * @param PricePaid the PricePaid to set
      */
-    public final void setPricePaid(String PricePaid) {
+    public final void setPricePaid(long PricePaid) {
         this.PricePaid = PricePaid;
     }
 
     /**
-     * @param CompanyRegistrationNo1 the CompanyRegistrationNo1 to set
+     * All leading "0" in s are removed.
+     *
+     * @param s the CompanyRegistrationNo1 to set
      */
-    public final void setCompanyRegistrationNo1(String CompanyRegistrationNo1) {
-        if (CompanyRegistrationNo1.startsWith("0")) {
-            do {
-                CompanyRegistrationNo1 = CompanyRegistrationNo1.substring(1);
-            } while (CompanyRegistrationNo1.startsWith("0"));
+    public final void setCompanyRegistrationNo1(String s) {
+        while (s.startsWith("0")) {
+            s = s.substring(1);
         }
-        this.CompanyRegistrationNo1 = CompanyRegistrationNo1;
+        this.CompanyRegistrationNo1 = s;
     }
 
     /**
@@ -592,178 +922,210 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * @param ProprietorName1 the ProprietorName1 to set
+     * @param s the ProprietorName1 to set
      */
-    public final void setProprietorName1(String ProprietorName1) {
-        this.ProprietorName1 = ProprietorName1;
+    public final void setProprietorName1(String s) {
+        this.ProprietorName1 = s;
     }
 
     /**
-     * @param ProprietorshipCategory1 the ProprietorshipCategory1 to set
+     * @param s the ProprietorshipCategory1 to set
      */
-    public final void setProprietorshipCategory1(String ProprietorshipCategory1) {
-        this.ProprietorshipCategory1 = ProprietorshipCategory1;
+    public final void setProprietorshipCategory1(String s) {
+        String sType;
+        sType = Env.Strings.S_ProprietorshipCategory1;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(sType);
+        boolean updated;
+        updated = addToLookups(s, typeID);
+        Env.UpdatedTypes.put(typeID, updated);
     }
 
     /**
-     * @param AdditionalProprietorIndicator the AdditionalProprietorIndicator to
-     * set
+     * @param s the AdditionalProprietorIndicator to set
      */
-    public final void setAdditionalProprietorIndicator(String AdditionalProprietorIndicator) {
-        this.AdditionalProprietorIndicator = AdditionalProprietorIndicator;
+    public final void setAdditionalProprietorIndicator(String s) {
+        this.AdditionalProprietorIndicator = s;
     }
 
     /**
-     * @param CompanyRegistrationNo2 the CompanyRegistrationNo2 to set
+     * @param s the CompanyRegistrationNo2 to set
      */
-    public final void setCompanyRegistrationNo2(String CompanyRegistrationNo2) {
-        this.CompanyRegistrationNo2 = CompanyRegistrationNo2;
+    public final void setCompanyRegistrationNo2(String s) {
+        while (s.startsWith("0")) {
+            s = s.substring(1);
+        }
+        this.CompanyRegistrationNo2 = s;
+        if (!s.isEmpty()) {
+            updateCompanyRegistrationNoCollections(s);
+        }
     }
 
     /**
-     * @param CompanyRegistrationNo3 the CompanyRegistrationNo3 to set
+     * @param s the CompanyRegistrationNo3 to set
      */
-    public final void setCompanyRegistrationNo3(String CompanyRegistrationNo3) {
-        this.CompanyRegistrationNo3 = CompanyRegistrationNo3;
+    public final void setCompanyRegistrationNo3(String s) {
+        while (s.startsWith("0")) {
+            s = s.substring(1);
+        }
+        this.CompanyRegistrationNo3 = s;
+        if (!s.isEmpty()) {
+            updateCompanyRegistrationNoCollections(s);
+        }
     }
 
     /**
-     * @param CompanyRegistrationNo4 the CompanyRegistrationNo4 to set
+     * @param s the CompanyRegistrationNo4 to set
      */
-    public final void setCompanyRegistrationNo4(String CompanyRegistrationNo4) {
-        this.CompanyRegistrationNo4 = CompanyRegistrationNo4;
+    public final void setCompanyRegistrationNo4(String s) {
+        while (s.startsWith("0")) {
+            s = s.substring(1);
+        }
+        this.CompanyRegistrationNo4 = s;
+        if (!s.isEmpty()) {
+            updateCompanyRegistrationNoCollections(s);
+        }
     }
 
     /**
-     * @param DateProprietorAdded the DateProprietorAdded to set
+     * @param s the DateProprietorAdded to set
      */
-    public final void setDateProprietorAdded(String DateProprietorAdded) {
-        this.DateProprietorAdded = DateProprietorAdded;
+    public final void setDateProprietorAdded(String s) {
+        this.DateProprietorAdded = s;
     }
 
     /**
-     * @param Proprietor1Address1 the Proprietor1Address1 to set
+     * @param s the Proprietor1Address1 to set
      */
-    public final void setProprietor1Address1(String Proprietor1Address1) {
-        this.Proprietor1Address1 = Proprietor1Address1;
+    public final void setProprietor1Address1(String s) {
+        this.Proprietor1Address1 = s;
     }
 
     /**
-     * @param Proprietor1Address2 the Proprietor1Address2 to set
+     * @param s the Proprietor1Address2 to set
      */
-    public final void setProprietor1Address2(String Proprietor1Address2) {
-        this.Proprietor1Address2 = Proprietor1Address2;
+    public final void setProprietor1Address2(String s) {
+        this.Proprietor1Address2 = s;
     }
 
     /**
-     * @param Proprietor1Address3 the Proprietor1Address3 to set
+     * @param s the Proprietor1Address3 to set
      */
-    public final void setProprietor1Address3(String Proprietor1Address3) {
-        this.Proprietor1Address3 = Proprietor1Address3;
+    public final void setProprietor1Address3(String s) {
+        this.Proprietor1Address3 = s;
     }
 
     /**
-     * @param Proprietor2Address1 the Proprietor2Address1 to set
+     * @param s the Proprietor2Address1 to set
      */
-    public final void setProprietor2Address1(String Proprietor2Address1) {
-        this.Proprietor2Address1 = Proprietor2Address1;
+    public final void setProprietor2Address1(String s) {
+        this.Proprietor2Address1 = s;
     }
 
     /**
-     * @param Proprietor2Address2 the Proprietor2Address2 to set
+     * @param s the Proprietor2Address2 to set
      */
-    public final void setProprietor2Address2(String Proprietor2Address2) {
-        this.Proprietor2Address2 = Proprietor2Address2;
+    public final void setProprietor2Address2(String s) {
+        this.Proprietor2Address2 = s;
     }
 
     /**
-     * @param Proprietor2Address3 the Proprietor2Address3 to set
+     * @param s the Proprietor2Address3 to set
      */
-    public final void setProprietor2Address3(String Proprietor2Address3) {
-        this.Proprietor2Address3 = Proprietor2Address3;
+    public final void setProprietor2Address3(String s) {
+        this.Proprietor2Address3 = s;
     }
 
     /**
-     * @param Proprietor3Address1 the Proprietor3Address1 to set
+     * @param s the Proprietor3Address1 to set
      */
-    public final void setProprietor3Address1(String Proprietor3Address1) {
-        this.Proprietor3Address1 = Proprietor3Address1;
+    public final void setProprietor3Address1(String s) {
+        this.Proprietor3Address1 = s;
     }
 
     /**
-     * @param Proprietor3Address2 the Proprietor3Address2 to set
+     * @param s the Proprietor3Address2 to set
      */
-    public final void setProprietor3Address2(String Proprietor3Address2) {
-        this.Proprietor3Address2 = Proprietor3Address2;
+    public final void setProprietor3Address2(String s) {
+        this.Proprietor3Address2 = s;
     }
 
     /**
-     * @param Proprietor3Address3 the Proprietor3Address3 to set
+     * @param s the Proprietor3Address3 to set
      */
-    public final void setProprietor3Address3(String Proprietor3Address3) {
-        this.Proprietor3Address3 = Proprietor3Address3;
+    public final void setProprietor3Address3(String s) {
+        this.Proprietor3Address3 = s;
     }
 
     /**
-     * @param Proprietor4Address1 the Proprietor4Address1 to set
+     * @param s the Proprietor4Address1 to set
      */
-    public final void setProprietor4Address1(String Proprietor4Address1) {
-        this.Proprietor4Address1 = Proprietor4Address1;
+    public final void setProprietor4Address1(String s) {
+        this.Proprietor4Address1 = s;
     }
 
     /**
-     * @param Proprietor4Address2 the Proprietor4Address2 to set
+     * @param s the Proprietor4Address2 to set
      */
-    public final void setProprietor4Address2(String Proprietor4Address2) {
-        this.Proprietor4Address2 = Proprietor4Address2;
+    public final void setProprietor4Address2(String s) {
+        this.Proprietor4Address2 = s;
     }
 
     /**
-     * @param Proprietor4Address3 the Proprietor4Address3 to set
+     * @param s the Proprietor4Address3 to set
      */
-    public final void setProprietor4Address3(String Proprietor4Address3) {
-        this.Proprietor4Address3 = Proprietor4Address3;
+    public final void setProprietor4Address3(String s) {
+        this.Proprietor4Address3 = s;
     }
 
     /**
-     * @param ProprietorName2 the ProprietorName2 to set
+     * @param s the ProprietorName2 to set
      */
-    public final void setProprietorName2(String ProprietorName2) {
-        this.ProprietorName2 = ProprietorName2;
+    public final void setProprietorName2(String s) {
+        this.ProprietorName2 = s;
+        if (!s.isEmpty()) {
+            updateProprietorNameCollections(s);
+        }
     }
 
     /**
-     * @param ProprietorName3 the ProprietorName3 to set
+     * @param s the ProprietorName3 to set
      */
-    public final void setProprietorName3(String ProprietorName3) {
-        this.ProprietorName3 = ProprietorName3;
+    public final void setProprietorName3(String s) {
+        this.ProprietorName3 = s;
+        if (!s.isEmpty()) {
+            updateProprietorNameCollections(s);
+        }
     }
 
     /**
-     * @param ProprietorName4 the ProprietorName4 to set
+     * @param s the ProprietorName4 to set
      */
-    public final void setProprietorName4(String ProprietorName4) {
-        this.ProprietorName4 = ProprietorName4;
+    public final void setProprietorName4(String s) {
+        this.ProprietorName4 = s;
+        if (!s.isEmpty()) {
+            updateProprietorNameCollections(s);
+        }
     }
 
     /**
-     * @param ProprietorshipCategory2 the ProprietorshipCategory2 to set
+     * @param s the ProprietorshipCategory2 to set
      */
-    public final void setProprietorshipCategory2(String ProprietorshipCategory2) {
-        this.ProprietorshipCategory2 = ProprietorshipCategory2;
+    public final void setProprietorshipCategory2(String s) {
+        this.ProprietorshipCategory2 = s;
     }
 
     /**
-     * @param ProprietorshipCategory3 the ProprietorshipCategory3 to set
+     * @param s the ProprietorshipCategory3 to set
      */
-    public final void setProprietorshipCategory3(String ProprietorshipCategory3) {
-        this.ProprietorshipCategory3 = ProprietorshipCategory3;
+    public final void setProprietorshipCategory3(String s) {
+        this.ProprietorshipCategory3 = s;
     }
 
     /**
-     * @param ProprietorshipCategory4 the ProprietorshipCategory4 to set
+     * @param s the ProprietorshipCategory4 to set
      */
-    public final void setProprietorshipCategory4(String ProprietorshipCategory4) {
-        this.ProprietorshipCategory4 = ProprietorshipCategory4;
+    public final void setProprietorshipCategory4(String s) {
+        this.ProprietorshipCategory4 = s;
     }
 }

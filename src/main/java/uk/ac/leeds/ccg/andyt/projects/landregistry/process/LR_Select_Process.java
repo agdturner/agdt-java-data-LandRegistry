@@ -28,10 +28,7 @@ import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_FULL_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_FULL_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
 
 /**
@@ -61,6 +58,7 @@ public class LR_Select_Process extends LR_Main_Process {
         File outputDataDir;
         outputDataDir = Files.getOutputDataDir(Strings);
 
+        boolean upDateIDs = true;
         ArrayList<String> names0;
         //ArrayList<String> names1;
         ArrayList<String> setNames;
@@ -72,6 +70,8 @@ public class LR_Select_Process extends LR_Main_Process {
         names0.add(Strings.S_OCOD);
         boolean isCCOD;
 
+        String eol;
+        eol = System.getProperty("line.separator");
         File indir;
         File outdir;
         File fin;
@@ -91,10 +91,21 @@ public class LR_Select_Process extends LR_Main_Process {
                 name = name00;
                 name += ite2.next();
                 indir = new File(inputDataDir, name0);
+                if (doFull) {
+                    indir = new File(indir, Env.Strings.S_FULL);
+                } else {
+                    indir = new File(indir, Env.Strings.S_COU);
+                }
                 indir = new File(indir, name);
                 System.out.println("indir " + indir);
-                outdir = new File(outputDataDir, area);
+                outdir = new File(outputDataDir, Env.Strings.S_Subsets);
+                outdir = new File(outdir, area);
                 outdir = new File(outdir, name0);
+                if (doFull) {
+                    outdir = new File(outdir, Env.Strings.S_FULL);
+                } else {
+                    outdir = new File(outdir, Env.Strings.S_COU);
+                }
                 outdir = new File(outdir, name);
                 System.out.println("outdir " + outdir);
                 fin = new File(indir, name + ".csv");
@@ -114,19 +125,7 @@ public class LR_Select_Process extends LR_Main_Process {
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(LR_Select_Process.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        if (isCCOD) {
-                            if (doFull) {
-                                pw.println(LR_CC_FULL_Record.header());
-                            } else {
-                                pw.println(LR_CC_COU_Record.header());
-                            }
-                        } else {
-                            if (doFull) {
-                                pw.println(LR_OC_FULL_Record.header());
-                            } else {
-                                pw.println(LR_OC_COU_Record.header());
-                            }
-                        }
+                        pw.println(LR_Record.header(isCCOD, doFull));
                         boolean read;
                         read = false;
                         String line;
@@ -135,35 +134,29 @@ public class LR_Select_Process extends LR_Main_Process {
                         Generic_ReadCSV.readLine(st, null);
                         int ID;
                         ID = 1;
-                        
+
                         Generic_YearMonth YM = null;
-                        
+
                         while (!read) {
                             line = Generic_ReadCSV.readLine(st, null);
                             if (line == null) {
                                 read = true;
                             } else {
                                 try {
-                                    if (isCCOD) {
-                                        if (doFull) {
-                                             r = new LR_CC_FULL_Record(Env, YM, line);
-                                        }else {
-                                            r = new LR_CC_COU_Record(Env, YM, line);
+                                    r = LR_Record.create(isCCOD, doFull, Env, YM, line, upDateIDs);
+                                    if (r != null) {
+                                        if (r.getDistrict().equalsIgnoreCase(area)) {
+                                            //System.out.println(r.toCSV());
+                                            //pw.println(r.toCSV());
+                                            pw.print(r.toCSV() + eol);
                                         }
-                                    } else {
-                                        if (doFull) {
-                                            r = new LR_OC_FULL_Record(Env, YM, line);
-                                        } else {
-                                            r = new LR_OC_COU_Record(Env, YM, line);
-                                        }
-                                    }
-                                    if (r.getDistrict().equalsIgnoreCase(area)) {
-                                        //System.out.println(r.toCSV());
-                                        pw.println(r.toCSV());
                                     }
                                 } catch (ArrayIndexOutOfBoundsException e) {
                                     //e.printStackTrace(System.err);
                                     System.out.println("Line " + ID + " is not a nomal line:" + line);
+                                } catch (Exception ex) {
+                                    System.err.println("Line: " + line);
+                                    Logger.getLogger(LR_Select_Process.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             }
                         }
@@ -174,13 +167,8 @@ public class LR_Select_Process extends LR_Main_Process {
                 }
             }
         }
-        Env.writeCompanyRegistrationNoLookups();
-        Env.writeCountryIncorporatedLookups();
-        Env.writePropertyAddressLookups();
-        Env.writeProprietorNameLookups();
-        Env.writeTitleNumberLookups();
-        Env.writeProprietorshipCategoryLookups();
-        System.out.println("Written out lookups if necessary.");
+        // Write out lookups if necessary
+        Env.writeCollections();
     }
 
 }

@@ -16,6 +16,8 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
@@ -38,23 +40,25 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     protected LR_OC_FULL_Record() {
     }
 
-    public LR_OC_FULL_Record(Generic_YearMonth YM, String line) {
+    public LR_OC_FULL_Record(LR_Environment env, Generic_YearMonth YM,
+            String line, boolean updateIDs) throws Exception {
+        this.Env = env;
         this.YM = YM;
         String[] ls;
-        ls = line.split("\",\"");
-        setTitleNumber(ls[0].substring(1));
-        setTenure(ls[1]);
-        setPropertyAddress(ls[2]);
+        ls = getSplitAndTrim(line);
+        initTitleNumber(ls[0].substring(1));
+        initTenure(ls[1]);
+        initPropertyAddress(ls[2]);
         setDistrict(ls[3]);
         setCounty(ls[4]);
         setRegion(ls[5]);
-        setPostcode(ls[6]);
+        initPostcodeAndPostcodeDistrict(ls[6]);
         setMultipleAddressIndicator(ls[7]);
-        setPricePaid(ls[8]);
-        setProprietorName1(ls[9]);
-        setCompanyRegistrationNo1(ls[10]);
-        setProprietorshipCategory1(ls[11]);
-        setCountryIncorporated1(ls[12]);
+        initPricePaid(ls[8]);
+        initProprietorName1(ls[9]);
+        initCompanyRegistrationNo1(ls[10]);
+        initProprietorshipCategory1(ls[11]);
+        initCountryIncorporated1(ls[12]);
         setProprietor1Address1(ls[13]);
         setProprietor1Address2(ls[14]);
         setProprietor1Address3(ls[15]);
@@ -83,78 +87,12 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         setAdditionalProprietorIndicator(ls[38]);
     }
 
-    public LR_OC_FULL_Record(LR_Environment env, Generic_YearMonth YM, String line) {
-        this(YM, line);
-        Env = env;
-        updateIDs();
-        String s;
-        s = getCountryIncorporated1();
-        updateCountryIncorporatedLookups(1, s);
-        s = getCountryIncorporated2();
-        updateCountryIncorporatedLookups(2, s);
-        s = getCountryIncorporated3();
-        updateCountryIncorporatedLookups(3, s);
-        s = getCountryIncorporated4();
-        updateCountryIncorporatedLookups(4, s);
-    }
-
     public LR_OC_FULL_Record(LR_OC_FULL_Record r) {
         super(r);
-        setCountryIncorporated1(r.getCountryIncorporated1());
+        initCountryIncorporated1(r.getCountryIncorporated1());
         setCountryIncorporated2(r.getCountryIncorporated2());
         setCountryIncorporated3(r.getCountryIncorporated3());
         setCountryIncorporated4(r.getCountryIncorporated4());
-    }
-
-    /**
-     *
-     * @param i Either 1, 2, 3, or 4.
-     * @param s A potentially new ProprietorName.
-     */
-    public final void updateCountryIncorporatedLookups(int i, String s) {
-        if (Env.CountryIncorporatedToID.containsKey(s)) {
-            switch (i) {
-                case 1:
-                    CountryIncorporated1ID = Env.CountryIncorporatedToID.get(s);
-                    break;
-                case 2:
-                    CountryIncorporated2ID = Env.CountryIncorporatedToID.get(s);
-                    break;
-                case 3:
-                    CountryIncorporated3ID = Env.CountryIncorporatedToID.get(s);
-                    break;
-                default:
-                    CountryIncorporated4ID = Env.CountryIncorporatedToID.get(s);
-                    break;
-            }
-        } else {
-            switch (i) {
-                case 1:
-                    CountryIncorporated1ID = new LR_ID(Env.CountryIncorporatedToID.size());
-                    Env.CountryIncorporatedToID.put(s, CountryIncorporated1ID);
-                    Env.IDToCountryIncorporated.put(CountryIncorporated1ID, s);
-                    Env.UpdatedCountryIncorporatedLookups = true;
-                    break;
-                case 2:
-                    CountryIncorporated2ID = new LR_ID(Env.CountryIncorporatedToID.size());
-                    Env.CountryIncorporatedToID.put(s, CountryIncorporated2ID);
-                    Env.IDToCountryIncorporated.put(CountryIncorporated2ID, s);
-                    Env.UpdatedCountryIncorporatedLookups = true;
-                    break;
-                case 3:
-                    CountryIncorporated3ID = new LR_ID(Env.CountryIncorporatedToID.size());
-                    Env.CountryIncorporatedToID.put(s, CountryIncorporated3ID);
-                    Env.IDToCountryIncorporated.put(CountryIncorporated3ID, s);
-                    Env.UpdatedCountryIncorporatedLookups = true;
-                    break;
-                default:
-                    CountryIncorporated4ID = new LR_ID(Env.CountryIncorporatedToID.size());
-                    Env.CountryIncorporatedToID.put(s, CountryIncorporated4ID);
-                    Env.IDToCountryIncorporated.put(CountryIncorporated4ID, s);
-                    Env.UpdatedCountryIncorporatedLookups = true;
-                    break;
-            }
-        }
     }
 
     @Override
@@ -278,6 +216,16 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
                 + ",AdditionalProprietorIndicator";
     }
 
+    public final void updateCountryIncorporatedCollections(String s) {
+        String sType;
+        sType = Env.Strings.S_CountryIncorporated;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(sType);
+        boolean updated;
+        updated = addToLookups(s, typeID);
+        Env.UpdatedTypes.put(typeID, updated);
+    }
+
     /**
      * @return the CountryIncorporated1
      */
@@ -308,38 +256,73 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     }
 
     /**
-     * @param CountryIncorporated1 the CountryIncorporated1 to set
+     * @param s the CountryIncorporated1 to set
      */
-    public final void setCountryIncorporated1(String CountryIncorporated1) {
-        this.CountryIncorporated1 = CountryIncorporated1;
+    public final void initCountryIncorporated1(String s) {
+        this.CountryIncorporated1 = s;
+        if (s.isEmpty()) {
+            LR_ID typeID;
+            typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated1);
+            HashSet<LR_ID> c;
+            c = Env.getNullTitleNumberIDCollections(typeID);
+            int i = c.size();
+            setCountryIncorporated1(Integer.toString(i));
+            c.add(TitleNumberID);
+            Env.UpdatedTypes.put(typeID, true);
+        } else {
+            setCountryIncorporated1(s);
+        }
+        updateCountryIncorporatedCollections(getCountryIncorporated1());
+    }
+    
+    /**
+     * @param s what CountryIncorporated1 to set
+     */
+    public final void setCountryIncorporated1(String s) {
+        this.CountryIncorporated1 = s;
+        if (!s.isEmpty()) {
+            updateCountryIncorporatedCollections(s);
+        }
     }
 
     /**
-     * @param CountryIncorporated2 the CountryIncorporated2 to set
+     * @param s the CountryIncorporated2 to set
      */
-    public final void setCountryIncorporated2(String CountryIncorporated2) {
-        this.CountryIncorporated2 = CountryIncorporated2;
+    public final void setCountryIncorporated2(String s) {
+        this.CountryIncorporated2 = s;
+        if (!s.isEmpty()) {
+            updateCountryIncorporatedCollections(s);
+        }
     }
 
     /**
-     * @param CountryIncorporated3 the CountryIncorporated3 to set
+     * @param s the CountryIncorporated3 to set
      */
-    public final void setCountryIncorporated3(String CountryIncorporated3) {
-        this.CountryIncorporated3 = CountryIncorporated3;
+    public final void setCountryIncorporated3(String s) {
+        this.CountryIncorporated3 = s;
+        if (!s.isEmpty()) {
+            updateCountryIncorporatedCollections(s);
+        }
     }
 
     /**
-     * @param CountryIncorporated4 the CountryIncorporated4 to set
+     * @param s the CountryIncorporated4 to set
      */
-    public final void setCountryIncorporated4(String CountryIncorporated4) {
-        this.CountryIncorporated4 = CountryIncorporated4;
+    public final void setCountryIncorporated4(String s) {
+        this.CountryIncorporated4 = s;
+        if (!s.isEmpty()) {
+            updateCountryIncorporatedCollections(s);
+        }
     }
 
     /**
      * @return the CountryIncorporated1ID
      */
+    @Override
     public final LR_ID getCountryIncorporated1ID() {
-        return CountryIncorporated1ID;
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated);
+        return Env.ToIDLookups.get(typeID).get(getCountryIncorporated1());
     }
 
 }

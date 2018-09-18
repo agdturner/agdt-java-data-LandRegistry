@@ -31,8 +31,9 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
     protected LR_CC_COU_Record() {
     }
 
-    public LR_CC_COU_Record(LR_Environment env, Generic_YearMonth YM, String line) {
-        super(env, YM, line);
+    public LR_CC_COU_Record(LR_Environment env, Generic_YearMonth YM, 
+            String line) throws Exception {
+        super(env, YM, line, false);
         init(line);
     }
 
@@ -43,7 +44,6 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
         lineLength = ls.length;
         ChangeIndicator = ls[lineLength - 2];
         ChangeDate = ls[lineLength - 1];
-        updateIDs();
     }
 
     @Override

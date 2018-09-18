@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,8 +32,8 @@ import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
 
 /**
@@ -51,9 +52,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
     }
 
     HashMap<LR_ID, TreeMap<LR_ID, Integer>> Counts;
-    ArrayList<LR_ID> Types;
-    HashMap<LR_ID, String> IDToType;
-    HashMap<String, LR_ID> TypeToID;
+    
 
 ////    TreeMap<String, Integer> districtCounts;
 ////    TreeMap<String, Integer> countyCounts;
@@ -100,6 +99,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         }
         boolean isCCOD;
 
+        boolean upDateIDs = true;
         // Initialise transparencyMap
         loadTransparencyMap();
 
@@ -109,9 +109,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
         File fout;
         ArrayList<String> lines;
         HashMap<LR_ID, PrintWriter> pws;
+        PrintWriter pw;
         // Initialise Types, IDToType and TypeToID.
-        initTypeIDs();
-
+        
         pws = new HashMap<>();
         Iterator<LR_ID> iteTypes;
         String type;
@@ -129,25 +129,41 @@ public class LR_Generalise_Process extends LR_Main_Process {
             while (ite2.hasNext()) {
                 name = name00;
                 name += ite2.next();
+                indir = new File(inputDataDir, name0);
                 if (doFull) {
-                    indir = new File(inputDataDir, name0);
+                    indir = new File(indir, Strings.S_FULL);
                     indir = new File(indir, name);
                     if (doAll) {
-                        outdir = new File(outputDataDir, 
-                                Strings.S_Generalised + Strings.S_FULL);
+                        outdir = new File(outputDataDir, Strings.S_Generalised);
+                        outdir = new File(outdir, Strings.S_FULL);
                     } else {
-                        indir = new File(outputDataDir, area);
+                        indir = new File(outputDataDir, Strings.S_Subsets);
+                        indir = new File(indir, area);
                         indir = new File(indir, name0);
+                        indir = new File(indir, Strings.S_FULL);
                         indir = new File(indir, name);
-                        outdir = new File(outputDataDir, 
-                                area + Strings.S_Generalised + Strings.S_FULL);
+                        outdir = new File(outputDataDir, Strings.S_Generalised);
+                        outdir = new File(outdir, Strings.S_Subsets);
+                        outdir = new File(outdir, area);
+                        outdir = new File(outdir, Strings.S_FULL);
                     }
                 } else {
-                    indir = new File(outputDataDir, area);
-                    indir = new File(indir, name0);
+                    indir = new File(indir, Strings.S_COU);
                     indir = new File(indir, name);
-                    outdir = new File(outputDataDir, 
-                            area + Strings.S_Generalised + Strings.S_COU);
+                    if (doAll) {
+                        outdir = new File(outputDataDir, Strings.S_Generalised);
+                        outdir = new File(outdir, Strings.S_COU);
+                    } else {
+                        indir = new File(outputDataDir, Strings.S_Subsets);
+                        indir = new File(indir, area);
+                        indir = new File(indir, name0);
+                        indir = new File(indir, Strings.S_COU);
+                        indir = new File(indir, name);
+                        outdir = new File(outputDataDir, Strings.S_Generalised);
+                        outdir = new File(outdir, Strings.S_Subsets);
+                        outdir = new File(outdir, area);
+                        outdir = new File(outdir, Strings.S_COU);
+                    }
                 }
                 System.out.println("indir " + indir);
                 outdir = new File(outdir, name0);
@@ -160,54 +176,68 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 } else {
                     if (overwrite || !outdir.exists()) {
                         lines = Generic_ReadCSV.read(fin, null, 7);
-                        // Initialise printwriters
                         try {
+                            // Initialise printwriters
                             outdir.mkdirs();
-                            iteTypes = Types.iterator();
+                            iteTypes = Env.Types.iterator();
                             while (iteTypes.hasNext()) {
                                 typeID = iteTypes.next();
-                                type = IDToType.get(typeID);
+                                type = Env.IDToType.get(typeID);
                                 fout = new File(outdir, type.replaceAll(" ", "_") + ".csv");
                                 pws.put(typeID, new PrintWriter(fout));
                             }
+                            fout = new File(outdir, "GeneralCounts.csv");
+                            pw = new PrintWriter(fout);
+                            // Initialise counts
+                            Counts = new HashMap<>();
+                            typeID = Env.TypeToID.get(Strings.S_CompanyRegistrationNo);
+                            int countNullCompanyRegistrationNo10;
+                            countNullCompanyRegistrationNo10 = Env.NullTitleNumberIDCollections.get(typeID).size();
+//                            Env.TitleNumberIDsOfNullPricePaid = new HashSet<>();
+//                            Env.TitleNumberIDsOfNullPropertyAddress = new HashSet<>();
+//                            Env.TitleNumberIDsOfNullProprietorName1 = new HashSet<>();
+//                            Env.TitleNumberIDsOfNullProprietorshipCategory1 = new HashSet<>();
+                            iteTypes = Env.Types.iterator();
+                            while (iteTypes.hasNext()) {
+                                typeID = iteTypes.next();
+                                Counts.put(typeID, new TreeMap<>());
+                            }
+                            Generic_YearMonth YM = null;
+                            LR_Record r;
+                            for (int ID = 1; ID < lines.size(); ID++) {
+                                try {
+                                    r = LR_Record.create(isCCOD, doFull, Env, YM,
+                                            lines.get((int) ID), upDateIDs);
+                                    addToCounts(r);
+                                } catch (ArrayIndexOutOfBoundsException e) {
+                                    e.printStackTrace(System.err);
+                                } catch (Exception ex) {
+                                    System.err.println("Line " + lines.get((int) ID));
+                                    Logger.getLogger(LR_Generalise_Process.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                            if (isCCOD) {
+                                printGeneralisation(pws, minCC);
+                            } else {
+                                printGeneralisation(pws, minOC);
+                            }
+                            pw.println("NRecords " + (lines.size() - 1));
+                            int countNullCompanyRegistrationNo11;
+                            countNullCompanyRegistrationNo11 = Env.NullTitleNumberIDCollections.get(typeID).size();
+                            pw.println("Count of new null CompanyRegistrationNo " + (countNullCompanyRegistrationNo11 - countNullCompanyRegistrationNo11));
+//                            pw.println("Count of null PricePaid " + Env.TitleNumberIDsOfNullPricePaid.size());
+//                            pw.println("Count of null PropertyAddress " + Env.TitleNumberIDsOfNullPropertyAddress.size());
+//                            pw.println("Count of null ProprietorName1 " + Env.TitleNumberIDsOfNullProprietorName1.size());
+//                            pw.println("Count of null ProprietorshipCategory1 " + Env.TitleNumberIDsOfNullProprietorshipCategory1.size());
+                            // Close printWriters
+                            iteTypes = Env.Types.iterator();
+                            while (iteTypes.hasNext()) {
+                                typeID = iteTypes.next();
+                                pws.get(typeID).close();
+                            }
+                            pw.close();
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(LR_Generalise_Process.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        // Initialise counts
-                        Counts = new HashMap<>();
-                        iteTypes = Types.iterator();
-                        while (iteTypes.hasNext()) {
-                            typeID = iteTypes.next();
-                            Counts.put(typeID, new TreeMap<>());
-                        }
-                        
-                        Generic_YearMonth YM = null;
-                        
-                        LR_Record r;
-                        for (int ID = 1; ID < lines.size(); ID++) {
-                            try {
-                                if (isCCOD) {
-                                    r = new LR_CC_COU_Record(Env, YM,
-                                            lines.get((int) ID));
-                                } else {
-                                    r = new LR_OC_COU_Record(Env, YM,
-                                            lines.get((int) ID));
-                                }
-                                addToCounts(r);
-                            } catch (ArrayIndexOutOfBoundsException e) {
-                                e.printStackTrace(System.err);
-                            }
-                        }
-                        if (isCCOD) {
-                            printGeneralisation(pws, minCC);
-                        } else {
-                            printGeneralisation(pws, minOC);
-                        }
-                        // Close printWriters
-                        iteTypes = Types.iterator();
-                        while (iteTypes.hasNext()) {
-                            typeID = iteTypes.next();
-                            pws.get(typeID).close();
                         }
                     } else {
                         System.out.println("Output directory " + outdir
@@ -225,78 +255,57 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
     }
 
-    protected void addType(String type) {
-        LR_ID id;
-        id = new LR_ID(TypeToID.size());
-        TypeToID.put(type, id);
-        IDToType.put(id, type);
-        Types.add(id);
-    }
-
-    protected void initTypeIDs() {
-        Types = new ArrayList<>();
-        TypeToID = new HashMap<>();
-        IDToType = new HashMap<>();
-        String s;
-        LR_ID typeID;
-        s = "Tenure";
-        addType(s);
-        Env.TypeIDTenure = TypeToID.get(s);
-//        s = "District";
-//        addType(s);
-//        s = "County";
-//        addType(s);
-        s = "Company Registration No 1";
-        addType(s);
-        Env.TypeIDCompanyRegistrationNo1 = TypeToID.get(s);
-        s = "Proprietor Name1 1";
-        addType(s);
-        Env.TypeIDProprietorName1 = TypeToID.get(s);
-        s = "Proprietorship Category 1";
-        addType(s);
-        Env.TypeIDProprietorshipCategory1 = TypeToID.get(s);
-        s = "Country Incorporated 1";
-        addType(s);
-        Env.TypeIDCountryIncorporated1 = TypeToID.get(s);
-        s = "Postcode District";
-        addType(s);
-        Env.TypeIDPostcodeDistrict = TypeToID.get(s);
-    }
-
     void addToCounts(LR_Record r) {
-        Iterator<LR_ID> iteTypes;
-        iteTypes = Types.iterator();
-        LR_ID typeID;
-        while (iteTypes.hasNext()) {
-            typeID = iteTypes.next();
-            if (typeID.equals(Env.TypeIDTenure)) {
-                Generic_Collections.addToMap(Counts.get(typeID), r.getTenureID(), 1);
-            } else if (typeID.equals(Env.TypeIDCompanyRegistrationNo1)) {
-                Generic_Collections.addToMap(Counts.get(typeID), r.getCompanyRegistrationNo1ID(), 1);
-            } else if (typeID.equals(Env.TypeIDProprietorshipCategory1)) {
-                Generic_Collections.addToMap(Counts.get(typeID), r.getProprietorshipCategory1ID(), 1);
-            } else if (typeID.equals(Env.TypeIDProprietorName1)) {
-                Generic_Collections.addToMap(Counts.get(typeID), r.getProprietorName1ID(), 1);
-            } else if (typeID.equals(Env.TypeIDCountryIncorporated1)) {
-                Generic_Collections.addToMap(Counts.get(typeID), r.getCountryIncorporated1ID(), 1);
-            } else if (typeID.equals(Env.TypeIDPostcodeDistrict)) {
-                Generic_Collections.addToMap(Counts.get(typeID), r.getPostcodeDistrictID(), 1);
-            } else {
-                int debug = 1; //not sure what should be happening here!
+        if (r != null) {
+            Iterator<LR_ID> iteTypes;
+            iteTypes = Env.Types.iterator();
+            LR_ID typeID;
+            LR_ID tenureID;
+            tenureID = r.getTenureID();
+            LR_ID id;
+            while (iteTypes.hasNext()) {
+                typeID = iteTypes.next();
+                if (typeID.equals(Env.TypeToID.get(Strings.S_Tenure))) {
+                    Generic_Collections.addToMap(Counts.get(typeID), tenureID, 1);
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_CompanyRegistrationNo1))) {
+                    id = r.getCompanyRegistrationNo1ID();
+                    if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
+                        Generic_Collections.addToMap(Counts.get(typeID), id, 1);
+                    }
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_ProprietorshipCategory1))) {
+                    id = r.getProprietorshipCategory1ID();
+                    if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
+                        Generic_Collections.addToMap(Counts.get(typeID), id, 1);
+                    }
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_ProprietorName1))) {
+                    id = r.getProprietorName1ID();
+                    if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
+                        Generic_Collections.addToMap(Counts.get(typeID), id, 1);
+                    }
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_CountryIncorporated1))) {
+                    id = r.getCountryIncorporated1ID();
+                    if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
+                        Generic_Collections.addToMap(Counts.get(typeID), id, 1);
+                    }
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_PostcodeDistrict))) {
+                    id = r.getPostcodeDistrictID();
+                    if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
+                        Generic_Collections.addToMap(Counts.get(typeID), id, 1);
+                    }
+                } else {
+                    int debug = 1; //not sure what should be happening here!
+                }
             }
         }
-//        Generic_Collections.addToMap(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
-////        Generic_Collections.addToTreeMapStringInteger(proprietorName1IDCounts, r.getProprietorName1ID(), 1);
-//        Generic_Collections.addToTreeMapStringInteger(countryIncorporated1Counts, r.getCountryIncorporated1(), 1);
     }
 
     void printGeneralisation(HashMap<LR_ID, PrintWriter> pws, int min) {
         Iterator<LR_ID> iteTypes;
-        iteTypes = Types.iterator();
+        iteTypes = Env.Types.iterator();
         LR_ID typeID;
         while (iteTypes.hasNext()) {
             typeID = iteTypes.next();
-            printGeneralisation(pws, typeID, Counts.get(typeID), Env.getLookup(typeID), min);
+            printGeneralisation(pws, typeID, Counts.get(typeID), Env.getIDToLookup(typeID), min);
         }
     }
 
@@ -315,7 +324,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         pw = pws.get(typeID);
         Map<K, Integer> sortedCounts;
         sortedCounts = Generic_Collections.sortByValue(counts);
-        pw.println(IDToType.get(typeID));
+        pw.println(Env.IDToType.get(typeID));
         K k;
         Integer count;
         int smallCount = 0;
@@ -400,6 +409,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         pw.println();
     }
 
+    // load transparencyMap
     // load transparencyMap
     protected void loadTransparencyMap() {
         TransparencyMap = new HashMap<>();

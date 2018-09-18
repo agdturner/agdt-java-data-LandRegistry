@@ -16,6 +16,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
@@ -30,22 +31,24 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
     protected LR_CC_FULL_Record() {
     }
 
-    public LR_CC_FULL_Record(Generic_YearMonth YM, String line) {
+    public LR_CC_FULL_Record(LR_Environment env, Generic_YearMonth YM,
+            String line, boolean updateIDs) throws Exception {
+        this.Env = env;
         this.YM = YM;
         String[] ls;
-        ls = line.split("\",\"");
-        setTitleNumber(ls[0].substring(1));
-        setTenure(ls[1]);
-        setPropertyAddress(ls[2]);
+        ls = getSplitAndTrim(line);
+        initTitleNumber(ls[0].substring(1));
+        initTenure(ls[1]);
+        initPropertyAddress(ls[2]);
         setDistrict(ls[3]);
         setCounty(ls[4]);
         setRegion(ls[5]);
-        setPostcode(ls[6]);
+        initPostcodeAndPostcodeDistrict(ls[6]);
         setMultipleAddressIndicator(ls[7]);
-        setPricePaid(ls[8]);
-        setProprietorName1(ls[9]);
-        setCompanyRegistrationNo1(ls[10]);
-        setProprietorshipCategory1(ls[11]);
+        initPricePaid(ls[8]);
+        initProprietorName1(ls[9]);
+        initCompanyRegistrationNo1(ls[10]);
+        initProprietorshipCategory1(ls[11]);
         setProprietor1Address1(ls[12]);
         setProprietor1Address2(ls[13]);
         setProprietor1Address3(ls[14]);
@@ -71,237 +74,8 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         setAdditionalProprietorIndicator(ls[34]);
     }
 
-    public LR_CC_FULL_Record(LR_Environment env, Generic_YearMonth YM, String line) {
-        this(YM, line);
-        Env = env;
-        updateIDs();
-    }
-
     public LR_CC_FULL_Record(LR_Record r) {
         super(r);
-    }
-
-    protected final void updateIDs() {
-        String s;
-        s = getPropertyAddress();
-        if (Env.PropertyAddressToID.containsKey(s)) {
-            PropertyAddressID = Env.PropertyAddressToID.get(s);
-        } else {
-            PropertyAddressID = new LR_ID(Env.PropertyAddressToID.size());
-            Env.PropertyAddressToID.put(s, PropertyAddressID);
-            Env.IDToPropertyAddress.put(PropertyAddressID, s);
-            Env.UpdatedPropertyAddressLookups = true;
-        }
-        s = getTitleNumber();
-        if (Env.TitleNumberToID.containsKey(s)) {
-            TitleNumberID = Env.TitleNumberToID.get(s);
-        } else {
-            TitleNumberID = new LR_ID(Env.TitleNumberToID.size());
-            Env.TitleNumberToID.put(s, TitleNumberID);
-            Env.IDToTitleNumber.put(TitleNumberID, s);
-            Env.UpdatedTitleNumberLookups = true;
-        }
-        ID = new LR_ID2(TitleNumberID, PropertyAddressID);
-        // Tenure
-        s = getTenure();
-        if (Env.TenureToID.containsKey(s)) {
-            TenureID = Env.TenureToID.get(s);
-        } else {
-            TenureID = new LR_ID(Env.TenureToID.size());
-            Env.TenureToID.put(s, TenureID);
-            Env.IDToTenure.put(TenureID, s);
-            Env.UpdatedTenureLookups = true;
-        }
-        // PostcodeDistrict
-        s = getPostcodeDistrict();
-        if (Env.PostcodeDistrictToID.containsKey(s)) {
-            PostcodeDistrictID = Env.PostcodeDistrictToID.get(s);
-        } else {
-            PostcodeDistrictID = new LR_ID(Env.PostcodeDistrictToID.size());
-            Env.PostcodeDistrictToID.put(s, PostcodeDistrictID);
-            Env.IDToPostcodeDistrict.put(PostcodeDistrictID, s);
-            Env.UpdatedPostcodeDistrictLookups = true;
-        }
-        // ProprietorName
-        s = getProprietorName1();
-        updateProprietorNameLookups(1, s);
-        s = getProprietorName2();
-        updateProprietorNameLookups(2, s);
-        s = getProprietorName3();
-        updateProprietorNameLookups(3, s);
-        s = getProprietorName4();
-        updateProprietorNameLookups(4, s);
-        // CompanyRegistrationNo
-        s = getCompanyRegistrationNo1();
-        updateCompanyRegistrationNoLookups(1, s);
-        s = getCompanyRegistrationNo2();
-        updateCompanyRegistrationNoLookups(2, s);
-        s = getCompanyRegistrationNo3();
-        updateCompanyRegistrationNoLookups(3, s);
-        s = getCompanyRegistrationNo4();
-        updateCompanyRegistrationNoLookups(4, s);
-        // ProprietorshipCategory
-        s = getProprietorshipCategory1();
-        updateProprietorshipCategoryLookups(1, s);
-        s = getProprietorshipCategory2();
-        updateProprietorshipCategoryLookups(2, s);
-        s = getProprietorshipCategory3();
-        updateProprietorshipCategoryLookups(3, s);
-        s = getProprietorshipCategory4();
-        updateProprietorshipCategoryLookups(4, s);
-    }
-
-    /**
-     * @param i 1, 2, 3 or 4.
-     * @param s A potentially new ProprietorName.
-     */
-    public final void updateProprietorNameLookups(int i, String s) {
-        if (Env.ProprietorNameToID.containsKey(s)) {
-            switch (i) {
-                case 1:
-                    ProprietorName1ID = Env.ProprietorNameToID.get(s);
-                    break;
-                case 2:
-                    ProprietorName2ID = Env.ProprietorNameToID.get(s);
-                    break;
-                case 3:
-                    ProprietorName3ID = Env.ProprietorNameToID.get(s);
-                    break;
-                default:
-                    ProprietorName4ID = Env.ProprietorNameToID.get(s);
-                    break;
-            }
-        } else {
-            switch (i) {
-                case 1:
-                    ProprietorName1ID = new LR_ID(Env.ProprietorNameToID.size());
-                    Env.ProprietorNameToID.put(s, ProprietorName1ID);
-                    Env.IDToProprietorName.put(ProprietorName1ID, s);
-                    Env.UpdatedProprietorNameLookups = true;
-                    break;
-                case 2:
-                    ProprietorName2ID = new LR_ID(Env.ProprietorNameToID.size());
-                    Env.ProprietorNameToID.put(s, ProprietorName2ID);
-                    Env.IDToProprietorName.put(ProprietorName2ID, s);
-                    Env.UpdatedProprietorNameLookups = true;
-                    break;
-                case 3:
-                    ProprietorName3ID = new LR_ID(Env.ProprietorNameToID.size());
-                    Env.ProprietorNameToID.put(s, ProprietorName3ID);
-                    Env.IDToProprietorName.put(ProprietorName3ID, s);
-                    Env.UpdatedProprietorNameLookups = true;
-                    break;
-                default:
-                    ProprietorName4ID = new LR_ID(Env.ProprietorNameToID.size());
-                    Env.ProprietorNameToID.put(s, ProprietorName4ID);
-                    Env.IDToProprietorName.put(ProprietorName4ID, s);
-                    Env.UpdatedProprietorNameLookups = true;
-                    break;
-            }
-            Env.UpdatedProprietorNameLookups = true;
-        }
-    }
-
-    /**
-     * @param i 1, 2, 3 or 4.
-     * @param s A potentially new CompanyRegistrationNo.
-     */
-    public final void updateCompanyRegistrationNoLookups(int i, String s) {
-        if (Env.CompanyRegistrationNoToID.containsKey(s)) {
-            switch (i) {
-                case 1:
-                    CompanyRegistrationNo1ID = Env.CompanyRegistrationNoToID.get(s);
-                    break;
-                case 2:
-                    CompanyRegistrationNo2ID = Env.CompanyRegistrationNoToID.get(s);
-                    break;
-                case 3:
-                    CompanyRegistrationNo3ID = Env.CompanyRegistrationNoToID.get(s);
-                    break;
-                default:
-                    CompanyRegistrationNo4ID = Env.CompanyRegistrationNoToID.get(s);
-                    break;
-            }
-        } else {
-            switch (i) {
-                case 1:
-                    CompanyRegistrationNo1ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
-                    Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo1ID);
-                    Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo1ID, s);
-                    Env.UpdatedCompanyRegistrationNoLookups = true;
-                    break;
-                case 2:
-                    CompanyRegistrationNo2ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
-                    Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo2ID);
-                    Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo2ID, s);
-                    Env.UpdatedCompanyRegistrationNoLookups = true;
-                    break;
-                case 3:
-                    CompanyRegistrationNo3ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
-                    Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo3ID);
-                    Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo3ID, s);
-                    Env.UpdatedCompanyRegistrationNoLookups = true;
-                    break;
-                default:
-                    CompanyRegistrationNo4ID = new LR_ID(Env.CompanyRegistrationNoToID.size());
-                    Env.CompanyRegistrationNoToID.put(s, CompanyRegistrationNo4ID);
-                    Env.IDToCompanyRegistrationNo.put(CompanyRegistrationNo4ID, s);
-                    Env.UpdatedCompanyRegistrationNoLookups = true;
-                    break;
-            }
-            Env.UpdatedCompanyRegistrationNoLookups = true;
-        }
-    }
-
-    /**
-     * @param i 1, 2, 3 or 4.
-     * @param s A potentially new ProprietorshipCategory.
-     */
-    public final void updateProprietorshipCategoryLookups(int i, String s) {
-        if (Env.ProprietorshipCategoryToID.containsKey(s)) {
-            switch (i) {
-                case 1:
-                    ProprietorshipCategory1ID = Env.ProprietorshipCategoryToID.get(s);
-                    break;
-                case 2:
-                    ProprietorshipCategory2ID = Env.ProprietorshipCategoryToID.get(s);
-                    break;
-                case 3:
-                    ProprietorshipCategory3ID = Env.ProprietorshipCategoryToID.get(s);
-                    break;
-                default:
-                    ProprietorshipCategory4ID = Env.ProprietorshipCategoryToID.get(s);
-                    break;
-            }
-        } else {
-            switch (i) {
-                case 1:
-                    ProprietorshipCategory1ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
-                    Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory1ID);
-                    Env.IDToProprietorshipCategory.put(ProprietorshipCategory1ID, s);
-                    Env.UpdatedProprietorshipCategoryLookups = true;
-                    break;
-                case 2:
-                    ProprietorshipCategory2ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
-                    Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory2ID);
-                    Env.IDToProprietorshipCategory.put(ProprietorshipCategory2ID, s);
-                    Env.UpdatedProprietorshipCategoryLookups = true;
-                    break;
-                case 3:
-                    ProprietorshipCategory3ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
-                    Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory3ID);
-                    Env.IDToProprietorshipCategory.put(ProprietorshipCategory3ID, s);
-                    Env.UpdatedProprietorshipCategoryLookups = true;
-                    break;
-                default:
-                    ProprietorshipCategory4ID = new LR_ID(Env.ProprietorshipCategoryToID.size());
-                    Env.ProprietorshipCategoryToID.put(s, ProprietorshipCategory4ID);
-                    Env.IDToProprietorshipCategory.put(ProprietorshipCategory4ID, s);
-                    Env.UpdatedProprietorshipCategoryLookups = true;
-                    break;
-            }
-            Env.UpdatedProprietorshipCategoryLookups = true;
-        }
     }
 
     @Override

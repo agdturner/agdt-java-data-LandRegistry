@@ -23,6 +23,10 @@ import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
  */
 public class LR_Strings extends Generic_Strings {
 
+    /*
+     * General names.
+     */
+    public final String S_dat = "dat";
     public final String S_FULL = "FULL";
     public final String S_COU = "COU";
     public final String S_CCOD = "CCOD";
@@ -30,24 +34,60 @@ public class LR_Strings extends Generic_Strings {
     public final String S_zip = "zip";
     public final String S_United_Kingdom = "United Kingdom";
     public final String S_Generalised = "Generalised";
+    public final String S_Subsets = "Subsets";
     public final String S_Transitions = "Transitions";
-    
-    public final String S_CompanyRegistrationNo1 = "CompanyRegistrationNo1";
-    public final String S_CompanyRegistrationNo2 = "CompanyRegistrationNo2";
-    public final String S_CompanyRegistrationNo3 = "CompanyRegistrationNo3";
-    public final String S_CompanyRegistrationNo4 = "CompanyRegistrationNo4";
+
+    /*
+     * DataTypes
+     */
+    public final String S_HashSet = "HashSet";
+    public final String S_HashMap = "HashMap";
+
+    /*
+     * Values.
+     */
+    public final String S_Freehold = "Freehold";
+    public final String S_Leasehold = "Leasehold";
+
+    /*
+     * Variables.
+     */
+    public final String S_CompanyRegistrationNo = "CompanyRegistrationNo";
+    public final String S_CompanyRegistrationNo1 = S_CompanyRegistrationNo + "1";
+    public final String S_CompanyRegistrationNo2 = S_CompanyRegistrationNo + "2";
+    public final String S_CompanyRegistrationNo3 = S_CompanyRegistrationNo + "3";
+    public final String S_CompanyRegistrationNo4 = S_CompanyRegistrationNo + "4";
+    public final String S_CountryIncorporated = "CountryIncorporated";
+    public final String S_CountryIncorporated1 = S_CountryIncorporated + "1";
     public final String S_Postcode = "Postcode";
+    public final String S_PostcodeDistrict = "PostcodeDistrict";
+    public final String S_PricePaid = "PricePaid";
     public final String S_PropertyAddress = "PropertyAddress";
-    public final String S_ProprietorName1 = "S_ProprietorName1";
-    public final String S_ProprietorName2 = "S_ProprietorName2";
-    public final String S_ProprietorName3 = "S_ProprietorName3";
-    public final String S_ProprietorName4 = "S_ProprietorName4";
-    public final String S_ProprietorshipCategory1 = "ProprietorshipCategory1";
-    public final String S_ProprietorshipCategory2 = "ProprietorshipCategory2";
-    public final String S_ProprietorshipCategory3 = "ProprietorshipCategory3";
-    public final String S_ProprietorshipCategory4 = "ProprietorshipCategory4";
+    public final String S_ProprietorName = "ProprietorName";
+    public final String S_ProprietorName1 = S_ProprietorName + "1";
+    public final String S_ProprietorName2 = S_ProprietorName + "2";
+    public final String S_ProprietorName3 = S_ProprietorName + "3";
+    public final String S_ProprietorName4 = S_ProprietorName + "4";
+    public final String S_ProprietorshipCategory = "ProprietorshipCategory";
+    public final String S_ProprietorshipCategory1 = S_ProprietorshipCategory + "1";
+    public final String S_ProprietorshipCategory2 = S_ProprietorshipCategory + "2";
+    public final String S_ProprietorshipCategory3 = S_ProprietorshipCategory + "3";
+    public final String S_ProprietorshipCategory4 = S_ProprietorshipCategory + "4";
     public final String S_Tenure = "Tenure";
     public final String S_TitleNumber = "TitleNumber";
+
+    /**
+     * Collection names
+     */
+    public final String S_IDs = "IDs";
+    public final String S_IDTo = "IDTo";
+    public final String S_ToID = "ToID";
+
+    public final String S_TitleNumberIDsOfNullPropertyAddresses = "TitleNumberIDsOfNullPropertyAddresses";
+    public final String S_TitleNumberIDsOfNullPricePaid = "TitleNumberIDsOfNullPricePaid";
+    public final String S_TitleNumberIDsOfNullProprietorName1 = "TitleNumberIDsOfNullProprietorName1";
+    public final String S_TitleNumberIDsOfNullCompanyRegistrationNo1 = "TitleNumberIDsOfNullCompanyRegistrationNo1";
+    public final String S_TitleNumberIDsOfNullProprietorshipCategory1 = "TitleNumberIDsOfNullProprietorshipCategory1";
 
     public LR_Strings() {
         super();
