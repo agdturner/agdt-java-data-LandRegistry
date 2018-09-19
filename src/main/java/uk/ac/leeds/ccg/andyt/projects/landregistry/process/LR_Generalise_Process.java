@@ -179,7 +179,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                         try {
                             // Initialise printwriters
                             outdir.mkdirs();
-                            iteTypes = Env.Types.iterator();
+                            iteTypes = Env.NonNullTypes.iterator();
                             while (iteTypes.hasNext()) {
                                 typeID = iteTypes.next();
                                 type = Env.IDToType.get(typeID);
@@ -197,7 +197,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //                            Env.TitleNumberIDsOfNullPropertyAddress = new HashSet<>();
 //                            Env.TitleNumberIDsOfNullProprietorName1 = new HashSet<>();
 //                            Env.TitleNumberIDsOfNullProprietorshipCategory1 = new HashSet<>();
-                            iteTypes = Env.Types.iterator();
+                            iteTypes = Env.NonNullTypes.iterator();
                             while (iteTypes.hasNext()) {
                                 typeID = iteTypes.next();
                                 Counts.put(typeID, new TreeMap<>());
@@ -230,7 +230,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //                            pw.println("Count of null ProprietorName1 " + Env.TitleNumberIDsOfNullProprietorName1.size());
 //                            pw.println("Count of null ProprietorshipCategory1 " + Env.TitleNumberIDsOfNullProprietorshipCategory1.size());
                             // Close printWriters
-                            iteTypes = Env.Types.iterator();
+                            iteTypes = Env.NonNullTypes.iterator();
                             while (iteTypes.hasNext()) {
                                 typeID = iteTypes.next();
                                 pws.get(typeID).close();
@@ -258,7 +258,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
     void addToCounts(LR_Record r) {
         if (r != null) {
             Iterator<LR_ID> iteTypes;
-            iteTypes = Env.Types.iterator();
+            iteTypes = Env.NonNullTypes.iterator();
             LR_ID typeID;
             LR_ID tenureID;
             tenureID = r.getTenureID();
@@ -267,22 +267,22 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 typeID = iteTypes.next();
                 if (typeID.equals(Env.TypeToID.get(Strings.S_Tenure))) {
                     Generic_Collections.addToMap(Counts.get(typeID), tenureID, 1);
-                } else if (typeID.equals(Env.TypeToID.get(Strings.S_CompanyRegistrationNo1))) {
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_CompanyRegistrationNo))) {
                     id = r.getCompanyRegistrationNo1ID();
                     if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
                         Generic_Collections.addToMap(Counts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.TypeToID.get(Strings.S_ProprietorshipCategory1))) {
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_ProprietorshipCategory))) {
                     id = r.getProprietorshipCategory1ID();
                     if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
                         Generic_Collections.addToMap(Counts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.TypeToID.get(Strings.S_ProprietorName1))) {
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_ProprietorName))) {
                     id = r.getProprietorName1ID();
                     if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
                         Generic_Collections.addToMap(Counts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.TypeToID.get(Strings.S_CountryIncorporated1))) {
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_CountryIncorporated))) {
                     id = r.getCountryIncorporated1ID();
                     if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
                         Generic_Collections.addToMap(Counts.get(typeID), id, 1);
@@ -301,11 +301,11 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
     void printGeneralisation(HashMap<LR_ID, PrintWriter> pws, int min) {
         Iterator<LR_ID> iteTypes;
-        iteTypes = Env.Types.iterator();
+        iteTypes = Env.NonNullTypes.iterator();
         LR_ID typeID;
         while (iteTypes.hasNext()) {
             typeID = iteTypes.next();
-            printGeneralisation(pws, typeID, Counts.get(typeID), Env.getIDToLookup(typeID), min);
+            printGeneralisation(pws, typeID, Counts.get(typeID), Env.IDToLookups.get(typeID), min);
         }
     }
 

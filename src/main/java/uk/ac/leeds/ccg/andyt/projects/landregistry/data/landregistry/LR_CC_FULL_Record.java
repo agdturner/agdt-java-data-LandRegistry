@@ -39,7 +39,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         ls = getSplitAndTrim(line);
         initTitleNumber(ls[0].substring(1));
         initTenure(ls[1]);
-        initPropertyAddress(ls[2]);
+        initPropertyAddressAndID(ls[2]);
         setDistrict(ls[3]);
         setCounty(ls[4]);
         setRegion(ls[5]);

@@ -48,7 +48,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         ls = getSplitAndTrim(line);
         initTitleNumber(ls[0].substring(1));
         initTenure(ls[1]);
-        initPropertyAddress(ls[2]);
+        initPropertyAddressAndID(ls[2]);
         setDistrict(ls[3]);
         setCounty(ls[4]);
         setRegion(ls[5]);
@@ -251,14 +251,14 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void initCountryIncorporated1(String s) {
         String sType;
         sType = Env.Strings.S_CountryIncorporated;
-        LR_ID idType;
-        idType = Env.TypeToID.get(sType);
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(sType);
         if (s.isEmpty()) {
-            setCountryIncorporated1(updateNullCollection(idType));
+            setCountryIncorporated1(updateNullCollection(typeID));
         } else {
             setCountryIncorporated1(s);
         }
-        updateNonNullCollections(getCountryIncorporated1(), sType);
+        updateNonNullCollections(getCountryIncorporated1(), typeID);
     }
 
     /**
@@ -274,7 +274,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated2(String s) {
         this.CountryIncorporated2 = s;
         if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.Strings.S_ProprietorName);
+            updateNonNullCollections(s, Env.Strings.S_CountryIncorporated);
         }
     }
 
@@ -284,7 +284,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated3(String s) {
         this.CountryIncorporated3 = s;
         if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.Strings.S_ProprietorName);
+            updateNonNullCollections(s, Env.Strings.S_CountryIncorporated);
         }
     }
 
@@ -294,7 +294,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated4(String s) {
         this.CountryIncorporated4 = s;
         if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.Strings.S_ProprietorName);
+            updateNonNullCollections(s, Env.Strings.S_CountryIncorporated);
         }
     }
 

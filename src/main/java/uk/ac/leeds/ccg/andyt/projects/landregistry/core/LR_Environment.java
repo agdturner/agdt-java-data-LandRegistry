@@ -27,11 +27,6 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      */
     public HashSet<LR_ID2> IDs;
 
-    /**
-     * Comprised of NonNullTypes and NullTypes.
-     */
-    public ArrayList<LR_ID> Types;
-    
     public ArrayList<LR_ID> NonNullTypes;
     public ArrayList<LR_ID> NullTypes;
     public HashMap<LR_ID, String> IDToType;
@@ -54,26 +49,6 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         ge = new Generic_Environment(Files, Strings);
         initCollections();
         UpdatedIDs = false;
-    }
-
-    /**
-     * For returning the ToIDLookup indexed by typeID.
-     *
-     * @param typeID
-     * @return
-     */
-    public HashMap<String, LR_ID> getToIDLookup(LR_ID typeID) {
-        return ToIDLookups.get(typeID);
-    }
-
-    /**
-     * For returning the IDToLookup indexed by typeID.
-     *
-     * @param typeID
-     * @return
-     */
-    public HashMap<LR_ID, String> getIDToLookup(LR_ID typeID) {
-        return IDToLookups.get(typeID);
     }
 
     public void writeIDs() {
@@ -173,10 +148,11 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 
     protected void addNonNullType(String type) {
         LR_ID id;
-        id = new LR_ID(Types.size());
-        TypeToID.put(type, id);
-        IDToType.put(id, type);
-        Types.add(id);
+        id = new LR_ID(NonNullTypes.size());
+        if (!IDToType.containsKey(id)) {
+            TypeToID.put(type, id);
+            IDToType.put(id, type);
+        }
         NonNullTypes.add(id);
         UpdatedNonNullTypes.put(id, false);
         IDToLookups.put(id, new HashMap<>());
@@ -186,10 +162,11 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     
     protected LR_ID addNullType(String type) {
         LR_ID id;
-        id = new LR_ID(Types.size());
-        TypeToID.put(type, id);
-        IDToType.put(id, type);
-        Types.add(id);
+        id = new LR_ID(NullTypes.size());
+        if (!IDToType.containsKey(id)) {
+            TypeToID.put(type, id);
+            IDToType.put(id, type);
+        }
         NullTypes.add(id);
         UpdatedNullTypes.put(id, false);
         NullTitleNumberIDCollections.put(id, new HashSet<>());
@@ -197,7 +174,6 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     protected final void initCollections() {
-        Types = new ArrayList<>();
         NonNullTypes = new ArrayList<>();
         NullTypes = new ArrayList<>();
         TypeToID = new HashMap<>();
@@ -211,26 +187,18 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         addNonNullType(Strings.S_PropertyAddress);
         addNonNullType(Strings.S_Tenure);
         addNonNullType(Strings.S_PricePaid);
-        addNonNullType(Strings.S_CompanyRegistrationNo1);
-        addNonNullType(Strings.S_ProprietorName1);
-        addNonNullType(Strings.S_ProprietorshipCategory1);
-        addNonNullType(Strings.S_CountryIncorporated1);
+        addNonNullType(Strings.S_CompanyRegistrationNo);
+        addNonNullType(Strings.S_ProprietorName);
+        addNonNullType(Strings.S_ProprietorshipCategory);
+        addNonNullType(Strings.S_CountryIncorporated);
         addNonNullType(Strings.S_PostcodeDistrict);
         addNullType(Strings.S_PropertyAddress);
         addNullType(Strings.S_PricePaid);
-        addNullType(Strings.S_ProprietorName1);
-        addNullType(Strings.S_CompanyRegistrationNo1);
-        addNullType(Strings.S_ProprietorshipCategory1);
-    }
-
-    public HashSet getNullTitleNumberIDCollections(LR_ID typeID) {
-        HashSet result;
-        result = NullTitleNumberIDCollections.get(typeID);
-        if (result == null) {
-            result = new HashSet<>();
-            NullTitleNumberIDCollections.put(typeID, result);
-        }
-        return result;
+        addNullType(Strings.S_CompanyRegistrationNo);
+        addNullType(Strings.S_ProprietorName);
+        addNullType(Strings.S_ProprietorshipCategory);
+        addNullType(Strings.S_CountryIncorporated);
+        addNullType(Strings.S_PostcodeDistrict);
     }
 
     /**
