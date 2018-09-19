@@ -31,11 +31,13 @@ public class LR_Strings extends Generic_Strings {
     public final String S_COU = "COU";
     public final String S_CCOD = "CCOD";
     public final String S_OCOD = "OCOD";
-    public final String S_zip = "zip";
-    public final String S_United_Kingdom = "United Kingdom";
     public final String S_Generalised = "Generalised";
+    public final String S_ID = "ID";
+    public final String S_Null = "Null";
     public final String S_Subsets = "Subsets";
     public final String S_Transitions = "Transitions";
+    public final String S_zip = "zip";
+    public final String S_United_Kingdom = "United Kingdom";
 
     /*
      * DataTypes

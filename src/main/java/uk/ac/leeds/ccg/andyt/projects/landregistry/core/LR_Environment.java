@@ -139,7 +139,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             String s;
             s = IDToType.get(typeID);
             File f;
-            f = Files.getGeneratedDataFile(s, Strings.S_HashSet);
+            f = Files.getGeneratedDataFile(
+                    Strings.S_Null + s + Strings.S_TitleNumber + Strings.S_ID,
+                    Strings.S_HashSet);
             Generic_StaticIO.writeObject(
                     NullTitleNumberIDCollections.get(typeID), f, s);
             UpdatedNullTypes.put(typeID, false);
