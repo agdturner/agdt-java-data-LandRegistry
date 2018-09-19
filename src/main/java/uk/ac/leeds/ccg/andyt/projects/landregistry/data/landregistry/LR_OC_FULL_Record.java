@@ -216,16 +216,6 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
                 + ",AdditionalProprietorIndicator";
     }
 
-    public final void updateCountryIncorporatedCollections(String s) {
-        String sType;
-        sType = Env.Strings.S_CountryIncorporated;
-        LR_ID typeID;
-        typeID = Env.TypeToID.get(sType);
-        boolean updated;
-        updated = addToLookups(s, typeID);
-        Env.UpdatedTypes.put(typeID, updated);
-    }
-
     /**
      * @return the CountryIncorporated1
      */
@@ -259,30 +249,23 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      * @param s the CountryIncorporated1 to set
      */
     public final void initCountryIncorporated1(String s) {
-        this.CountryIncorporated1 = s;
+        String sType;
+        sType = Env.Strings.S_CountryIncorporated;
+        LR_ID idType;
+        idType = Env.TypeToID.get(sType);
         if (s.isEmpty()) {
-            LR_ID typeID;
-            typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated1);
-            HashSet<LR_ID> c;
-            c = Env.getNullTitleNumberIDCollections(typeID);
-            int i = c.size();
-            setCountryIncorporated1(Integer.toString(i));
-            c.add(TitleNumberID);
-            Env.UpdatedTypes.put(typeID, true);
+            setCountryIncorporated1(updateNullCollection(idType));
         } else {
             setCountryIncorporated1(s);
         }
-        updateCountryIncorporatedCollections(getCountryIncorporated1());
+        updateNonNullCollections(getCountryIncorporated1(), sType);
     }
-    
+
     /**
      * @param s what CountryIncorporated1 to set
      */
     public final void setCountryIncorporated1(String s) {
         this.CountryIncorporated1 = s;
-        if (!s.isEmpty()) {
-            updateCountryIncorporatedCollections(s);
-        }
     }
 
     /**
@@ -291,7 +274,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated2(String s) {
         this.CountryIncorporated2 = s;
         if (!s.isEmpty()) {
-            updateCountryIncorporatedCollections(s);
+            updateNonNullCollections(s, Env.Strings.S_ProprietorName);
         }
     }
 
@@ -301,7 +284,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated3(String s) {
         this.CountryIncorporated3 = s;
         if (!s.isEmpty()) {
-            updateCountryIncorporatedCollections(s);
+            updateNonNullCollections(s, Env.Strings.S_ProprietorName);
         }
     }
 
@@ -311,7 +294,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated4(String s) {
         this.CountryIncorporated4 = s;
         if (!s.isEmpty()) {
-            updateCountryIncorporatedCollections(s);
+            updateNonNullCollections(s, Env.Strings.S_ProprietorName);
         }
     }
 

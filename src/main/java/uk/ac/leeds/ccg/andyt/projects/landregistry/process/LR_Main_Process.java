@@ -19,7 +19,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
@@ -69,11 +68,11 @@ public class LR_Main_Process extends LR_Object {
         p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_ProprietorshipCategory));
         p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_PropertyAddress));
         p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_PropertyAddress));
-        p.Env.loadNullCollection(p.Strings.S_TitleNumberIDsOfNullCompanyRegistrationNo1);
-        p.Env.loadNullCollection(p.Strings.S_TitleNumberIDsOfNullPricePaid);
-        p.Env.loadNullCollection(p.Strings.S_TitleNumberIDsOfNullPropertyAddresses);
-        p.Env.loadNullCollection(p.Strings.S_TitleNumberIDsOfNullProprietorName1);
-        p.Env.loadNullCollection(p.Strings.S_TitleNumberIDsOfNullProprietorshipCategory1);
+        p.Env.loadNullCollection(p.Strings.S_CompanyRegistrationNo1);
+        p.Env.loadNullCollection(p.Strings.S_PricePaid);
+        p.Env.loadNullCollection(p.Strings.S_PropertyAddress);
+        p.Env.loadNullCollection(p.Strings.S_ProprietorName1);
+        p.Env.loadNullCollection(p.Strings.S_ProprietorshipCategory);
         p.run();
     }
 

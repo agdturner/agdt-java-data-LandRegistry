@@ -38,7 +38,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public HashMap<String, LR_ID> TypeToID;
     public HashMap<LR_ID, HashMap<LR_ID, String>> IDToLookups;
     public HashMap<LR_ID, HashMap<String, LR_ID>> ToIDLookups;
-    public HashMap<LR_ID, Boolean> UpdatedTypes;
+    public HashMap<LR_ID, Boolean> UpdatedNonNullTypes;
+    public HashMap<LR_ID, Boolean> UpdatedNullTypes;
 
     public HashMap<LR_ID, HashSet<LR_ID>> NullTitleNumberIDCollections;
 
@@ -97,7 +98,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     public void writeLookup(LR_ID typeID) {
-        if (UpdatedTypes.get(typeID)) {
+        if (UpdatedNonNullTypes.get(typeID)) {
             String typeName0;
             typeName0 = IDToType.get(typeID);
             String typeName;
@@ -108,7 +109,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             typeName = typeName0 + Strings.S_ToID;
             f = Files.getGeneratedDataFile(typeName, Strings.S_HashMap);
             Generic_StaticIO.writeObject(ToIDLookups.get(typeID), f, typeName);
-            UpdatedTypes.put(typeID, false);
+            UpdatedNonNullTypes.put(typeID, false);
         }
     }
 
@@ -159,37 +160,38 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     public void writeNullCollection(LR_ID typeID) {
-        if (UpdatedTypes.get(typeID)) {
+        if (UpdatedNullTypes.get(typeID)) {
             String s;
             s = IDToType.get(typeID);
             File f;
             f = Files.getGeneratedDataFile(s, Strings.S_HashSet);
             Generic_StaticIO.writeObject(
                     NullTitleNumberIDCollections.get(typeID), f, s);
-            UpdatedTypes.put(typeID, false);
+            UpdatedNullTypes.put(typeID, false);
         }
     }
 
-    protected void addType(String type) {
+    protected void addNonNullType(String type) {
         LR_ID id;
         id = new LR_ID(Types.size());
         TypeToID.put(type, id);
         IDToType.put(id, type);
         Types.add(id);
         NonNullTypes.add(id);
-        UpdatedTypes.put(id, false);
+        UpdatedNonNullTypes.put(id, false);
         IDToLookups.put(id, new HashMap<>());
         ToIDLookups.put(id, new HashMap<>());
     }
 
-    protected LR_ID addTypeNull(String type) {
+    
+    protected LR_ID addNullType(String type) {
         LR_ID id;
         id = new LR_ID(Types.size());
         TypeToID.put(type, id);
         IDToType.put(id, type);
         Types.add(id);
         NullTypes.add(id);
-        UpdatedTypes.put(id, false);
+        UpdatedNullTypes.put(id, false);
         NullTitleNumberIDCollections.put(id, new HashSet<>());
         return id;
     }
@@ -202,22 +204,23 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         IDToType = new HashMap<>();
         IDToLookups = new HashMap<>();
         ToIDLookups = new HashMap<>();
-        UpdatedTypes = new HashMap<>();
+        UpdatedNonNullTypes = new HashMap<>();
+        UpdatedNullTypes = new HashMap<>();
         NullTitleNumberIDCollections = new HashMap<>();
-        addType(Strings.S_TitleNumber);
-        addType(Strings.S_PropertyAddress);
-        addType(Strings.S_Tenure);
-        addType(Strings.S_PricePaid);
-        addType(Strings.S_CompanyRegistrationNo1);
-        addType(Strings.S_ProprietorName1);
-        addType(Strings.S_ProprietorshipCategory1);
-        addType(Strings.S_CountryIncorporated1);
-        addType(Strings.S_PostcodeDistrict);
-        addTypeNull(Strings.S_TitleNumberIDsOfNullPropertyAddresses);
-        addTypeNull(Strings.S_TitleNumberIDsOfNullPricePaid);
-        addTypeNull(Strings.S_TitleNumberIDsOfNullProprietorName1);
-        addTypeNull(Strings.S_TitleNumberIDsOfNullCompanyRegistrationNo1);
-        addTypeNull(Strings.S_TitleNumberIDsOfNullProprietorshipCategory1);
+        addNonNullType(Strings.S_TitleNumber);
+        addNonNullType(Strings.S_PropertyAddress);
+        addNonNullType(Strings.S_Tenure);
+        addNonNullType(Strings.S_PricePaid);
+        addNonNullType(Strings.S_CompanyRegistrationNo1);
+        addNonNullType(Strings.S_ProprietorName1);
+        addNonNullType(Strings.S_ProprietorshipCategory1);
+        addNonNullType(Strings.S_CountryIncorporated1);
+        addNonNullType(Strings.S_PostcodeDistrict);
+        addNullType(Strings.S_PropertyAddress);
+        addNullType(Strings.S_PricePaid);
+        addNullType(Strings.S_ProprietorName1);
+        addNullType(Strings.S_CompanyRegistrationNo1);
+        addNullType(Strings.S_ProprietorshipCategory1);
     }
 
     public HashSet getNullTitleNumberIDCollections(LR_ID typeID) {

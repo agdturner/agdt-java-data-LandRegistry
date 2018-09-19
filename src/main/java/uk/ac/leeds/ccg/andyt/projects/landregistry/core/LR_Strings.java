@@ -83,12 +83,6 @@ public class LR_Strings extends Generic_Strings {
     public final String S_IDTo = "IDTo";
     public final String S_ToID = "ToID";
 
-    public final String S_TitleNumberIDsOfNullPropertyAddresses = "TitleNumberIDsOfNullPropertyAddresses";
-    public final String S_TitleNumberIDsOfNullPricePaid = "TitleNumberIDsOfNullPricePaid";
-    public final String S_TitleNumberIDsOfNullProprietorName1 = "TitleNumberIDsOfNullProprietorName1";
-    public final String S_TitleNumberIDsOfNullCompanyRegistrationNo1 = "TitleNumberIDsOfNullCompanyRegistrationNo1";
-    public final String S_TitleNumberIDsOfNullProprietorshipCategory1 = "TitleNumberIDsOfNullProprietorshipCategory1";
-
     public LR_Strings() {
         super();
     }
