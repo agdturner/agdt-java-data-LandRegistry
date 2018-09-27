@@ -49,30 +49,6 @@ public class LR_Main_Process extends LR_Object {
         LR_Main_Process p;
         p = new LR_Main_Process(new LR_Environment());
         p.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-        p.Env.loadIDs();
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_TitleNumber));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_TitleNumber));
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_PropertyAddress));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_PropertyAddress));
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_Tenure));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_Tenure));
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_PostcodeDistrict));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_PostcodeDistrict));
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_CompanyRegistrationNo));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_CompanyRegistrationNo));
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_CountryIncorporated));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_CountryIncorporated));
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_ProprietorName));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_ProprietorName));
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_ProprietorshipCategory));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_ProprietorshipCategory));
-        p.Env.loadIDTo(p.Env.TypeToID.get(p.Strings.S_PropertyAddress));
-        p.Env.loadToID(p.Env.TypeToID.get(p.Strings.S_PropertyAddress));
-        p.Env.loadNullCollection(p.Strings.S_CompanyRegistrationNo1);
-        p.Env.loadNullCollection(p.Strings.S_PricePaid);
-        p.Env.loadNullCollection(p.Strings.S_PropertyAddress);
-        p.Env.loadNullCollection(p.Strings.S_ProprietorName1);
-        p.Env.loadNullCollection(p.Strings.S_ProprietorshipCategory);
         p.run();
     }
 
@@ -88,10 +64,10 @@ public class LR_Main_Process extends LR_Object {
     public void run() {
 
         // Main switches
-        doSelect = true;
-//        doGeneralise = true;
-////        doGeneraliseAreas = true;
-//        doGeneraliseAll = true;
+//        doSelect = true;
+        doGeneralise = true;
+        doGeneraliseAreas = true;
+        doGeneraliseAll = true;
 //        doTransitions = true;
 //        doTransitionsAreas = true;
 //        doTransitionsAll = true;

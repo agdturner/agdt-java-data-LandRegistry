@@ -265,13 +265,38 @@ public abstract class LR_Record extends LR_Object {
         } else {
             setPropertyAddress(s);
         }
+        String propertyAddress;
+        propertyAddress = getPropertyAddress();
         LR_ID id;
-        id = updateNonNullCollections(getPropertyAddress(), typeID);
+        id = updateNonNullCollections(propertyAddress, typeID);
         // init ID
         ID = new LR_ID2(TitleNumberID, id);
         if (!Env.IDs.contains(ID)) {
             Env.IDs.add(ID);
             Env.UpdatedIDs = true;
+        }
+        HashSet<LR_ID> titleNumberIDs;
+        if (Env.AddressIDToTitleNumberIDsLookup.containsKey(id)) {
+            titleNumberIDs = Env.AddressIDToTitleNumberIDsLookup.get(id);
+        } else {
+            titleNumberIDs = new HashSet<>();
+            Env.AddressIDToTitleNumberIDsLookup.put(id, titleNumberIDs);
+        }
+        if (!titleNumberIDs.contains(TitleNumberID)) {
+            titleNumberIDs.add(TitleNumberID);
+            Env.UpdatedAddressIDToTitleNumberIDsLookup = true;
+        }
+        LR_ID change;
+        change = Env.TitleNumberIDToAddressIDLookup.put(TitleNumberID, id);
+        if (change != null) {
+            if (!change.equals(id)) {
+                String previousAddress;
+                previousAddress = Env.IDToLookups.get(typeID).get(change);
+                System.out.println("Address for TitleNumer " + TitleNumber
+                        + " changed from \"" + previousAddress + "\" to \""
+                        + propertyAddress + "\"");
+                Env.UpdatedTitleNumberIDToAddressIDLookup = true;
+            }
         }
     }
 

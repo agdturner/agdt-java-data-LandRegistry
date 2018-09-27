@@ -29,9 +29,9 @@ public class LR_Files extends Generic_Files {
 
     protected LR_Files(){}
     
-    public LR_Files(LR_Strings Strings) {
-        this.Strings = Strings;
-    }
+//    public LR_Files(LR_Strings Strings) {
+//        this.Strings = Strings;
+//    }
 
     /**
      *

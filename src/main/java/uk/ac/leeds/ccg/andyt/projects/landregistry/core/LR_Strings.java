@@ -44,6 +44,7 @@ public class LR_Strings extends Generic_Strings {
      */
     public final String S_HashSet = "HashSet";
     public final String S_HashMap = "HashMap";
+    public final String S_ArrayList = "ArrayList";
 
     /*
      * Values.
@@ -81,9 +82,15 @@ public class LR_Strings extends Generic_Strings {
     /**
      * Collection names
      */
+    public final String S_NonNullTypes = "NonNullTypes";
+    public final String S_NullTypes = "NullTypes";
+    public final String S_AddressIDToTitleNumberIDs = "AddressIDToTitleNumberIDs";
+    public final String S_TitleNumberIDToAddressID = "TitleNumberIDToAddressID";
     public final String S_IDs = "IDs";
     public final String S_IDTo = "IDTo";
     public final String S_ToID = "ToID";
+    public final String S_IDToType = "IDToType";
+    public final String S_TypeToID = "TypeToID";
 
     public LR_Strings() {
         super();
