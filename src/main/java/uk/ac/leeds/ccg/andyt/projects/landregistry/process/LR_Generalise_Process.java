@@ -222,6 +222,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 printGeneralisation(pws, minOC);
                             }
                             pw.println("NRecords " + (lines.size() - 1));
+                            typeID = Env.TypeToID.get(Strings.S_CompanyRegistrationNo);
                             int countNullCompanyRegistrationNo11;
                             countNullCompanyRegistrationNo11 = Env.NullTitleNumberIDCollections.get(typeID).size();
                             pw.println("Count of new null CompanyRegistrationNo " + (countNullCompanyRegistrationNo11 - countNullCompanyRegistrationNo11));
@@ -284,6 +285,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     }
                 } else if (typeID.equals(Env.TypeToID.get(Strings.S_CountryIncorporated))) {
                     id = r.getCountryIncorporated1ID();
+                    if (r.getCountryIncorporated1().isEmpty()) {
+                        int debug = 1;
+                    }
                     if (!Env.NullTitleNumberIDCollections.get(typeID).contains(id)) {
                         Generic_Collections.addToMap(Counts.get(typeID), id, 1);
                     }

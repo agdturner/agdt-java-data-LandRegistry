@@ -67,7 +67,7 @@ public class LR_Main_Process extends LR_Object {
 //        doSelect = true;
         doGeneralise = true;
         doGeneraliseAreas = true;
-        doGeneraliseAll = true;
+//        doGeneraliseAll = true;
 //        doTransitions = true;
 //        doTransitionsAreas = true;
 //        doTransitionsAll = true;

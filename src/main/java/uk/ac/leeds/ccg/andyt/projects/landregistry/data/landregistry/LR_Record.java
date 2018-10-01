@@ -803,7 +803,7 @@ public abstract class LR_Record extends LR_Object {
      */
     public LR_ID getCountryIncorporated1ID() {
         LR_ID typeID;
-        typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated1);
+        typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated);
         return Env.ToIDLookups.get(typeID).get(getCountryIncorporated1());
     }
 
