@@ -2,11 +2,12 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
+import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
+import uk.ac.leeds.ccg.andyt.generic.data.Generic_UKPostcode_Handler;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
@@ -21,6 +22,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 
     public LR_Strings Strings;
     public LR_Files Files;
+    public Generic_UKPostcode_Handler PostcodeHandler;
 
     /**
      * A collection of all current Comprised of NonNullTypes and NullTypes.
@@ -31,12 +33,12 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * For storing NonNullTypes used for indexing IDToLookups, ToIDLookups and
      * UpdatedNonNullTypes.
      */
-    public ArrayList<LR_ID> NonNullTypes;
+    public HashSet<LR_ID> NonNullTypes;
 
     /**
      * For storing NullTypes used for indexing NullTitleNumberIDCollections.
      */
-    public ArrayList<LR_ID> NullTypes;
+    public HashSet<LR_ID> NullTypes;
 
     /**
      * Keys are Types and values are String names of Types. This is the reverse
@@ -101,9 +103,23 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public boolean UpdatedTitleNumberIDToAddressIDLookup;
 
     /**
+     * Indicates if PricePaidLookup has changed.
+     */
+    public boolean UpdatedPricePaidLookup;
+
+    /**
      * Set to true if a new ID is added.
      */
     public boolean UpdatedIDs;
+
+    /**
+     * For looking up the upper and lower bounds for PricePaid data classes
+     */
+    public HashMap<LR_ID, Generic_Interval_long1> PricePaidLookup;
+    
+    long MinPricePaidClass;
+    long MaxPricePaidClass;
+    
 
     public LR_Environment() {
         Strings = new LR_Strings();
@@ -111,6 +127,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         ge = new Generic_Environment(Files, Strings);
         initCollections();
         UpdatedIDs = false;
+        PostcodeHandler = new Generic_UKPostcode_Handler();
     }
 
     /**
@@ -133,27 +150,33 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         if (!f.exists()) {
             IDToType = new HashMap<>();
         } else {
+            System.out.println("Loading " + f);
             IDToType = (HashMap<LR_ID, String>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
     }
-    
+
     public void loadTypeToID() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_TypeToID, Strings.S_HashMap);
         if (!f.exists()) {
             TypeToID = new HashMap<>();
         } else {
+            System.out.println("Loading " + f);
             TypeToID = (HashMap<String, LR_ID>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
     }
-    
+
     public void loadIDs() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_IDs, Strings.S_HashSet);
         if (!f.exists()) {
             IDs = new HashSet<>();
         } else {
+            System.out.println("Loading " + f);
             IDs = (HashSet<LR_ID2>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
     }
 
@@ -178,20 +201,24 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         if (!f.exists()) {
             m = new HashMap<>();
         } else {
+            System.out.println("Loading " + f);
             m = (HashMap<LR_ID, String>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
         IDToLookups.put(typeID, m);
     }
 
     public void loadToID(LR_ID typeID, String type) {
         File f;
-        f = Files.getGeneratedDataFile(type + Strings.S_ToID
-                , Strings.S_HashMap);
+        f = Files.getGeneratedDataFile(type + Strings.S_ToID,
+                Strings.S_HashMap);
         HashMap<String, LR_ID> m;
         if (!f.exists()) {
             m = new HashMap<>();
         } else {
+            System.out.println("Loading " + f);
             m = (HashMap<String, LR_ID>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
         ToIDLookups.put(typeID, m);
     }
@@ -205,7 +232,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         if (!f.exists()) {
             c = new HashSet<>();
         } else {
+            System.out.println("Loading " + f);
             c = (HashSet<LR_ID>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
         NullTitleNumberIDCollections.put(typeID, c);
     }
@@ -217,9 +246,11 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         File f;
         f = Files.getGeneratedDataFile(Strings.S_NonNullTypes, Strings.S_HashSet);
         if (!f.exists()) {
-            NonNullTypes = new ArrayList<>();
+            NonNullTypes = new HashSet<>();
         } else {
-            NonNullTypes = (ArrayList<LR_ID>) Generic_StaticIO.readObject(f);
+            System.out.println("Loading " + f);
+            NonNullTypes = (HashSet<LR_ID>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
     }
 
@@ -230,9 +261,11 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         File f;
         f = Files.getGeneratedDataFile(Strings.S_NullTypes, Strings.S_HashSet);
         if (!f.exists()) {
-            NullTypes = new ArrayList<>();
+            NullTypes = new HashSet<>();
         } else {
-            NullTypes = (ArrayList<LR_ID>) Generic_StaticIO.readObject(f);
+            System.out.println("Loading " + f);
+            NullTypes = (HashSet<LR_ID>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
     }
 
@@ -274,8 +307,20 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         if (!f.exists()) {
             AddressIDToTitleNumberIDsLookup = new HashMap<>();
         } else {
+            System.out.println("Loading " + f);
             AddressIDToTitleNumberIDsLookup = (HashMap<LR_ID, HashSet<LR_ID>>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
+    }
+
+    /**
+     * For writing out the PricePaidLookup to a particular file which it is
+     * expected to perhaps get loaded again from in memory handling or in a
+     * different run/process.
+     */
+    public void writePricePaidLookup() {
+        write(Strings.S_PricePaidLookup, Strings.S_HashMap, PricePaidLookup);
+        UpdatedPricePaidLookup = false;
     }
 
     /**
@@ -331,6 +376,66 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     /**
+     * For loading the PricePaidLookup from a particular file.
+     */
+    public void initPricePaidLookup() {
+        File f;
+        f = Files.getGeneratedDataFile(Strings.S_PricePaidLookup,
+                Strings.S_HashMap);
+        if (!f.exists()) {
+            PricePaidLookup = new HashMap<>();
+            long l;
+            long u;
+            MinPricePaidClass = -1000L;
+            l = MinPricePaidClass;
+            u = 0L;
+            addPricePaidInterval(l, u); // -10,000, 0
+            l = u;
+            u = 1000L;
+            addPricePaidInterval(l, u); // 0, 1000
+            l = u;
+            u *=5L;
+            addPricePaidInterval(l, u); // 1000, 5000
+            l = u;
+            u *=4L;
+            addPricePaidInterval(l, u); // 5000, 20000
+            for (int ll = 0; ll < 9; ll ++ ) { 
+                l = u;
+                u +=20000L;
+                addPricePaidInterval(l, u); // 20000, 40000, 60000, 80000, 100,000, 120,000, 140,000, 160,000, 180,000, 200,000
+            }
+            for (int ll = 0; ll < 6; ll ++ ) { 
+                l = u;
+                u +=50000L;
+                addPricePaidInterval(l, u); // 200,000, 250,000, 300,000, 350,000, 400,000, 450,000, 500,000
+            }            
+            for (int ll = 0; ll < 6; ll ++ ) { 
+                l = u;
+                u +=250000L;
+                addPricePaidInterval(l, u); // 750,000, 1,000,000, 1,250,000, 1,500,000, 1,750,000, 2,000,000
+            }
+            for (int ll = 0; ll < 4; ll ++ ) { 
+                l = u;
+                u +=2000000L;
+                addPricePaidInterval(l, u); // 4,000,000, 6,000,000, 8,000,000, 10,000,000
+            }
+            MaxPricePaidClass = u;
+        } else {
+            System.out.println("Loading " + f);
+            PricePaidLookup = (HashMap<LR_ID, Generic_Interval_long1>) Generic_StaticIO.readObject(f);
+                        MinPricePaidClass = -1000L;
+            MaxPricePaidClass = 10000000L;
+            System.out.println("Loaded " + f);
+        }
+    }
+
+    private void addPricePaidInterval(long l, long u) {
+        Generic_Interval_long1 i;
+        i = new Generic_Interval_long1(l, u);
+        PricePaidLookup.put(new LR_ID(PricePaidLookup.size()), i);
+    }
+    
+    /**
      * For loading the TitleNumberIDToAddressIDLookup from a particular file.
      */
     public void loadTitleNumberIDToAddressLookup() {
@@ -340,7 +445,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         if (!f.exists()) {
             TitleNumberIDToAddressIDLookup = new HashMap<>();
         } else {
+            System.out.println("Loading " + f);
             TitleNumberIDToAddressIDLookup = (HashMap<LR_ID, LR_ID>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
         }
     }
 
@@ -355,11 +462,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      */
     protected void addNonNullType(String type) {
         LR_ID id;
-        id = new LR_ID(NonNullTypes.size());
-        if (!IDToType.containsKey(id)) {
-            TypeToID.put(type, id);
-            IDToType.put(id, type);
-        }
+        id = getTypeID(type);
         NonNullTypes.add(id);
         UpdatedNonNullTypes.put(id, false);
         loadToID(id, type);
@@ -368,14 +471,22 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 
     protected LR_ID addNullType(String type) {
         LR_ID id;
-        id = new LR_ID(NullTypes.size());
-        if (!IDToType.containsKey(id)) {
-            TypeToID.put(type, id);
-            IDToType.put(id, type);
-        }
+        id = getTypeID(type);
         NullTypes.add(id);
         UpdatedNullTypes.put(id, false);
         NullTitleNumberIDCollections.put(id, new HashSet<>());
+        return id;
+    }
+
+    protected LR_ID getTypeID(String type) {
+        LR_ID id;
+        if (TypeToID.containsKey(type)) {
+            id = TypeToID.get(type);
+        } else {
+            id = new LR_ID(TypeToID.size());
+            TypeToID.put(type, id);
+            IDToType.put(id, type);
+        }
         return id;
     }
 
@@ -385,13 +496,14 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         loadIDs();
         loadTypeToID();
         loadIDToType();
+        loadAddressIDToTitleNumberIDsLookup();
+        loadTitleNumberIDToAddressLookup();
+        initPricePaidLookup();
         IDToLookups = new HashMap<>();
         ToIDLookups = new HashMap<>();
         UpdatedNonNullTypes = new HashMap<>();
         UpdatedNullTypes = new HashMap<>();
         NullTitleNumberIDCollections = new HashMap<>();
-        AddressIDToTitleNumberIDsLookup = new HashMap<>();
-        TitleNumberIDToAddressIDLookup = new HashMap<>();
         addNonNullType(Strings.S_TitleNumber);
         addNonNullType(Strings.S_PropertyAddress);
         addNonNullType(Strings.S_Tenure);
@@ -399,7 +511,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         addNonNullType(Strings.S_CompanyRegistrationNo);
         addNonNullType(Strings.S_ProprietorName);
         addNonNullType(Strings.S_ProprietorshipCategory);
-        addNonNullType(Strings.S_CountryIncorporated);
+        //addNonNullType(Strings.S_CountryIncorporated); // done in next line: addCountryIDToNonNull(Strings.S_United_Kingdom);
+        addCountryIDToNonNull(Strings.S_United_Kingdom);
         addNonNullType(Strings.S_PostcodeDistrict);
         addNullType(Strings.S_PropertyAddress);
         addNullType(Strings.S_PricePaid);
@@ -408,10 +521,41 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         addNullType(Strings.S_ProprietorshipCategory);
         addNullType(Strings.S_CountryIncorporated);
         addNullType(Strings.S_PostcodeDistrict);
-        loadAddressIDToTitleNumberIDsLookup();
-        loadTitleNumberIDToAddressLookup();
     }
 
+    /**
+     * For adding country to NonNull Collections.
+     *
+     * @param country
+     */
+    private void addCountryIDToNonNull(String country) {
+        String s;
+        s = Strings.S_CountryIncorporated;
+        addNonNullType(s);
+        LR_ID typeID;
+        typeID = TypeToID.get(s);
+        HashMap<String, LR_ID> m;
+        m = ToIDLookups.get(typeID);
+        if (!m.containsKey(s)) {
+            LR_ID id;
+            id = new LR_ID(m.size());
+            m.put(country, id);
+            IDToLookups.get(typeID).put(id, country);
+        }
+    }
+
+//    private void addCountryIDToNull(String country) {
+//        String s;
+//        s = Strings.S_CountryIncorporated;
+//        addNonNullType(s);
+//        LR_ID typeID;
+//        typeID = TypeToID.get(s);
+//        HashSet<LR_ID> c;
+//        c = NullTitleNumberIDCollections.get(typeID);
+//        LR_ID id;
+//        id = ToIDLookups.get(typeID).get(country);
+//        c.add(id);
+//    }
     /**
      * Write out collections if necessary
      */
@@ -433,6 +577,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         }
         if (UpdatedTitleNumberIDToAddressIDLookup) {
             writeTitleNumberIDToAddressIDLookup();
+        }
+        if (UpdatedPricePaidLookup) {
+            writePricePaidLookup();
         }
     }
 

@@ -74,6 +74,11 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         setAdditionalProprietorIndicator(ls[34]);
     }
 
+    /**
+     * Creates a simple copy of r without changing any collections.
+     * 
+     * @param r 
+     */
     public LR_CC_FULL_Record(LR_Record r) {
         super(r);
     }

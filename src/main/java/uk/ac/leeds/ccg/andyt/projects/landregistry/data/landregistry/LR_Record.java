@@ -18,6 +18,8 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
@@ -33,23 +35,7 @@ public abstract class LR_Record extends LR_Object {
 
     protected Generic_YearMonth YM;
     protected LR_ID2 ID;
-//    //protected HashMap<LR_ID, LR_ID> TypeIDs;
     protected LR_ID TitleNumberID;
-//    protected LR_ID TenureID;
-//    protected LR_ID PropertyAddressID;
-//    protected LR_ID ProprietorName1ID;
-//    protected LR_ID ProprietorName2ID;
-//    protected LR_ID ProprietorName3ID;
-//    protected LR_ID ProprietorName4ID;
-//    protected LR_ID CompanyRegistrationNo1ID;
-//    protected LR_ID CompanyRegistrationNo2ID;
-//    protected LR_ID CompanyRegistrationNo3ID;
-//    protected LR_ID CompanyRegistrationNo4ID;
-//    protected LR_ID ProprietorshipCategory1ID;
-//    protected LR_ID ProprietorshipCategory2ID;
-//    protected LR_ID ProprietorshipCategory3ID;
-//    protected LR_ID ProprietorshipCategory4ID;
-//    protected LR_ID PostcodeDistrictID;
     private String TitleNumber;
     private String Tenure;
     private String PropertyAddress;
@@ -59,6 +45,7 @@ public abstract class LR_Record extends LR_Object {
     private String PostcodeDistrict; // Set from Postcode
     private String MultipleAddressIndicator;
     private long PricePaid;
+    private LR_ID PricePaidClass; // Set from PricePaid using Env.PricePaidLookup
     private String CompanyRegistrationNo1;
     private String County;
     private String ProprietorName1;
@@ -90,6 +77,11 @@ public abstract class LR_Record extends LR_Object {
     protected LR_Record() {
     }
 
+    /**
+     * Creates a simple copy of r without changing any collections.
+     *
+     * @param r
+     */
     public LR_Record(LR_Record r) {
         Env = r.Env;
         YM = r.YM;
@@ -100,7 +92,8 @@ public abstract class LR_Record extends LR_Object {
         setDistrict(r.getDistrict());
         setCounty(r.getCounty());
         setRegion(r.getRegion());
-        initPostcodeAndPostcodeDistrict(r.getPostcode());
+        setPostcode(r.getPostcode());
+        setPostcodeDistrict(r.getPostcodeDistrict());
         setMultipleAddressIndicator(r.getMultipleAddressIndicator());
         setPricePaid(r.getPricePaid());
         setProprietorName1(r.getProprietorName1());
@@ -209,14 +202,19 @@ public abstract class LR_Record extends LR_Object {
         HashMap<String, LR_ID> ToID;
         HashMap<LR_ID, String> IDTo;
         ToID = Env.ToIDLookups.get(typeID);
-        if (ToID.containsKey(s)) {
-            result = ToID.get(s);
+        if (ToID == null) {
+            int debug = 1;
+            result = null;
         } else {
-            result = new LR_ID(ToID.size());
-            ToID.put(s, result);
-            IDTo = Env.IDToLookups.get(typeID);
-            IDTo.put(result, s);
-            Env.UpdatedNonNullTypes.put(typeID, true);
+            if (ToID.containsKey(s)) {
+                result = ToID.get(s);
+            } else {
+                result = new LR_ID(ToID.size());
+                ToID.put(s, result);
+                IDTo = Env.IDToLookups.get(typeID);
+                IDTo.put(result, s);
+                Env.UpdatedNonNullTypes.put(typeID, true);
+            }
         }
         return result;
     }
@@ -256,10 +254,8 @@ public abstract class LR_Record extends LR_Object {
      * @param s PropertyAddress
      */
     public final void initPropertyAddressAndID(String s) {
-        String sType;
-        sType = Env.Strings.S_PropertyAddress;
         LR_ID typeID;
-        typeID = Env.TypeToID.get(sType);
+        typeID = Env.TypeToID.get(Env.Strings.S_PropertyAddress);
         if (s.isEmpty()) {
             setPropertyAddress(updateNullCollection(typeID));
         } else {
@@ -311,13 +307,33 @@ public abstract class LR_Record extends LR_Object {
             setPricePaid(updateNullPricePaid());
         } else {
             try {
-                setPricePaid(Long.valueOf(s));
+                long l;
+                l = Long.valueOf(s);
+                setPricePaid(l);
+                setPricePaidClass(l);
             } catch (NumberFormatException e) {
                 System.err.println("PricePaid is: \"" + s + "\" which is not "
                         + "recognised as a long.");
                 setPricePaid(updateNullPricePaid());
             }
         }
+    }
+
+    public void setPricePaidClass(long l) {
+        Iterator<LR_ID> ite;
+        ite = Env.PricePaidLookup.keySet().iterator();
+        LR_ID k;
+        Generic_Interval_long1 i;
+        while (ite.hasNext()) {
+            k = ite.next();
+            i = Env.PricePaidLookup.get(k);
+            if (i.isInInterval(l)) {
+                PricePaidClass = k;
+            }
+        }
+//        if (PricePaidClass == null) {
+//            k = new LR_ID(Env.PricePaidLookup.size());
+//        }
     }
 
     public final long updateNullPricePaid() {
@@ -348,10 +364,8 @@ public abstract class LR_Record extends LR_Object {
      * @param s ProprietorName1
      */
     public final void initProprietorName1(String s) {
-        String sType;
-        sType = Env.Strings.S_ProprietorName;
         LR_ID typeID;
-        typeID = Env.TypeToID.get(sType);
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorName);
         if (s.isEmpty()) {
             setProprietorName1(updateNullCollection(typeID));
         } else {
@@ -367,10 +381,8 @@ public abstract class LR_Record extends LR_Object {
      * @param s CompanyRegistrationNo1
      */
     public final void initCompanyRegistrationNo1(String s) {
-        String sType;
-        sType = Env.Strings.S_CompanyRegistrationNo;
         LR_ID typeID;
-        typeID = Env.TypeToID.get(sType);
+        typeID = Env.TypeToID.get(Env.Strings.S_CompanyRegistrationNo);
         if (s.isEmpty()) {
             setCompanyRegistrationNo1(updateNullCollection(typeID));
         } else {
@@ -387,10 +399,8 @@ public abstract class LR_Record extends LR_Object {
      * @param s ProprietorshipCategory1
      */
     public final void initProprietorshipCategory1(String s) {
-        String sType;
-        sType = Env.Strings.S_ProprietorshipCategory;
         LR_ID typeID;
-        typeID = Env.TypeToID.get(sType);
+        typeID = Env.TypeToID.get(Env.Strings.S_ProprietorshipCategory);
         if (s.isEmpty()) {
             setProprietorshipCategory1(updateNullCollection(typeID));
         } else {
@@ -843,20 +853,37 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * @param Postcode the Postcode to set
+     * @param s the Postcode to set
      */
-    public final void initPostcodeAndPostcodeDistrict(String Postcode) {
-        this.Postcode = Postcode;
-        String[] split;
-        split = this.Postcode.split(" ");
-        // Todo: add validation.
-        this.PostcodeDistrict = split[0];
-        // PostcodeDistrict
-        String s;
-        s = getPostcodeDistrict();
-        if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.Strings.S_PostcodeDistrict);
+    public final void initPostcodeAndPostcodeDistrict(String s) {
+        setPostcode(s);
+        LR_ID typeID;
+        typeID = Env.TypeToID.get(Env.Strings.S_PostcodeDistrict);
+        if (Env.PostcodeHandler.isValidPostcodeForm(s)) {
+            String[] split;
+            split = this.Postcode.split(" ");
+            // PostcodeDistrict
+            String s0;
+            s0 = split[0];
+            setPostcodeDistrict(s0);
+            updateNonNullCollections(getPostcodeDistrict(), typeID);
+        } else {
+            setPostcodeDistrict(updateNullCollection(typeID));
         }
+    }
+
+    /**
+     * @param s the Postcode set
+     */
+    public final void setPostcode(String s) {
+        this.Postcode = s;
+    }
+
+    /**
+     * @param s the PostcodeDistrict to set
+     */
+    public final void setPostcodeDistrict(String s) {
+        this.PostcodeDistrict = s;
     }
 
     /**

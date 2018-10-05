@@ -16,8 +16,6 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
@@ -32,10 +30,10 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     protected LR_ID CountryIncorporated2ID;
     protected LR_ID CountryIncorporated3ID;
     protected LR_ID CountryIncorporated4ID;
-    private String CountryIncorporated1;
-    private String CountryIncorporated2;
-    private String CountryIncorporated3;
-    private String CountryIncorporated4;
+    protected String CountryIncorporated1;
+    protected String CountryIncorporated2;
+    protected String CountryIncorporated3;
+    protected String CountryIncorporated4;
 
     protected LR_OC_FULL_Record() {
     }
@@ -87,9 +85,13 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         setAdditionalProprietorIndicator(ls[38]);
     }
 
+    /**
+     * Creates a simple copy of r without changing any collections.
+     * @param r 
+     */
     public LR_OC_FULL_Record(LR_OC_FULL_Record r) {
         super(r);
-        initCountryIncorporated1(r.getCountryIncorporated1());
+        setCountryIncorporated1(r.getCountryIncorporated1());
         setCountryIncorporated2(r.getCountryIncorporated2());
         setCountryIncorporated3(r.getCountryIncorporated3());
         setCountryIncorporated4(r.getCountryIncorporated4());
@@ -249,10 +251,8 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      * @param s the CountryIncorporated1 to set
      */
     public final void initCountryIncorporated1(String s) {
-        String sType;
-        sType = Env.Strings.S_CountryIncorporated;
         LR_ID typeID;
-        typeID = Env.TypeToID.get(sType);
+        typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated);
         if (s.isEmpty()) {
             setCountryIncorporated1(updateNullCollection(typeID));
         } else {
@@ -266,6 +266,9 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     public final void setCountryIncorporated1(String s) {
         this.CountryIncorporated1 = s;
+        if (!s.isEmpty()) {
+            updateNonNullCollections(s, Env.Strings.S_CountryIncorporated);
+        }
     }
 
     /**

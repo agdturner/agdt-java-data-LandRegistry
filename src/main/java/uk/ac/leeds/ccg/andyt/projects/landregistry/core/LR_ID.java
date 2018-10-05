@@ -22,10 +22,10 @@ import java.io.Serializable;
  * @author Andy Turner
  */
 public class LR_ID implements Serializable, Comparable {
-    
+
     private final int ID;
-    
-    public LR_ID(int ID){
+
+    public LR_ID(int ID) {
         this.ID = ID;
     }
 
@@ -35,10 +35,13 @@ public class LR_ID implements Serializable, Comparable {
     public int getID() {
         return ID;
     }
-    
-    
+
     @Override
-    public boolean equals(Object o){
+    public String toString() {
+        return Integer.toString(ID);
+    }
+
+    public boolean equals(Object o) {
         if (o instanceof LR_ID) {
             if (((LR_ID) o).ID == ID) {
                 return true;
@@ -59,7 +62,7 @@ public class LR_ID implements Serializable, Comparable {
         if (o instanceof LR_ID) {
             LR_ID o2;
             o2 = (LR_ID) o;
-            if (this.ID > o2.ID ) {
+            if (this.ID > o2.ID) {
                 return 1;
             } else if (this.ID == o2.ID) {
                 return 0;
@@ -67,6 +70,5 @@ public class LR_ID implements Serializable, Comparable {
         }
         return -1;
     }
-    
-    
+
 }
