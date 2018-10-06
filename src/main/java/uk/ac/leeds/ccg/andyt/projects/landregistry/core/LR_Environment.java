@@ -116,10 +116,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * For looking up the upper and lower bounds for PricePaid data classes
      */
     public HashMap<LR_ID, Generic_Interval_long1> PricePaidLookup;
-    
+
     long MinPricePaidClass;
     long MaxPricePaidClass;
-    
 
     public LR_Environment() {
         Strings = new LR_Strings();
@@ -394,38 +393,40 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             u = 1000L;
             addPricePaidInterval(l, u); // 0, 1000
             l = u;
-            u *=5L;
+            u *= 5L;
             addPricePaidInterval(l, u); // 1000, 5000
             l = u;
-            u *=4L;
+            u *= 4L;
             addPricePaidInterval(l, u); // 5000, 20000
-            for (int ll = 0; ll < 9; ll ++ ) { 
+            for (int ll = 0; ll < 9; ll++) {
                 l = u;
-                u +=20000L;
+                u += 20000L;
                 addPricePaidInterval(l, u); // 20000, 40000, 60000, 80000, 100,000, 120,000, 140,000, 160,000, 180,000, 200,000
             }
-            for (int ll = 0; ll < 6; ll ++ ) { 
+            for (int ll = 0; ll < 6; ll++) {
                 l = u;
-                u +=50000L;
+                u += 50000L;
                 addPricePaidInterval(l, u); // 200,000, 250,000, 300,000, 350,000, 400,000, 450,000, 500,000
-            }            
-            for (int ll = 0; ll < 6; ll ++ ) { 
+            }
+            for (int ll = 0; ll < 6; ll++) {
                 l = u;
-                u +=250000L;
+                u += 250000L;
                 addPricePaidInterval(l, u); // 750,000, 1,000,000, 1,250,000, 1,500,000, 1,750,000, 2,000,000
             }
-            for (int ll = 0; ll < 4; ll ++ ) { 
+            for (int ll = 0; ll < 4; ll++) {
                 l = u;
-                u +=2000000L;
+                u += 2000000L;
                 addPricePaidInterval(l, u); // 4,000,000, 6,000,000, 8,000,000, 10,000,000
             }
             MaxPricePaidClass = u;
+            UpdatedPricePaidLookup = true;
         } else {
             System.out.println("Loading " + f);
             PricePaidLookup = (HashMap<LR_ID, Generic_Interval_long1>) Generic_StaticIO.readObject(f);
-                        MinPricePaidClass = -1000L;
+            MinPricePaidClass = -1000L;
             MaxPricePaidClass = 10000000L;
             System.out.println("Loaded " + f);
+            UpdatedPricePaidLookup = false;
         }
     }
 
@@ -434,7 +435,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         i = new Generic_Interval_long1(l, u);
         PricePaidLookup.put(new LR_ID(PricePaidLookup.size()), i);
     }
-    
+
     /**
      * For loading the TitleNumberIDToAddressIDLookup from a particular file.
      */
@@ -507,7 +508,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         addNonNullType(Strings.S_TitleNumber);
         addNonNullType(Strings.S_PropertyAddress);
         addNonNullType(Strings.S_Tenure);
-        addNonNullType(Strings.S_PricePaid);
+        addNonNullType(Strings.S_PricePaidClass);
         addNonNullType(Strings.S_CompanyRegistrationNo);
         addNonNullType(Strings.S_ProprietorName);
         addNonNullType(Strings.S_ProprietorshipCategory);

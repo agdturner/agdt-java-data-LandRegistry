@@ -64,9 +64,9 @@ public class LR_Main_Process extends LR_Object {
     public void run() {
 
         // Main switches
-        doSelect = true;
-//        doGeneralise = true;
-//        doGeneraliseAreas = true;
+//        doSelect = true;
+        doGeneralise = true;
+        doGeneraliseAreas = true;
 //        doGeneraliseAll = true;
 //        doTransitions = true;
 //        doTransitionsAreas = true;
@@ -92,6 +92,8 @@ public class LR_Main_Process extends LR_Object {
 //            overwrite = true;
             overwrite = false;
             // Run
+            boolean writeCollections;
+                writeCollections = false;
             LR_Select_Process sp;
             sp = new LR_Select_Process(Env);
             sp.Files.setDataDirectory(Files.getDataDir());
@@ -99,9 +101,13 @@ public class LR_Main_Process extends LR_Object {
             while (ite.hasNext()) {
                 area = ite.next();
                 doFull = true;
-                sp.run(area, doFull, overwrite);
+                sp.run(area, doFull, overwrite, writeCollections);
                 doFull = false;
-                sp.run(area, doFull, overwrite);
+                // If on the last run then writeCollections
+                if (!ite.hasNext()) {
+                    writeCollections = true;
+                }
+                sp.run(area, doFull, overwrite, writeCollections);
             }
         }
 

@@ -563,6 +563,13 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
+     * @return the PricePaidClass
+     */
+    public final LR_ID getPricePaidClass() {
+        return PricePaidClass;
+    }
+
+    /**
      * @return the CompanyRegistrationNo1
      */
     public final String getCompanyRegistrationNo1() {

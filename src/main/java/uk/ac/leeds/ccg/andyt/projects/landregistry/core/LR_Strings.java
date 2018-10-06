@@ -66,6 +66,7 @@ public class LR_Strings extends Generic_Strings {
     public final String S_Postcode = "Postcode";
     public final String S_PostcodeDistrict = "PostcodeDistrict";
     public final String S_PricePaid = "PricePaid";
+    public final String S_PricePaidClass = "PricePaidClass";
     public final String S_PropertyAddress = "PropertyAddress";
     public final String S_ProprietorName = "ProprietorName";
     public final String S_ProprietorName1 = S_ProprietorName + "1";

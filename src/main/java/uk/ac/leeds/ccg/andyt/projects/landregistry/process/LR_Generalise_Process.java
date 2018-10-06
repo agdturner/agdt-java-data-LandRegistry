@@ -204,7 +204,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 try {
                                     r = LR_Record.create(isCCOD, doFull, Env, YM,
                                             lines.get((int) ID), upDateIDs);
-                                    addToCounts(r);
+                                    addToNonNullCounts(r);
                                 } catch (ArrayIndexOutOfBoundsException e) {
                                     e.printStackTrace(System.err);
                                 } catch (Exception ex) {
@@ -254,7 +254,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
     }
 
-    void addToCounts(LR_Record r) {
+    void addToNonNullCounts(LR_Record r) {
         if (r != null) {
             Iterator<LR_ID> iteTypes;
             LR_ID typeID;
@@ -279,6 +279,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                 } else if (typeID.equals(Env.TypeToID.get(Strings.S_PostcodeDistrict))) {
                     id = r.getPostcodeDistrictID();
+                    Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_PricePaidClass))) {
+                    id = r.getPricePaidClass();
                     Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                 } else {
                     if (typeID.equals(Env.TypeToID.get(Strings.S_TitleNumber))
@@ -317,24 +320,22 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 } else if (typeID.equals(Env.TypeToID.get(Strings.S_PostcodeDistrict))) {
                     id = r.getPostcodeDistrictID();
                     Generic_Collections.addToMap(NullCounts.get(typeID), id, 1);
+                } else if (typeID.equals(Env.TypeToID.get(Strings.S_PricePaid))) {
+                    int debug = 1; //not sure what should be happening here!
+                    String type;
+                    type = Env.IDToType.get(typeID);
+                    //System.out.println("Type " + type);
                 } else {
-                    if (typeID.equals(Env.TypeToID.get(Strings.S_PricePaid))) {
-                        int debug = 1; //not sure what should be happening here!
-                        String type;
-                        type = Env.IDToType.get(typeID);
-                        //System.out.println("Type " + type);
-                    } else {
-                        int debug = 1; //not sure what should be happening here!
-                        String type;
-                        type = Env.IDToType.get(typeID);
-                        System.out.println("Type " + type);
-                    }
+                    int debug = 1; //not sure what should be happening here!
+                    String type;
+                    type = Env.IDToType.get(typeID);
+                    System.out.println("Type " + type);
                 }
             }
         }
     }
 
-    protected void addToNullCollectionCounts(LR_ID typeID, LR_ID id) {
+    protected void addToNullCounts(LR_ID typeID, LR_ID id) {
         if (Env.NullTitleNumberIDCollections.get(typeID) == null) {
 
             if (NonNullCounts.get(typeID) == null) {
