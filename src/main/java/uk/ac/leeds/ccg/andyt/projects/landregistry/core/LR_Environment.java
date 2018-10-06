@@ -351,14 +351,14 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * Writes out NonNullTypes to a specific file and reports this to stdout.
      */
     public void writeNonNullTypes() {
-        write(Strings.S_NonNullTypes, Strings.S_ArrayList, NonNullTypes);
+        write(Strings.S_NonNullTypes, Strings.S_HashSet, NonNullTypes);
     }
 
     /**
      * Writes out NullTypes to a specific file and reports this to stdout.
      */
     public void writeNullTypes() {
-        write(Strings.S_NullTypes, Strings.S_ArrayList, NullTypes);
+        write(Strings.S_NullTypes, Strings.S_HashSet, NullTypes);
     }
 
     /**

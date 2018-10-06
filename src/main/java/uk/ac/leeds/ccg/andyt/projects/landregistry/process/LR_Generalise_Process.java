@@ -282,7 +282,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                 } else if (typeID.equals(Env.TypeToID.get(Strings.S_PricePaidClass))) {
                     id = r.getPricePaidClass();
-                    Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    if (id != null) {
+                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
                 } else {
                     if (typeID.equals(Env.TypeToID.get(Strings.S_TitleNumber))
                             || typeID.equals(Env.TypeToID.get(Strings.S_PropertyAddress))
