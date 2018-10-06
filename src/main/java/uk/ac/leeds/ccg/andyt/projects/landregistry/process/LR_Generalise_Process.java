@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -179,9 +180,13 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             iteTypes = Env.NonNullTypes.iterator();
                             while (iteTypes.hasNext()) {
                                 typeID = iteTypes.next();
-                                type = Env.IDToType.get(typeID);
-                                fout = new File(outdir, type.replaceAll(" ", "_") + ".csv");
-                                nonNullPWs.put(typeID, new PrintWriter(fout));
+                                if (!(typeID.equals(Env.TypeToID.get(Strings.S_PropertyAddress))
+                                        || typeID.equals(Env.TypeToID.get(Strings.S_TitleNumber))
+                                        || typeID.equals(Env.TypeToID.get(Strings.S_PricePaid)))) {
+                                    type = Env.IDToType.get(typeID);
+                                    fout = new File(outdir, type.replaceAll(" ", "_") + ".csv");
+                                    nonNullPWs.put(typeID, new PrintWriter(fout));
+                                }
                             }
                             fout = new File(outdir, "GeneralCounts.csv");
                             pw = new PrintWriter(fout);
@@ -204,7 +209,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 try {
                                     r = LR_Record.create(isCCOD, doFull, Env, YM,
                                             lines.get((int) ID), upDateIDs);
-                                    addToNonNullCounts(r);
+                                    addToNonNullCounts(r, nonNullPWs.keySet());
                                 } catch (ArrayIndexOutOfBoundsException e) {
                                     e.printStackTrace(System.err);
                                 } catch (Exception ex) {
@@ -229,7 +234,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 pw.println("Count of null " + type + " " + n);
                             }
                             // Close printWriters
-                            iteTypes = Env.NonNullTypes.iterator();
+                            iteTypes = nonNullPWs.keySet().iterator();
                             while (iteTypes.hasNext()) {
                                 typeID = iteTypes.next();
                                 nonNullPWs.get(typeID).close();
@@ -254,12 +259,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
     }
 
-    void addToNonNullCounts(LR_Record r) {
+    void addToNonNullCounts(LR_Record r, Set<LR_ID> s) {
         if (r != null) {
             Iterator<LR_ID> iteTypes;
             LR_ID typeID;
             LR_ID id;
-            iteTypes = Env.NonNullTypes.iterator();
+            iteTypes = s.iterator();
             while (iteTypes.hasNext()) {
                 typeID = iteTypes.next();
                 if (typeID.equals(Env.TypeToID.get(Strings.S_Tenure))) {
@@ -279,26 +284,19 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                 } else if (typeID.equals(Env.TypeToID.get(Strings.S_PostcodeDistrict))) {
                     id = r.getPostcodeDistrictID();
-                    Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    if (id != null) {
+                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
                 } else if (typeID.equals(Env.TypeToID.get(Strings.S_PricePaidClass))) {
                     id = r.getPricePaidClass();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
                 } else {
-                    if (typeID.equals(Env.TypeToID.get(Strings.S_TitleNumber))
-                            || typeID.equals(Env.TypeToID.get(Strings.S_PropertyAddress))
-                            || typeID.equals(Env.TypeToID.get(Strings.S_PricePaid))) {
-                        int debug = 1; //not sure what should be happening here!
-                        String type;
-                        type = Env.IDToType.get(typeID);
-                        //System.out.println("Type " + type);
-                    } else {
-                        int debug = 1; //not sure what should be happening here!
-                        String type;
-                        type = Env.IDToType.get(typeID);
-                        System.out.println("Type " + type);
-                    }
+                    int debug = 1; //not sure what should be happening here!
+                    String type;
+                    type = Env.IDToType.get(typeID);
+                    System.out.println("Type " + type);
                 }
             }
             iteTypes = Env.NullTypes.iterator();
@@ -321,7 +319,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     Generic_Collections.addToMap(NullCounts.get(typeID), id, 1);
                 } else if (typeID.equals(Env.TypeToID.get(Strings.S_PostcodeDistrict))) {
                     id = r.getPostcodeDistrictID();
-                    Generic_Collections.addToMap(NullCounts.get(typeID), id, 1);
+                    if (id != null) {
+                        Generic_Collections.addToMap(NullCounts.get(typeID), id, 1);
+                    }
                 } else if (typeID.equals(Env.TypeToID.get(Strings.S_PricePaid))) {
                     int debug = 1; //not sure what should be happening here!
                     String type;
@@ -360,11 +360,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
     void printNonNullGeneralisation(HashMap<LR_ID, PrintWriter> pws, int min) {
         Iterator<LR_ID> iteTypes;
-        iteTypes = Env.NonNullTypes.iterator();
+        iteTypes = pws.keySet().iterator();
         LR_ID typeID;
         while (iteTypes.hasNext()) {
             typeID = iteTypes.next();
-            printGeneralisation(pws, typeID, NonNullCounts.get(typeID), Env.IDToLookups.get(typeID), min);
+            printGeneralisation(pws, typeID, NonNullCounts.get(typeID),
+                    Env.IDToLookups.get(typeID), min);
         }
     }
 
@@ -381,48 +382,74 @@ public class LR_Generalise_Process extends LR_Main_Process {
             Map<K, Integer> counts, Map<K, String> lookup, int min) {
         PrintWriter pw;
         pw = pws.get(typeID);
-        Map<K, Integer> sortedCounts;
-        sortedCounts = Generic_Collections.sortByValue(counts);
         pw.println(Env.IDToType.get(typeID));
-        K k;
-        Integer count;
-        int smallCount = 0;
-        boolean reportedSmallCount = false;
-        Iterator<K> ite;
-        pw.println("Value, Count");
-        ite = sortedCounts.keySet().iterator();
-        while (ite.hasNext()) {
-            k = ite.next();
-//            //Debug code
-//            if (counts == null) {
-//                int debug = 1;
-//            }
-//            if (k == null) {
-//                int debug = 1;
-//            }
-            count = counts.get(k);
-            if (count == null) {
-                count = 0;
-            }
-            if (count >= min) {
-                if (!reportedSmallCount) {
-                    pw.println("Those with less than " + min + "," + smallCount);
-                    reportedSmallCount = true;
+            K k;
+            Integer count;
+            int smallCount = 0;
+            boolean reportedSmallCount = false;
+            Iterator<K> ite;
+            pw.println("Value, Count");
+            
+        if (typeID.equals(Env.TypeToID.get(Strings.S_PricePaidClass))) {
+            ite = counts.keySet().iterator();
+            while (ite.hasNext()) {
+                k = ite.next();
+                count = counts.get(k);
+                if (count == null) {
+                    count = 0;
                 }
-                if (lookup == null) {
-                    pw.println("\"" + k + "\"," + count);
+                if (count >= min) {
+                    if (!reportedSmallCount) {
+                        pw.println("Those with less than " + min + "," + smallCount);
+                        reportedSmallCount = true;
+                    }
+                    if (lookup == null) {
+                        pw.println("\"" + k + "\"," + count);
+                    } else {
+                        pw.println("\"" + Env.PricePaidLookup.get(k).toString() + "\"," + count);
+                    }
                 } else {
-                    String v;
-                    v = lookup.get(k);
-                    pw.println("\"" + v + "\"," + count);
+                    smallCount += count;
                 }
-            } else {
-                smallCount += count;
+            }
+        } else {
+            Map<K, Integer> sortedCounts;
+            sortedCounts = Generic_Collections.sortByValue(counts);
+            ite = sortedCounts.keySet().iterator();
+            while (ite.hasNext()) {
+                k = ite.next();
+                count = counts.get(k);
+                if (count == null) {
+                    count = 0;
+                }
+                if (count >= min) {
+                    if (!reportedSmallCount) {
+                        pw.println("Those with less than " + min + "," + smallCount);
+                        reportedSmallCount = true;
+                    }
+                    if (lookup == null) {
+                        pw.println("\"" + k + "\"," + count);
+                    } else {
+                        String v;
+                        v = lookup.get(k);
+                        pw.println("\"" + v + "\"," + count);
+                    }
+                } else {
+                    smallCount += count;
+                }
             }
         }
         pw.println();
     }
 
+    /**
+     *
+     * @param pws
+     * @param type
+     * @param counts
+     * @param min
+     * @param transparencyMap
+     */
     void printGeneralisation(HashMap<String, PrintWriter> pws, String type,
             TreeMap<String, Integer> counts, int min,
             HashMap<String, Integer> transparencyMap) {
