@@ -31,24 +31,32 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
     protected LR_CC_FULL_Record() {
     }
 
+    /**
+     *
+     * @param env
+     * @param YM
+     * @param line
+     * @param updateIDs
+     * @throws Exception
+     */
     public LR_CC_FULL_Record(LR_Environment env, Generic_YearMonth YM,
             String line, boolean updateIDs) throws Exception {
         this.Env = env;
         this.YM = YM;
         String[] ls;
         ls = getSplitAndTrim(line);
-        initTitleNumber(ls[0].substring(1));
-        initTenure(ls[1]);
-        initPropertyAddressAndID(ls[2]);
+        initTitleNumber(ls[0].substring(1), updateIDs);
+        initTenure(ls[1], updateIDs);
+        initPropertyAddressAndID(ls[2], updateIDs);
         setDistrict(ls[3]);
         setCounty(ls[4]);
         setRegion(ls[5]);
-        initPostcodeAndPostcodeDistrict(ls[6]);
+        initPostcodeAndPostcodeDistrict(ls[6], updateIDs);
         setMultipleAddressIndicator(ls[7]);
-        initPricePaid(ls[8]);
-        initProprietorName1(ls[9]);
-        initCompanyRegistrationNo1(ls[10]);
-        initProprietorshipCategory1(ls[11]);
+        initPricePaid(ls[8], updateIDs);
+        initProprietorName1(ls[9], updateIDs);
+        initCompanyRegistrationNo1(ls[10], updateIDs);
+        initProprietorshipCategory1(ls[11], updateIDs);
         setProprietor1Address1(ls[12]);
         setProprietor1Address2(ls[13]);
         setProprietor1Address3(ls[14]);
@@ -76,8 +84,8 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
 
     /**
      * Creates a simple copy of r without changing any collections.
-     * 
-     * @param r 
+     *
+     * @param r
      */
     public LR_CC_FULL_Record(LR_Record r) {
         super(r);

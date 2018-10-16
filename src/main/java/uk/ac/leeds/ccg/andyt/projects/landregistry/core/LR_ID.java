@@ -41,7 +41,11 @@ public class LR_ID implements Serializable, Comparable {
         return Integer.toString(ID);
     }
 
+    @Override
     public boolean equals(Object o) {
+        if (o == null) {
+             return false;
+        }
         if (o instanceof LR_ID) {
             if (((LR_ID) o).ID == ID) {
                 return true;
@@ -59,6 +63,9 @@ public class LR_ID implements Serializable, Comparable {
 
     @Override
     public int compareTo(Object o) {
+        if (o == null) {
+             return -1;
+        }
         if (o instanceof LR_ID) {
             LR_ID o2;
             o2 = (LR_ID) o;

@@ -31,7 +31,7 @@ public class LR_ID2 implements Serializable {
         TitleNumberID = titleNumberID;
         PropertyAddressID = propertyAddressID;
     }
-    
+
     @Override
     public String toString() {
         return TitleNumberID.toString() + ", " + PropertyAddressID.toString();
@@ -57,24 +57,27 @@ public class LR_ID2 implements Serializable {
             LR_ID2 o2;
             o2 = (LR_ID2) o;
             if (o2.hashCode() == hashCode()) {
+                if (o2.TitleNumberID == null && TitleNumberID == null) {
+                    return equals(o2);
+                }
                 if (o2.TitleNumberID.equals(TitleNumberID)) {
-                    if (o2.PropertyAddressID == null) {
-                        if (PropertyAddressID == null) {
-                            return true;
-                        }
-                    } else {
-                        if (PropertyAddressID == null) {
-                            return false;
-                        } else {
-                            if (o2.PropertyAddressID.equals(PropertyAddressID)) {
-                                return true;
-                            }
-                        }
-                    }
+                    return equals(o2);
                 }
             }
         }
         return false;
+    }
+
+    private boolean equals(LR_ID2 o) {
+        if (o.PropertyAddressID == null) {
+            return PropertyAddressID == null;
+        } else {
+            if (PropertyAddressID == null) {
+                return false;
+            } else {
+                return o.PropertyAddressID.equals(PropertyAddressID);
+            }
+        }
     }
 
     @Override

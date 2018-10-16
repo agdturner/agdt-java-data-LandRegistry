@@ -16,9 +16,11 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 
 /**
  *
@@ -44,19 +46,19 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         this.YM = YM;
         String[] ls;
         ls = getSplitAndTrim(line);
-        initTitleNumber(ls[0].substring(1));
-        initTenure(ls[1]);
-        initPropertyAddressAndID(ls[2]);
+        initTitleNumber(ls[0].substring(1), updateIDs);
+        initTenure(ls[1], updateIDs);
+        initPropertyAddressAndID(ls[2], updateIDs);
         setDistrict(ls[3]);
         setCounty(ls[4]);
         setRegion(ls[5]);
-        initPostcodeAndPostcodeDistrict(ls[6]);
+        initPostcodeAndPostcodeDistrict(ls[6], updateIDs);
         setMultipleAddressIndicator(ls[7]);
-        initPricePaid(ls[8]);
-        initProprietorName1(ls[9]);
-        initCompanyRegistrationNo1(ls[10]);
-        initProprietorshipCategory1(ls[11]);
-        initCountryIncorporated1(ls[12]);
+        initPricePaid(ls[8], updateIDs);
+        initProprietorName1(ls[9], updateIDs);
+        initCompanyRegistrationNo1(ls[10], updateIDs);
+        initProprietorshipCategory1(ls[11], updateIDs);
+        initCountryIncorporated1(ls[12], updateIDs);
         setProprietor1Address1(ls[13]);
         setProprietor1Address2(ls[14]);
         setProprietor1Address3(ls[15]);
@@ -87,7 +89,8 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
 
     /**
      * Creates a simple copy of r without changing any collections.
-     * @param r 
+     *
+     * @param r
      */
     public LR_OC_FULL_Record(LR_OC_FULL_Record r) {
         super(r);
@@ -248,17 +251,32 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     }
 
     /**
-     * @param s the CountryIncorporated1 to set
+     * If updateIDs then if s is blank then CountryIncorporated1 is set to a
+     * unique number and a record is kept to look up this number from ID. If
+     * !updateIDs then the unique number set previously is obtained from what is
+     * stored.
+     *
+     * @param s CountryIncorporated1
+     * @param updateIDs IFF true then collections are updated otherwise ID is
+     * set from data pulled from existing collections.
      */
-    public final void initCountryIncorporated1(String s) {
+    public final void initCountryIncorporated1(String s, boolean updateIDs) {
         LR_ID typeID;
-        typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated);
+        typeID = Env.CountryIncorporatedTypeID;
         if (s.isEmpty()) {
-            setCountryIncorporated1(updateNullCollection(typeID));
+            if (updateIDs) {
+                setCountryIncorporated1(updateNullCollection(typeID));
+            } else {
+                HashMap<LR_ID2, LR_ID> m;
+                m = Env.NullCollections.get(typeID);
+                setCountryIncorporated1(Env.IDToType.get(m.get(ID)));
+            }
         } else {
             setCountryIncorporated1(s);
         }
-        updateNonNullCollections(getCountryIncorporated1(), typeID);
+        if (updateIDs) {
+            updateNonNullCollections(getCountryIncorporated1(), typeID);
+        }
     }
 
     /**
@@ -266,8 +284,18 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     public final void setCountryIncorporated1(String s) {
         this.CountryIncorporated1 = s;
+        updateCountryIncorporated(s);
+    }
+
+    /**
+     * @param s the ProprietorshipCategory to set
+     */
+    protected final void updateCountryIncorporated(String s) {
         if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.Strings.S_CountryIncorporated);
+            if (Env.CountryIncorporatedValues.add(s)) {
+                Env.UpdatedCountryIncorporatedValues = true;
+            }
+            updateNonNullCollections(s, Env.CountryIncorporatedTypeID);
         }
     }
 
@@ -276,9 +304,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     public final void setCountryIncorporated2(String s) {
         this.CountryIncorporated2 = s;
-        if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.Strings.S_CountryIncorporated);
-        }
+        updateCountryIncorporated(s);
     }
 
     /**
@@ -286,9 +312,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     public final void setCountryIncorporated3(String s) {
         this.CountryIncorporated3 = s;
-        if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.Strings.S_CountryIncorporated);
-        }
+        updateCountryIncorporated(s);
     }
 
     /**
@@ -296,9 +320,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     public final void setCountryIncorporated4(String s) {
         this.CountryIncorporated4 = s;
-        if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.Strings.S_CountryIncorporated);
-        }
+        updateCountryIncorporated(s);
     }
 
     /**
@@ -306,9 +328,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     @Override
     public final LR_ID getCountryIncorporated1ID() {
-        LR_ID typeID;
-        typeID = Env.TypeToID.get(Env.Strings.S_CountryIncorporated);
-        return Env.ToIDLookups.get(typeID).get(getCountryIncorporated1());
+        return Env.ToIDLookups.get(Env.CountryIncorporatedTypeID).get(getCountryIncorporated1());
     }
 
 }

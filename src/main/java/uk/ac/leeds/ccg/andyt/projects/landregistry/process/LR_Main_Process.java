@@ -17,8 +17,10 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
@@ -60,14 +62,16 @@ public class LR_Main_Process extends LR_Object {
     boolean doTransitions = false;
     boolean doTransitionsAreas = false;
     boolean doTransitionsAll = false;
+    boolean writeCollections = false;
 
     public void run() {
 
         // Main switches
+//        writeCollections = true;
 //        doSelect = true;
         doGeneralise = true;
         doGeneraliseAreas = true;
-//        doGeneraliseAll = true;
+        doGeneraliseAll = true;
 //        doTransitions = true;
 //        doTransitionsAreas = true;
 //        doTransitionsAll = true;
@@ -75,6 +79,7 @@ public class LR_Main_Process extends LR_Object {
         ArrayList<String> areas;
         areas = new ArrayList<>();
         areas.add("LEEDS");
+        //areas.add("BRADFORD");
         String area;
         Iterator<String> ite;
 
@@ -92,8 +97,6 @@ public class LR_Main_Process extends LR_Object {
 //            overwrite = true;
             overwrite = false;
             // Run
-            boolean writeCollections;
-                writeCollections = false;
             LR_Select_Process sp;
             sp = new LR_Select_Process(Env);
             sp.Files.setDataDirectory(Files.getDataDir());
@@ -108,6 +111,7 @@ public class LR_Main_Process extends LR_Object {
                     writeCollections = true;
                 }
                 sp.run(area, doFull, overwrite, writeCollections);
+                writeCollections = false;
             }
         }
 
@@ -116,15 +120,15 @@ public class LR_Main_Process extends LR_Object {
          */
         File inputDataDir;
         /**
-         * minCC is the minimum count for a generalisation reported in the
+         * minsCC is the minimum count for a generalisation reported in the
          * corporate data.
          */
-        int minCC;
+        HashMap<LR_ID, Integer> minsCC;
         /**
-         * minCC is the minimum count for a generalisation reported in the
+         * minsOC is the minimum count for a generalisation reported in the
          * overseas data.
          */
-        int minOC;
+        HashMap<LR_ID, Integer> minsOC;
 
         if (doGeneralise) {
             /**
@@ -145,15 +149,15 @@ public class LR_Main_Process extends LR_Object {
                 LR_Generalise_Process gp;
                 gp = new LR_Generalise_Process(Env);
                 gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-                minCC = 5;
-                minOC = 1;
+                minsCC = getMinsCC(5);
+                minsOC = getMinsOC(1);
                 ite = areas.iterator();
                 while (ite.hasNext()) {
                     area = ite.next();
                     doFull = true;
-                    gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+                    gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
                     doFull = false;
-                    gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+                    gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
                 }
             }
             if (doGeneraliseAll) {
@@ -168,20 +172,22 @@ public class LR_Main_Process extends LR_Object {
                 LR_Generalise_Process gp;
                 gp = new LR_Generalise_Process(Env);
                 gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
-                minCC = 10;
-                minOC = 5;
+                minsCC = getMinsCC(10);
+                minsOC = getMinsOC(5);
                 ite = areas.iterator();
                 while (ite.hasNext()) {
                     area = ite.next();
                     doFull = true;
-                    gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+                    gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
                     doFull = false;
-                    gp.run(area, doAll, minCC, minOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+                    gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
                 }
             }
         }
 
         if (doTransitions) {
+            int minCC;
+            int minOC;
             boolean doAll;
             if (doTransitionsAreas) {
                 doAll = false;
@@ -217,8 +223,58 @@ public class LR_Main_Process extends LR_Object {
                 tp.run(area, doAll, inputDataDir, minCC, minOC, overwrite);
             }
         }
-        // If any collections have changed then write them out again.
-        Env.writeCollections();
+        if (writeCollections) {
+            // If any collections have changed then write them out again.
+            Env.writeCollections();
+        }
+    }
+
+    /**
+     *
+     * @param defaultMin
+     * @return
+     */
+    protected HashMap<LR_ID, Integer> getMinsCC(int defaultMin) {
+        HashMap<LR_ID, Integer> result;
+        result = new HashMap<>();
+        Iterator<LR_ID> ite;
+        ite = Env.NonNullTypes.iterator();
+        LR_ID typeID;
+        while (ite.hasNext()) {
+            typeID = ite.next();
+            if (typeID.equals(Env.PostcodeDistrictTypeID)) {
+                result.put(typeID, 0);
+            } else if (typeID.equals(Env.PricePaidTypeID)) {
+                result.put(typeID, 0);
+            } else {
+                result.put(typeID, defaultMin);
+            }
+        }
+        return result;
+    }
+
+    /**
+     *
+     * @param defaultMin
+     * @return
+     */
+    protected HashMap<LR_ID, Integer> getMinsOC(int defaultMin) {
+        HashMap<LR_ID, Integer> result;
+        result = new HashMap<>();
+        Iterator<LR_ID> ite;
+        ite = Env.NonNullTypes.iterator();
+        LR_ID typeID;
+        while (ite.hasNext()) {
+            typeID = ite.next();
+            if (typeID.equals(Env.PostcodeDistrictTypeID)) {
+                result.put(typeID, 0);
+            } else if (typeID.equals(Env.PricePaidTypeID)) {
+                result.put(typeID, 0);
+            } else {
+                result.put(typeID, defaultMin);
+            }
+        }
+        return result;
     }
 
     protected String getName00(boolean doFull, String name0) {

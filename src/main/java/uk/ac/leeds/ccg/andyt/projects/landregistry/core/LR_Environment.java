@@ -24,6 +24,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public LR_Files Files;
     public Generic_UKPostcode_Handler PostcodeHandler;
 
+    public static final String EOL = System.getProperty("line.separator");
+
     /**
      * A collection of all current Comprised of NonNullTypes and NullTypes.
      */
@@ -36,7 +38,12 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public HashSet<LR_ID> NonNullTypes;
 
     /**
-     * For storing NullTypes used for indexing NullTitleNumberIDCollections.
+     * For storing NonNullPricePaidTypes.
+     */
+    public HashSet<LR_ID> NonNullPricePaidTypes;
+
+    /**
+     * For storing NullTypes used for indexing NullCollections.
      */
     public HashSet<LR_ID> NullTypes;
 
@@ -51,6 +58,11 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * of IDToType.
      */
     public HashMap<String, LR_ID> TypeToID;
+
+    /**
+     * For indicating if TypeToID (or IDToType) have been updated.
+     */
+    public boolean UpdatedTypeToID;
 
     /**
      * Keys are NonNullTypes and values are Lookups of an ID to a String. The
@@ -77,10 +89,10 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public HashMap<LR_ID, Boolean> UpdatedNullTypes;
 
     /**
-     * Keys are NullTypes and values are Collections of TitleNumberIDs
-     * representing those inputs with null values for that type.
+     * Keys are NullTypes and values are Collections of lookups from the ID to
+     * the respective id assigned for the type.
      */
-    public HashMap<LR_ID, HashSet<LR_ID>> NullTitleNumberIDCollections;
+    public HashMap<LR_ID, HashMap<LR_ID2, LR_ID>> NullCollections;
 
     /**
      * Keys are Address IDs, Values are collections of TitleNumberIDs.
@@ -113,6 +125,36 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public boolean UpdatedIDs;
 
     /**
+     * Stores all the ProprietorshipCategory values.
+     */
+    public HashSet<String> ProprietorshipCategoryValues;
+
+    /**
+     * Indicates if ProprietorshipCategoryValues has changed.
+     */
+    public boolean UpdatedProprietorshipCategoryValues;
+
+    /**
+     * Stores all the CountryIncorporated values.
+     */
+    public HashSet<String> CountryIncorporatedValues;
+
+    /**
+     * Indicates if CountryIncorporatedValues has changed.
+     */
+    public boolean UpdatedCountryIncorporatedValues;
+
+    /**
+     * ValueLookups
+     */
+    public HashMap<LR_ID, HashMap<String, LR_ID>> ValueLookups;
+
+    /**
+     * ValueReverseLookups
+     */
+    public HashMap<LR_ID, HashMap<LR_ID, String>> ValueReverseLookups;
+
+    /**
      * For looking up the upper and lower bounds for PricePaid data classes
      */
     public HashMap<LR_ID, Generic_Interval_long1> PricePaidLookup;
@@ -120,10 +162,73 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     long MinPricePaidClass;
     long MaxPricePaidClass;
 
+    /**
+     * For storing TitleNumber TypeID.
+     */
+    public final LR_ID TitleNumberTypeID;
+
+    /**
+     * For storing CompanyRegistrationNo TypeID.
+     */
+    public final LR_ID CompanyRegistrationNoTypeID;
+
+    /**
+     * For storing PostcodeDistrict TypeID.
+     */
+    public final LR_ID PostcodeDistrictTypeID;
+
+    /**
+     * For storing PricePaid TypeID.
+     */
+    public final LR_ID PricePaidTypeID;
+
+    /**
+     * For storing PropertyAddress TypeID.
+     */
+    public final LR_ID PropertyAddressTypeID;
+
+    /**
+     * For storing ProprietorName TypeID.
+     */
+    public final LR_ID ProprietorNameTypeID;
+
+    /**
+     * For storing ProprietorshipCategory TypeID.
+     */
+    public final LR_ID ProprietorshipCategoryTypeID;
+
+    /**
+     * For storing Tenure TypeID.
+     */
+    public final LR_ID TenureTypeID;
+
+    /**
+     * For storing CountryIncorporated TypeID.
+     */
+    public final LR_ID CountryIncorporatedTypeID;
+
     public LR_Environment() {
         Strings = new LR_Strings();
         Files = new LR_Files(Strings, Strings.getS_data());
         ge = new Generic_Environment(Files, Strings);
+        loadNonNullTypes();
+        loadNullTypes();
+        NonNullPricePaidTypes = new HashSet<>();
+        loadIDs();
+        loadTypeToID();
+        loadIDToType();
+        CompanyRegistrationNoTypeID = getTypeID(Strings.S_CompanyRegistrationNo);
+        CountryIncorporatedTypeID = getTypeID(Strings.S_CountryIncorporated);
+        PostcodeDistrictTypeID = getTypeID(Strings.S_PostcodeDistrict);
+        PricePaidTypeID = getTypeID(Strings.S_PricePaid);
+        PropertyAddressTypeID = getTypeID(Strings.S_PropertyAddress);
+        ProprietorNameTypeID = getTypeID(Strings.S_ProprietorName);
+        ProprietorshipCategoryTypeID = getTypeID(Strings.S_ProprietorshipCategory);
+        TenureTypeID = getTypeID(Strings.S_Tenure);
+        TitleNumberTypeID = getTypeID(Strings.S_TitleNumber);
+        loadAddressIDToTitleNumberIDsLookup();
+        loadTitleNumberIDToAddressLookup();
+        initPricePaidLookup();
         initCollections();
         UpdatedIDs = false;
         PostcodeHandler = new Generic_UKPostcode_Handler();
@@ -143,7 +248,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         }
     }
 
-    public void loadIDToType() {
+    public final void loadIDToType() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_IDToType, Strings.S_HashMap);
         if (!f.exists()) {
@@ -155,7 +260,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         }
     }
 
-    public void loadTypeToID() {
+    public final void loadTypeToID() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_TypeToID, Strings.S_HashMap);
         if (!f.exists()) {
@@ -167,7 +272,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         }
     }
 
-    public void loadIDs() {
+    public final void loadIDs() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_IDs, Strings.S_HashSet);
         if (!f.exists()) {
@@ -222,26 +327,27 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         ToIDLookups.put(typeID, m);
     }
 
-    public void loadNullCollection(String s) {
-        LR_ID typeID;
-        typeID = TypeToID.get(s);
-        HashSet<LR_ID> c;
+    public void loadNullCollection(LR_ID typeID) {
+        String s;
+        s = Strings.S_Null + IDToType.get(typeID) + Strings.S_ID
+                + Strings.S_NumberID;
+        HashMap<LR_ID2, LR_ID> c;
         File f;
-        f = Files.getGeneratedDataFile(s, Strings.S_HashSet);
+        f = Files.getGeneratedDataFile(s, Strings.S_HashMap);
         if (!f.exists()) {
-            c = new HashSet<>();
+            c = new HashMap<>();
         } else {
             System.out.println("Loading " + f);
-            c = (HashSet<LR_ID>) Generic_StaticIO.readObject(f);
+            c = (HashMap<LR_ID2, LR_ID>) Generic_StaticIO.readObject(f);
             System.out.println("Loaded " + f);
         }
-        NullTitleNumberIDCollections.put(typeID, c);
+        NullCollections.put(typeID, c);
     }
 
     /**
      * For loading NonNullTypes from a particular file.
      */
-    public void loadNonNullTypes() {
+    public final void loadNonNullTypes() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_NonNullTypes, Strings.S_HashSet);
         if (!f.exists()) {
@@ -256,7 +362,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     /**
      * For loading the NullTypes from a particular file.
      */
-    public void loadNullTypes() {
+    public final void loadNullTypes() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_NullTypes, Strings.S_HashSet);
         if (!f.exists()) {
@@ -278,9 +384,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public void writeNullCollection(LR_ID typeID) {
         if (UpdatedNullTypes.get(typeID)) {
             String s;
-            s = Strings.S_Null + IDToType.get(typeID) + Strings.S_TitleNumber
-                    + Strings.S_ID;
-            write(s, Strings.S_HashSet, NullTitleNumberIDCollections.get(typeID));
+            s = Strings.S_Null + IDToType.get(typeID) + Strings.S_ID
+                    + Strings.S_NumberID;
+            write(s, Strings.S_HashMap, NullCollections.get(typeID));
             UpdatedNullTypes.put(typeID, false);
         }
     }
@@ -299,7 +405,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     /**
      * For loading the AddressIDToTitleNumberIDsLookup from a particular file.
      */
-    public void loadAddressIDToTitleNumberIDsLookup() {
+    public final void loadAddressIDToTitleNumberIDsLookup() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_AddressIDToTitleNumberIDs,
                 Strings.S_HashMap);
@@ -308,6 +414,54 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         } else {
             System.out.println("Loading " + f);
             AddressIDToTitleNumberIDsLookup = (HashMap<LR_ID, HashSet<LR_ID>>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
+        }
+    }
+
+    /**
+     * For loading the ProprietorshipCategoryValues from a particular file.
+     */
+    public void loadProprietorshipCategoryValues() {
+        File f;
+        f = Files.getGeneratedDataFile(Strings.S_ProprietorshipCategoryValues,
+                Strings.S_HashSet);
+        if (!f.exists()) {
+            ProprietorshipCategoryValues = new HashSet<>();
+//            ProprietorshipCategoryValues.add("Co-operative Society (Company)");
+//            ProprietorshipCategoryValues.add("Registered Society (Corporate Body)");
+//            ProprietorshipCategoryValues.add("Housing Association Community Benefit Society (Company)");
+//            ProprietorshipCategoryValues.add("Housing Association/Society (Corporate Body)");
+//            ProprietorshipCategoryValues.add("Unlimited Company");
+//            ProprietorshipCategoryValues.add("Community Benefit Society (Company)");
+//            ProprietorshipCategoryValues.add("Housing Association Registered Society (Company)");
+//            ProprietorshipCategoryValues.add("Industrial and Provident Society (Corporate Body)");
+//            ProprietorshipCategoryValues.add("County Council");
+//            ProprietorshipCategoryValues.add("Housing Association/Society (Company)");
+//            ProprietorshipCategoryValues.add("Registered Society (Company)");
+//            ProprietorshipCategoryValues.add("Limited Liability Partnership");
+//            ProprietorshipCategoryValues.add("Industrial and Provident Society (Company)");
+//            ProprietorshipCategoryValues.add("Corporate Body");
+//            ProprietorshipCategoryValues.add("Local Authority");
+//            ProprietorshipCategoryValues.add("Limited Company or Public Limited Company");
+        } else {
+            System.out.println("Loading " + f);
+            ProprietorshipCategoryValues = (HashSet<String>) Generic_StaticIO.readObject(f);
+            System.out.println("Loaded " + f);
+        }
+    }
+
+    /**
+     * For loading the ProprietorshipCategoryValues from a particular file.
+     */
+    public void loadCountryIncorporatedValues() {
+        File f;
+        f = Files.getGeneratedDataFile(Strings.S_CountryIncorporatedValues,
+                Strings.S_HashSet);
+        if (!f.exists()) {
+            CountryIncorporatedValues = new HashSet<>();
+        } else {
+            System.out.println("Loading " + f);
+            CountryIncorporatedValues = (HashSet<String>) Generic_StaticIO.readObject(f);
             System.out.println("Loaded " + f);
         }
     }
@@ -323,6 +477,28 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     /**
+     * For writing out the ProprietorshipCategoryValues to a particular file
+     * which it is expected to perhaps get loaded again from in memory handling
+     * or in a different run/process.
+     */
+    public void writeProprietorshipCategoryValues() {
+        write(Strings.S_ProprietorshipCategoryValues, Strings.S_HashSet,
+                ProprietorshipCategoryValues);
+        UpdatedProprietorshipCategoryValues = false;
+    }
+
+    /**
+     * For writing out the ProprietorshipCategoryValues to a particular file
+     * which it is expected to perhaps get loaded again from in memory handling
+     * or in a different run/process.
+     */
+    public void writeCountryIncorporatedValues() {
+        write(Strings.S_CountryIncorporatedValues, Strings.S_HashSet,
+                CountryIncorporatedValues);
+        UpdatedCountryIncorporatedValues = false;
+    }
+
+    /**
      * For writing out the TitleNumberIDToAddressIDLookup to a particular file
      * which it is expected to perhaps get loaded again from in memory handling
      * or in a different run/process.
@@ -334,17 +510,23 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     /**
-     * Writes out IDToType to a specific file and reports this to stdout.
+     * Writes out IDToType to a specific file and reports this to stdout if
+     * UpdatedTypeToID.
      */
     public void writeIDToType() {
-        write(Strings.S_IDToType, Strings.S_HashMap, IDToType);
+        if (UpdatedTypeToID) {
+            write(Strings.S_IDToType, Strings.S_HashMap, IDToType);
+        }
     }
 
     /**
-     * Writes out TypeToID to a specific file and reports this to stdout.
+     * Writes out TypeToID to a specific file and reports this to stdout if
+     * UpdatedTypeToID.
      */
     public void writeTypeToID() {
-        write(Strings.S_TypeToID, Strings.S_HashMap, TypeToID);
+        if (UpdatedTypeToID) {
+            write(Strings.S_TypeToID, Strings.S_HashMap, TypeToID);
+        }
     }
 
     /**
@@ -377,7 +559,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     /**
      * For loading the PricePaidLookup from a particular file.
      */
-    public void initPricePaidLookup() {
+    public final void initPricePaidLookup() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_PricePaidLookup,
                 Strings.S_HashMap);
@@ -418,13 +600,32 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
                 u += 2000000L;
                 addPricePaidInterval(l, u); // 4,000,000, 6,000,000, 8,000,000, 10,000,000
             }
+            for (int ll = 0; ll < 4; ll++) {
+                l = u;
+                u += 10000000L;
+                addPricePaidInterval(l, u); // 20,000,000, 30,000,000, 40,000,000, 50,000,000
+            }
+            for (int ll = 0; ll < 3; ll++) {
+                l = u;
+                u += 50000000L;
+                addPricePaidInterval(l, u); // 100,000,000, 150,000,000, 200,000,000
+            }
+            l = u;
+            u = 5000000000L; //5,000,000,000
+            addPricePaidInterval(l, u);
+            l = u;
+            u = 10000000000L; //10,000,000,000
+            addPricePaidInterval(l, u);
+            l = u;
+            u = 1000000000000L; //1,000,000,000,000
+            addPricePaidInterval(l, u);
             MaxPricePaidClass = u;
             UpdatedPricePaidLookup = true;
         } else {
             System.out.println("Loading " + f);
             PricePaidLookup = (HashMap<LR_ID, Generic_Interval_long1>) Generic_StaticIO.readObject(f);
             MinPricePaidClass = -1000L;
-            MaxPricePaidClass = 10000000L;
+            MaxPricePaidClass = 1000000000000L;
             System.out.println("Loaded " + f);
             UpdatedPricePaidLookup = false;
         }
@@ -439,7 +640,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     /**
      * For loading the TitleNumberIDToAddressIDLookup from a particular file.
      */
-    public void loadTitleNumberIDToAddressLookup() {
+    public final void loadTitleNumberIDToAddressLookup() {
         File f;
         f = Files.getGeneratedDataFile(Strings.S_TitleNumberIDToAddressID,
                 Strings.S_HashMap);
@@ -470,16 +671,22 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         loadIDTo(id, type);
     }
 
+    protected void addNonNullPricePaidType(String type) {
+        LR_ID id;
+        id = getTypeID(type);
+        NonNullPricePaidTypes.add(id);
+    }
+
     protected LR_ID addNullType(String type) {
         LR_ID id;
         id = getTypeID(type);
         NullTypes.add(id);
         UpdatedNullTypes.put(id, false);
-        NullTitleNumberIDCollections.put(id, new HashSet<>());
+        loadNullCollection(id);
         return id;
     }
 
-    protected LR_ID getTypeID(String type) {
+    protected final LR_ID getTypeID(String type) {
         LR_ID id;
         if (TypeToID.containsKey(type)) {
             id = TypeToID.get(type);
@@ -487,34 +694,44 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             id = new LR_ID(TypeToID.size());
             TypeToID.put(type, id);
             IDToType.put(id, type);
+            UpdatedTypeToID = true;
         }
         return id;
     }
 
+    /**
+     * Initialises all the collections by either loading from file or creating
+     * new empty one to be populated.
+     */
     protected final void initCollections() {
-        loadNonNullTypes();
-        loadNullTypes();
-        loadIDs();
-        loadTypeToID();
-        loadIDToType();
-        loadAddressIDToTitleNumberIDsLookup();
-        loadTitleNumberIDToAddressLookup();
-        initPricePaidLookup();
         IDToLookups = new HashMap<>();
         ToIDLookups = new HashMap<>();
         UpdatedNonNullTypes = new HashMap<>();
         UpdatedNullTypes = new HashMap<>();
-        NullTitleNumberIDCollections = new HashMap<>();
+        NullCollections = new HashMap<>();
+
+        /**
+         * Add NonNullTypes
+         */
         addNonNullType(Strings.S_TitleNumber);
         addNonNullType(Strings.S_PropertyAddress);
         addNonNullType(Strings.S_Tenure);
-        addNonNullType(Strings.S_PricePaidClass);
+        addNonNullType(Strings.S_PricePaid);
         addNonNullType(Strings.S_CompanyRegistrationNo);
         addNonNullType(Strings.S_ProprietorName);
         addNonNullType(Strings.S_ProprietorshipCategory);
         //addNonNullType(Strings.S_CountryIncorporated); // done in next line: addCountryIDToNonNull(Strings.S_United_Kingdom);
         addCountryIDToNonNull(Strings.S_United_Kingdom);
         addNonNullType(Strings.S_PostcodeDistrict);
+        /**
+         * Add NonNullPricePaidTypes
+         */
+        addNonNullPricePaidType(Strings.S_Tenure);
+        addNonNullPricePaidType(Strings.S_CompanyRegistrationNo);
+        addNonNullPricePaidType(Strings.S_ProprietorshipCategory);
+        /**
+         * Add NullTypes
+         */
         addNullType(Strings.S_PropertyAddress);
         addNullType(Strings.S_PricePaid);
         addNullType(Strings.S_CompanyRegistrationNo);
@@ -522,6 +739,66 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         addNullType(Strings.S_ProprietorshipCategory);
         addNullType(Strings.S_CountryIncorporated);
         addNullType(Strings.S_PostcodeDistrict);
+
+        ValueLookups = new HashMap<>();
+        ValueReverseLookups = new HashMap<>();
+
+        addValueType(TenureTypeID);
+        addValue(TenureTypeID, Strings.S_Freehold);
+        addValue(TenureTypeID, Strings.S_Leasehold);
+
+        Iterator<String> ite;
+        String s;
+
+        addValueType(ProprietorshipCategoryTypeID);
+        loadProprietorshipCategoryValues();
+        ite = ProprietorshipCategoryValues.iterator();
+        while (ite.hasNext()) {
+            s = ite.next();
+            addValue(ProprietorshipCategoryTypeID, s);
+        }
+
+        addValueType(CountryIncorporatedTypeID);
+        loadCountryIncorporatedValues();
+        ite = CountryIncorporatedValues.iterator();
+        while (ite.hasNext()) {
+            s = ite.next();
+            addValue(CountryIncorporatedTypeID, s);
+        }
+
+    }
+
+    /**
+     * Adds a value type map to ValueLookups and ValueReverseLookups
+     *
+     * @param valueType The LR_ID of the value type to be added.
+     */
+    protected void addValueType(LR_ID valueType) {
+        HashMap<String, LR_ID> valueLookup;
+        HashMap<LR_ID, String> valueReverseLookup;
+        valueLookup = new HashMap<>();
+        valueReverseLookup = new HashMap<>();
+        ValueLookups.put(valueType, valueLookup);
+        ValueReverseLookups.put(valueType, valueReverseLookup);
+    }
+
+    /**
+     * Adds a value s to ValueLookups.get(valueType) and
+     * ValueReverseLookups.get(valueType). This does not first test if s is
+     * already a key in ValueLookups.get(valueType).
+     *
+     * @param valueType
+     * @param s
+     */
+    protected void addValue(LR_ID valueType, String s) {
+        HashMap<String, LR_ID> valueLookup;
+        HashMap<LR_ID, String> valueReverseLookup;
+        valueLookup = ValueLookups.get(valueType);
+        valueReverseLookup = ValueReverseLookups.get(valueType);
+        LR_ID id;
+        id = new LR_ID(valueLookup.size());
+        valueLookup.put(s, id);
+        valueReverseLookup.put(id, s);
     }
 
     /**
@@ -581,6 +858,12 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         }
         if (UpdatedPricePaidLookup) {
             writePricePaidLookup();
+        }
+        if (UpdatedProprietorshipCategoryValues) {
+            writeProprietorshipCategoryValues();
+        }
+        if (UpdatedCountryIncorporatedValues) {
+            writeCountryIncorporatedValues();
         }
     }
 

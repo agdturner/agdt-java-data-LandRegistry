@@ -34,6 +34,7 @@ public class LR_Strings extends Generic_Strings {
     public final String S_Generalised = "Generalised";
     public final String S_ID = "ID";
     public final String S_Null = "Null";
+    public final String S_NumberID = "NumberID";
     public final String S_Subsets = "Subsets";
     public final String S_Transitions = "Transitions";
     public final String S_zip = "zip";
@@ -63,10 +64,10 @@ public class LR_Strings extends Generic_Strings {
     public final String S_CompanyRegistrationNo4 = S_CompanyRegistrationNo + "4";
     public final String S_CountryIncorporated = "CountryIncorporated";
     public final String S_CountryIncorporated1 = S_CountryIncorporated + "1";
+    public final String S_CountryIncorporatedValues = "CountryIncorporatedValues";
     public final String S_Postcode = "Postcode";
     public final String S_PostcodeDistrict = "PostcodeDistrict";
     public final String S_PricePaid = "PricePaid";
-    public final String S_PricePaidClass = "PricePaidClass";
     public final String S_PropertyAddress = "PropertyAddress";
     public final String S_ProprietorName = "ProprietorName";
     public final String S_ProprietorName1 = S_ProprietorName + "1";
@@ -78,6 +79,7 @@ public class LR_Strings extends Generic_Strings {
     public final String S_ProprietorshipCategory2 = S_ProprietorshipCategory + "2";
     public final String S_ProprietorshipCategory3 = S_ProprietorshipCategory + "3";
     public final String S_ProprietorshipCategory4 = S_ProprietorshipCategory + "4";
+    public final String S_ProprietorshipCategoryValues = "ProprietorshipCategoryValues";
     public final String S_Tenure = "Tenure";
     public final String S_TitleNumber = "TitleNumber";
 

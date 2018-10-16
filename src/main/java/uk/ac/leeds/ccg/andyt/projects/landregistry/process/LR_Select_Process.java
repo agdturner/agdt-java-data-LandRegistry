@@ -58,7 +58,7 @@ public class LR_Select_Process extends LR_Main_Process {
         File outputDataDir;
         outputDataDir = Files.getOutputDataDir(Strings);
 
-        boolean upDateIDs = true;
+        boolean updateIDs = true;
         ArrayList<String> names0;
         //ArrayList<String> names1;
         ArrayList<String> setNames;
@@ -70,8 +70,6 @@ public class LR_Select_Process extends LR_Main_Process {
         names0.add(Strings.S_OCOD);
         boolean isCCOD;
 
-        String eol;
-        eol = System.getProperty("line.separator");
         File indir;
         File outdir;
         File fin;
@@ -143,12 +141,12 @@ public class LR_Select_Process extends LR_Main_Process {
                                 read = true;
                             } else {
                                 try {
-                                    r = LR_Record.create(isCCOD, doFull, Env, YM, line, upDateIDs);
+                                    r = LR_Record.create(isCCOD, doFull, Env, YM, line, updateIDs);
                                     if (r != null) {
                                         if (r.getDistrict().equalsIgnoreCase(area)) {
                                             //System.out.println(r.toCSV());
                                             //pw.println(r.toCSV());
-                                            pw.print(r.toCSV() + eol);
+                                            pw.print(r.toCSV() + Env.EOL);
                                         }
                                     }
                                 } catch (ArrayIndexOutOfBoundsException e) {

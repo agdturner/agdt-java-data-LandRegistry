@@ -312,14 +312,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
         System.out.println("CompanyRegistrationNo, TitleNumber, ProprietorName, Address");
         while (ite.hasNext()) {
             id2 = ite.next();
-            address = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_PropertyAddress)).get(id2.getPropertyAddressID());
-            titleNumber = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_TitleNumber)).get(id2.getTitleNumberID());
+            address = Env.IDToLookups.get(Env.PropertyAddressTypeID).get(id2.getPropertyAddressID());
+            titleNumber = Env.IDToLookups.get(Env.TitleNumberTypeID).get(id2.getTitleNumberID());
             ArrayList<LR_ID> companyRegistrationNoIDs;
             companyRegistrationNoIDs = TitleNumberIDToCompanyRegistrationNoID.get(id2.getTitleNumberID());
             companyRegistrationNoID = companyRegistrationNoIDs.get(companyRegistrationNoIDs.size() - 1);
             proprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(companyRegistrationNoID);
-            companyRegistrationNo = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_CompanyRegistrationNo)).get(companyRegistrationNoID);
-            proprietorName = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_ProprietorName)).get(proprietorNameID);
+            companyRegistrationNo = Env.IDToLookups.get(Env.CompanyRegistrationNoTypeID).get(companyRegistrationNoID);
+            proprietorName = Env.IDToLookups.get(Env.ProprietorNameTypeID).get(proprietorNameID);
             System.out.println(companyRegistrationNo + ", " + titleNumber + ", " + proprietorName + ", " + address);
         }
 
@@ -371,11 +371,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 for (int ID = 1; ID < lines.size(); ID++) {
                     try {
                         if (isCCOD) {
-                            ccr = new LR_CC_COU_Record(Env, ym, lines.get(ID));
-                            add(addedCCRTime, deletedCCRTime, ccr);
+                           // ccr = new LR_CC_COU_Record(Env, ym, lines.get(ID));
+                           // add(addedCCRTime, deletedCCRTime, ccr);
                         } else {
-                            ocr = new LR_OC_COU_Record(Env, ym, lines.get(ID));
-                            add(addedOCRTime, deletedOCRTime, ocr);
+                          //  ocr = new LR_OC_COU_Record(Env, ym, lines.get(ID));
+                           // add(addedOCRTime, deletedOCRTime, ocr);
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
                         e.printStackTrace(System.err);
@@ -990,7 +990,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         // CompanyRegistrationNo1ID
         String companyRegistrationNo;
         if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo1ID)) {
-            companyRegistrationNo = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_CompanyRegistrationNo)).get(CompanyRegistrationNo1ID);
+            companyRegistrationNo = Env.IDToLookups.get(Env.CompanyRegistrationNoTypeID).get(CompanyRegistrationNo1ID);
             ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo1ID);
             if (ProprietorNameID != ProprietorName1ID) {
                 if (!ProprietorNameID.equals(ProprietorName1ID)) {
@@ -1005,7 +1005,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
         // CompanyRegistrationNo2ID
         if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo2ID)) {
-            companyRegistrationNo = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_CompanyRegistrationNo)).get(CompanyRegistrationNo2ID);
+            companyRegistrationNo = Env.IDToLookups.get(Env.CompanyRegistrationNoTypeID).get(CompanyRegistrationNo2ID);
             ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo2ID);
             if (ProprietorNameID != ProprietorName2ID) {
                 if (!ProprietorNameID.equals(ProprietorName2ID)) {
@@ -1019,7 +1019,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
         // CompanyRegistrationNo3ID
         if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo3ID)) {
-                        companyRegistrationNo = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_CompanyRegistrationNo)).get(CompanyRegistrationNo3ID);
+                        companyRegistrationNo = Env.IDToLookups.get(Env.CompanyRegistrationNoTypeID).get(CompanyRegistrationNo3ID);
             ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo3ID);
             if (ProprietorNameID != ProprietorName3ID) {
                 if (!ProprietorNameID.equals(ProprietorName3ID)) {
@@ -1033,7 +1033,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
         // CompanyRegistrationNo4ID
         if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo4ID)) {
-            companyRegistrationNo = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_CompanyRegistrationNo)).get(CompanyRegistrationNo4ID);
+            companyRegistrationNo = Env.IDToLookups.get(Env.CompanyRegistrationNoTypeID).get(CompanyRegistrationNo4ID);
             ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo4ID);
             if (ProprietorNameID != ProprietorName4ID) {
                 if (!ProprietorNameID.equals(ProprietorName4ID)) {
@@ -1247,7 +1247,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s0 = f.getPostcode();
         s1 = c.getPostcode();
         if (!s0.equalsIgnoreCase(s1)) {
-            f.initPostcodeAndPostcodeDistrict(s1);
+            //f.initPostcodeAndPostcodeDistrict(s1);
             doDiff(Strings.S_Postcode, s0, s1, printDiff, true);
             changeCount++;
         }
@@ -1331,15 +1331,20 @@ public class LR_Transitions_Process extends LR_Main_Process {
         return result;
     }
 
-    // Report the ProprietorName change.
+    /**
+     * Report the ProprietorName change.
+     * @param companyRegistrationNo
+     * @param ProprietorName0ID
+     * @param ProprietorName1ID 
+     */
     protected void reportProprietorNameChange(String companyRegistrationNo,
-            LR_ID ProprietorNameID, LR_ID ProprietorName1ID) {
+            LR_ID ProprietorName0ID, LR_ID ProprietorName1ID) {
         if (!companyRegistrationNo.isEmpty()) {
             String s;
             String proprietorName0;
             String proprietorName1;
-            proprietorName0 = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_ProprietorName)).get(ProprietorNameID);
-            proprietorName1 = Env.IDToLookups.get(Env.TypeToID.get(Strings.S_ProprietorName)).get(ProprietorName1ID);
+            proprietorName0 = Env.IDToLookups.get(Env.ProprietorNameTypeID).get(ProprietorName0ID);
+            proprietorName1 = Env.IDToLookups.get(Env.ProprietorNameTypeID).get(ProprietorName1ID);
             s = "Proprietor name for company registration number \""
                     + companyRegistrationNo + "\" changed from \""
                     + proprietorName0 + "\" to \"" + proprietorName1 + "\"";
@@ -1561,8 +1566,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
                         reportedSmallCount = true;
                     }
                     if (aID != null) {
-                        pw.println("\"" + Env.IDToLookups.get(Env.TypeToID.get(Strings.S_PropertyAddress)).get(aID.getPropertyAddressID()) + "\",\""
-                                + Env.IDToLookups.get(Env.TypeToID.get(Strings.S_TitleNumber)).get(aID.getTitleNumberID()) + "\"," + count);
+                        pw.println("\"" + Env.IDToLookups.get(Env.PropertyAddressTypeID).get(aID.getPropertyAddressID()) + "\",\""
+                                + Env.IDToLookups.get(Env.TitleNumberTypeID).get(aID.getTitleNumberID()) + "\"," + count);
                     } else {
                         System.out.println("null ID");
                     }
