@@ -70,7 +70,7 @@ public class LR_Main_Process extends LR_Object {
 
         // Main switches
 //        writeCollections = true;
-        doSelect = true;
+//        doSelect = true;
         doGeneralise = true;
         doGeneraliseAreas = true;
 //        doGeneraliseAll = true;

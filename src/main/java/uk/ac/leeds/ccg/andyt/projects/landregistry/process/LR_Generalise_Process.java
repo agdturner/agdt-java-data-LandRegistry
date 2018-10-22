@@ -289,6 +289,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                         //e.printStackTrace(System.err);
                                         System.out.println("Line " + ID + " is not a nomal line:" + line);
                                     } catch (Exception ex) {
+                                        ex.printStackTrace(System.err);
                                         System.err.println("Line: " + line);
                                         Logger.getLogger(LR_Select_Process.class.getName()).log(Level.SEVERE, null, ex);
                                     }
@@ -384,13 +385,13 @@ public class LR_Generalise_Process extends LR_Main_Process {
         Iterator<LR_ValueID> ite;
         ite = Env.ValueIDs.get(typeID).iterator();
         TreeMap<LR_ValueID, LR_PricePaidData> m;
+        m = new TreeMap<>();
         LR_ValueID valueID;
         while (ite.hasNext()) {
             valueID = ite.next();
-            m = new TreeMap<>();
             m.put(valueID, new LR_PricePaidData(Env));
-            NonNullPricePaid.put(typeID, m);
         }
+        NonNullPricePaid.put(typeID, m);
     }
 
     /**
@@ -583,30 +584,30 @@ public class LR_Generalise_Process extends LR_Main_Process {
     protected void printGeneralisation(PrintWriter pw,
             TreeMap<LR_ValueID, LR_PricePaidData> pricePaid,
             HashMap<LR_ValueID, String> nameMap) {
-        LR_ValueID valueID;
+        LR_ValueID ppValueID;
         Iterator<LR_ValueID> ite;
-        TreeMap<LR_ValueID, Integer> pricePaidCounts;
+        TreeMap<LR_ValueID, Integer> ppCounts;
         int count;
         String value;
         LR_PricePaidData ppd;
         Iterator<LR_ValueID> ite3;
         String name;
-        LR_ValueID variableValueID;
+        LR_ValueID valueID;
         ite3 = nameMap.keySet().iterator();
         while (ite3.hasNext()) {
-            variableValueID = ite3.next();
-            name = nameMap.get(variableValueID);
-            ppd = pricePaid.get(variableValueID);
-            pricePaidCounts = ppd.getPricePaidCounts();
-            ite = pricePaidCounts.keySet().iterator();
+            valueID = ite3.next();
+            name = nameMap.get(valueID);
+            ppd = pricePaid.get(valueID);
+            ppCounts = ppd.getPricePaidCounts();
+            ite = ppCounts.keySet().iterator();
             if (ite.hasNext()) {
                 pw.println(name);
                 pw.println("PricePaid Classes");
                 pw.println("Value, Count");
                 while (ite.hasNext()) {
-                    valueID = ite.next();
-                    count = pricePaidCounts.get(valueID);
-                    value = Env.PricePaidLookup.get(valueID).toString();
+                    ppValueID = ite.next();
+                    count = ppCounts.get(ppValueID);
+                    value = Env.PricePaidLookup.get(ppValueID).toString();
                     pw.println("\"" + value + "\"," + count);
                 }
                 printSummaryStatistics(ppd.getPricePaid(), pw);

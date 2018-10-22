@@ -248,7 +248,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             } catch (Exception ex) {
-                Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+                                        Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
@@ -288,7 +289,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             } catch (Exception ex) {
-                Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+                                        Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
@@ -381,7 +383,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
                     } catch (ArrayIndexOutOfBoundsException e) {
                         e.printStackTrace(System.err);
                     } catch (Exception ex) {
-                        Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
+                        ex.printStackTrace(System.err);
+                                        Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }

@@ -83,9 +83,9 @@ public abstract class LR_Record extends LR_Object {
      * Creates a simple copy of r without changing any collections.
      *
      * @param r
-     * @param updateIDs
+     * @param doUpdate
      */
-    public LR_Record(LR_Record r, boolean updateIDs) {
+    public LR_Record(LR_Record r, boolean doUpdate) {
         Env = r.Env;
         YM = r.YM;
         ID = r.ID;
@@ -101,25 +101,25 @@ public abstract class LR_Record extends LR_Object {
         setPricePaid(r.getPricePaid());
         setProprietorName1(r.getProprietorName1());
         setCompanyRegistrationNo1(r.getCompanyRegistrationNo1());
-        setProprietorshipCategory1(r.getProprietorshipCategory1(), updateIDs);
+        setProprietorshipCategory1(r.getProprietorshipCategory1(), doUpdate);
         setProprietor1Address1(r.getProprietor1Address1());
         setProprietor1Address2(r.getProprietor1Address2());
         setProprietor1Address3(r.getProprietor1Address3());
-        setProprietorName2(r.getProprietorName2(), updateIDs);
-        setCompanyRegistrationNo2(r.getCompanyRegistrationNo2(), updateIDs);
-        setProprietorshipCategory2(r.getProprietorshipCategory2(), updateIDs);
+        setProprietorName2(r.getProprietorName2(), doUpdate);
+        setCompanyRegistrationNo2(r.getCompanyRegistrationNo2(), doUpdate);
+        setProprietorshipCategory2(r.getProprietorshipCategory2(), doUpdate);
         setProprietor2Address1(r.getProprietor2Address1());
         setProprietor2Address2(r.getProprietor2Address2());
         setProprietor2Address3(r.getProprietor2Address3());
-        setProprietorName3(r.getProprietorName3(), updateIDs);
-        setCompanyRegistrationNo3(r.getCompanyRegistrationNo3(), updateIDs);
-        setProprietorshipCategory3(r.getProprietorshipCategory3(), updateIDs);
+        setProprietorName3(r.getProprietorName3(), doUpdate);
+        setCompanyRegistrationNo3(r.getCompanyRegistrationNo3(), doUpdate);
+        setProprietorshipCategory3(r.getProprietorshipCategory3(), doUpdate);
         setProprietor3Address1(r.getProprietor3Address1());
         setProprietor3Address2(r.getProprietor3Address2());
         setProprietor3Address3(r.getProprietor3Address3());
-        setProprietorName4(r.getProprietorName4(), updateIDs);
-        setCompanyRegistrationNo4(r.getCompanyRegistrationNo4(), updateIDs);
-        setProprietorshipCategory4(r.getProprietorshipCategory4(), updateIDs);
+        setProprietorName4(r.getProprietorName4(), doUpdate);
+        setCompanyRegistrationNo4(r.getCompanyRegistrationNo4(), doUpdate);
+        setProprietorshipCategory4(r.getProprietorshipCategory4(), doUpdate);
         setProprietor4Address1(r.getProprietor4Address1());
         setProprietor4Address2(r.getProprietor4Address2());
         setProprietor4Address3(r.getProprietor4Address3());
@@ -129,19 +129,19 @@ public abstract class LR_Record extends LR_Object {
 
     public static LR_Record create(boolean isCCOD, boolean doFull,
             LR_Environment env, Generic_YearMonth YM, String line,
-            boolean updateIDs) throws Exception {
+            boolean doUpdate) throws Exception {
         if (Generic_StaticString.getCount(line, ",") > 10) {
             if (isCCOD) {
                 if (doFull) {
-                    return new LR_CC_FULL_Record(env, YM, line, updateIDs);
+                    return new LR_CC_FULL_Record(env, YM, line, doUpdate);
                 } else {
-                    return new LR_CC_COU_Record(env, YM, line, updateIDs);
+                    return new LR_CC_COU_Record(env, YM, line, doUpdate);
                 }
             } else {
                 if (doFull) {
-                    return new LR_OC_FULL_Record(env, YM, line, updateIDs);
+                    return new LR_OC_FULL_Record(env, YM, line, doUpdate);
                 } else {
-                    return new LR_OC_COU_Record(env, YM, line, updateIDs);
+                    return new LR_OC_COU_Record(env, YM, line, doUpdate);
                 }
             }
         }
@@ -183,6 +183,19 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
+     * @param typeID The typeID of the variable.
+     * @param s The variable value.
+     */
+    protected final void update(LR_TypeID typeID, String s) {
+        if (!s.isEmpty()) {
+            if (Env.Values.get(typeID).add(s)) {
+                Env.addValue(typeID, s);
+            }
+            updateNonNullCollections(s, typeID);
+        }
+    }
+
+    /**
      *
      * @param s The key to set.
      * @param typeID The typeID of collection to set in.
@@ -204,7 +217,6 @@ public abstract class LR_Record extends LR_Object {
                 TypeIDToValuesStringLookup.put(s, result);
                 values = Env.TypeIDToValuesLookups.get(typeID);
                 values.add(result);
-//                Env.UpdatedIDLookups.put(typeID, true);
             }
         }
         return result;
@@ -212,16 +224,16 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * @param s TitleNumber
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      * @throws Exception
      */
-    public final void initTitleNumber(String s, boolean updateIDs) throws Exception {
+    public final void initTitleNumber(String s, boolean doUpdate) throws Exception {
         if (s.isEmpty()) {
             throw new Exception("TitleNumber is empty");
         }
         setTitleNumber(s);
-        if (updateIDs) {
+        if (doUpdate) {
             TitleNumberID = updateNonNullCollections(s, Env.TitleNumberTypeID);
         } else {
             TitleNumberID = Env.TypeIDToStringToValueIDLookup.get(Env.TitleNumberTypeID).get(s);
@@ -231,17 +243,17 @@ public abstract class LR_Record extends LR_Object {
     /**
      *
      * @param s Tenure
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      * @throws Exception
      */
-    public final void initTenure(String s, boolean updateIDs) throws Exception {
+    public final void initTenure(String s, boolean doUpdate) throws Exception {
         if (!(s.equalsIgnoreCase(Env.Strings.S_Leasehold)
                 || s.equalsIgnoreCase(Env.Strings.S_Freehold))) {
             throw new Exception("Unexpected Tenure: \"" + s + "\"");
         }
         setTenure(s);
-        if (updateIDs) {
+        if (doUpdate) {
             updateNonNullCollections(s, Env.TenureTypeID);
         }
     }
@@ -251,14 +263,14 @@ public abstract class LR_Record extends LR_Object {
      * TitleNumberID is added to Env.TitleNumberIDsOfNullPropertyAddress.
      *
      * @param s PropertyAddress
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initPropertyAddressAndID(String s, boolean updateIDs) {
+    public final void initPropertyAddressAndID(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.PropertyAddressTypeID;
         if (s.isEmpty()) {
-            if (updateIDs) {
+            if (doUpdate) {
                 setPropertyAddress(updateNullCollection(typeID));
             } else {
                 LR_ValueID paID;
@@ -266,14 +278,14 @@ public abstract class LR_Record extends LR_Object {
                 setPropertyAddress(paID.getValue());
             }
         } else {
-//            if (updateIDs) {
+//            if (doUpdate) {
 //                Env.addValue(typeID, s);
 //            }
             setPropertyAddress(s);
         }
         String pa;
         pa = getPropertyAddress();
-        if (updateIDs) {
+        if (doUpdate) {
             LR_ValueID valueID;
             valueID = updateNonNullCollections(pa, typeID);
             // init ID
@@ -311,19 +323,18 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * If updateIDs then if s is blank then PricePaid is set to a unique
-     * negative number and a record is kept to look up this number from ID. If
-     * !updateIDs then the unique number set previously is obtained from what is
-     * stored.
+     * If doUpdate then if s is blank then PricePaid is set to a unique negative
+     * number and a record is kept to look up this number from ID. If !doUpdate
+     * then the unique number set previously is obtained from what is stored.
      *
      * @param s PricePaid
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initPricePaid(String s, boolean updateIDs) {
+    public final void initPricePaid(String s, boolean doUpdate) {
         setPricePaid(s);
         if (s.isEmpty()) {
-            if (updateIDs) {
+            if (doUpdate) {
                 updateNullCollection(Env.PricePaidTypeID);
             }
         } else {
@@ -373,182 +384,183 @@ public abstract class LR_Record extends LR_Object {
         i = m.size();
         result = Integer.toString(i);
         m.put(ID, new LR_ValueID(i, Integer.toString(i)));
-//        Env.UpdatedNullTitleNumberIDCollections.put(typeID, true);
         return result;
     }
 
     /**
-     * If updateIDs then if s is blank then ProprietorName1 is set to a unique
-     * number and a record is kept to look up this number from ID. If !updateIDs
+     * If doUpdate then if s is blank then ProprietorName1 is set to a unique
+     * number and a record is kept to look up this number from ID. If !doUpdate
      * then the unique number set previously is obtained from what is stored.
      *
      * @param s ProprietorName1
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initProprietorName1(String s, boolean updateIDs) {
+    public final void initProprietorName1(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.ProprietorNameTypeID;
         if (s.isEmpty()) {
-            if (updateIDs) {
+            if (doUpdate) {
                 setProprietorName1(updateNullCollection(typeID));
             } else {
                 setProprietorName1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         } else {
             setProprietorName1(s);
-            if (updateIDs) {
+            if (doUpdate) {
                 Env.addValue(typeID, s);
             }
         }
-        if (updateIDs) {
+        if (doUpdate) {
             updateNonNullCollections(getProprietorName1(), typeID);
         }
     }
 
     /**
-     * If updateIDs then if s is blank then CompanyRegistrationNo1 is set to a
+     * If doUpdate then if s is blank then CompanyRegistrationNo1 is set to a
      * unique number and a record is kept to look up this number from ID. If
-     * !updateIDs then the unique number set previously is obtained from what is
+     * !doUpdate then the unique number set previously is obtained from what is
      * stored.
      *
      * @param s CompanyRegistrationNo1
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initCompanyRegistrationNo1(String s, boolean updateIDs) {
+    public final void initCompanyRegistrationNo1(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.CompanyRegistrationNoTypeID;
         if (s.isEmpty()) {
-            if (updateIDs) {
+            if (doUpdate) {
                 setCompanyRegistrationNo1(updateNullCollection(typeID));
             } else {
                 setCompanyRegistrationNo1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         } else {
             setCompanyRegistrationNo1(s);
-//            if (updateIDs) {
-//                Env.addValue(typeID, s);
-//            }
+            if (doUpdate) {
+                Env.addValue(typeID, s);
+            }
         }
-        if (updateIDs) {
+        if (doUpdate) {
             updateNonNullCollections(getCompanyRegistrationNo1(), typeID);
         }
     }
 
     /**
-     * If updateIDs then if s is blank then District is set to a unique number
-     * and a record is kept to look up this number from ID. If !updateIDs then
+     * If doUpdate then if s is blank then District is set to a unique number
+     * and a record is kept to look up this number from ID. If !doUpdate then
      * the unique number set previously is obtained from what is stored.
      *
      * @param s CompanyRegistrationNo1
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initDistrict(String s, boolean updateIDs) {
+    public final void initDistrict(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.DistrictTypeID;
         if (s.isEmpty()) {
-            if (updateIDs) {
+            if (doUpdate) {
                 setDistrict(updateNullCollection(typeID));
             } else {
                 setDistrict(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         } else {
             setDistrict(s);
-            if (updateIDs) {
+            if (doUpdate) {
                 Env.addValue(typeID, s);
             }
         }
-        if (updateIDs) {
+        if (doUpdate) {
             updateNonNullCollections(getDistrict(), typeID);
         }
     }
 
     /**
-     * If updateIDs then if s is blank then County is set to a unique number and
-     * a record is kept to look up this number from ID. If !updateIDs then the
+     * If doUpdate then if s is blank then County is set to a unique number and
+     * a record is kept to look up this number from ID. If !doUpdate then the
      * unique number set previously is obtained from what is stored.
      *
      * @param s CompanyRegistrationNo1
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initCounty(String s, boolean updateIDs) {
+    public final void initCounty(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.CountyTypeID;
         if (s.isEmpty()) {
-            if (updateIDs) {
+            if (doUpdate) {
                 setCounty(updateNullCollection(typeID));
             } else {
                 setCounty(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         } else {
             setCounty(s);
-            if (updateIDs) {
+            if (doUpdate) {
                 Env.addValue(typeID, s);
             }
         }
-        if (updateIDs) {
+        if (doUpdate) {
             updateNonNullCollections(getCounty(), typeID);
         }
     }
 
     /**
-     * If updateIDs then if s is blank then Region is set to a unique number and
-     * a record is kept to look up this number from ID. If !updateIDs then the
+     * If doUpdate then if s is blank then Region is set to a unique number and
+     * a record is kept to look up this number from ID. If !doUpdate then the
      * unique number set previously is obtained from what is stored.
      *
      * @param s CompanyRegistrationNo1
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initRegion(String s, boolean updateIDs) {
+    public final void initRegion(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.RegionTypeID;
         if (s.isEmpty()) {
-            if (updateIDs) {
+            if (doUpdate) {
                 setRegion(updateNullCollection(typeID));
             } else {
                 setRegion(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         } else {
             setRegion(s);
-            if (updateIDs) {
+            if (doUpdate) {
                 Env.addValue(typeID, s);
             }
         }
-        if (updateIDs) {
+        if (doUpdate) {
             updateNonNullCollections(getRegion(), typeID);
         }
     }
 
     /**
-     * If updateIDs then if s is blank then ProprietorshipCategory1 is set to a
+     * If doUpdate then if s is blank then ProprietorshipCategory1 is set to a
      * unique number and a record is kept to look up this number from ID. If
-     * !updateIDs then the unique number set previously is obtained from what is
+     * !doUpdate then the unique number set previously is obtained from what is
      * stored.
      *
      * @param s ProprietorshipCategory1
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initProprietorshipCategory1(String s, boolean updateIDs) {
+    public final void initProprietorshipCategory1(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.ProprietorshipCategoryTypeID;
         if (s.isEmpty()) {
-            if (updateIDs) {
-                setProprietorshipCategory1(updateNullCollection(typeID), updateIDs);
+            if (doUpdate) {
+                setProprietorshipCategory1(updateNullCollection(typeID), doUpdate);
             } else {
-                setProprietorshipCategory1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue(), updateIDs);
+                String s2;
+                s2 = Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue();
+                setProprietorshipCategory1(s2, doUpdate);
             }
         } else {
-            setProprietorshipCategory1(s, updateIDs);
-            if (updateIDs) {
+            setProprietorshipCategory1(s, doUpdate);
+            if (doUpdate) {
                 Env.addValue(typeID, s);
             }
         }
-        if (updateIDs) {
+        if (doUpdate) {
             updateNonNullCollections(getProprietorshipCategory1(), typeID);
         }
     }
@@ -981,10 +993,10 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * If updateIDs then if s is blank then Postcode and PostcodeDistrict are
-     * set to a unique number and a record is kept to look up this number from
-     * ID. If !updateIDs then the unique number set previously is obtained from
-     * what is stored.
+     * If doUpdate then if s is blank then Postcode and PostcodeDistrict are set
+     * to a unique number and a record is kept to look up this number from ID.
+     * If !doUpdate then the unique number set previously is obtained from what
+     * is stored.
      *
      * @TODO The way things currently are, the postcode is checked each time the
      * data is read in so as to set the Postcode District. This could be avoided
@@ -992,10 +1004,10 @@ public abstract class LR_Record extends LR_Object {
      * back in.
      *
      * @param s Postcode
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initPostcodeAndPostcodeDistrict(String s, boolean updateIDs) {
+    public final void initPostcodeAndPostcodeDistrict(String s, boolean doUpdate) {
         setPostcode(s);
         LR_TypeID typeID;
         typeID = Env.PostcodeDistrictTypeID;
@@ -1006,15 +1018,14 @@ public abstract class LR_Record extends LR_Object {
             String s0;
             s0 = split[0];
             setPostcodeDistrict(s0);
-            if (updateIDs) {
+            if (doUpdate) {
                 updateNonNullCollections(s0, typeID);
                 Env.addValue(typeID, s);
             }
         } else {
-            if (updateIDs) {
+            if (doUpdate) {
                 setPostcodeDistrict(updateNullCollection(typeID));
             } else {
-                HashMap<LR_ID2, LR_ValueID> m;
                 setPostcodeDistrict(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         }
@@ -1090,25 +1101,12 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * @param s the ProprietorshipCategory1 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setProprietorshipCategory1(String s, boolean updateIDs) {
+    public final void setProprietorshipCategory1(String s, boolean doUpdate) {
         this.ProprietorshipCategory1 = s;
-        updateProprietorshipCategory(s, updateIDs);
-    }
-
-    /**
-     * @param s the ProprietorshipCategory to set
-     * @param updateIDs
-     */
-    protected final void updateProprietorshipCategory(String s, boolean updateIDs) {
-        if (!s.isEmpty()) {
-            if (updateIDs) {
-                if (Env.Values.get(Env.ProprietorshipCategoryTypeID).add(s)) {
-                    Env.addValue(Env.ProprietorshipCategoryTypeID, s);
-                }
-                updateNonNullCollections(s, Env.ProprietorshipCategoryTypeID);
-            }
+        if (doUpdate) {
+            update(Env.ProprietorshipCategoryTypeID, s);
         }
     }
 
@@ -1121,46 +1119,37 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * @param s the CompanyRegistrationNo2 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setCompanyRegistrationNo2(String s, boolean updateIDs) {
+    public final void setCompanyRegistrationNo2(String s, boolean doUpdate) {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo2 = s;
-        if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.CompanyRegistrationNoTypeID);
-            if (updateIDs) {
-                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
-            }
+        if (doUpdate) {
+            update(Env.CompanyRegistrationNoTypeID, s);
         }
     }
 
     /**
      * @param s the CompanyRegistrationNo3 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setCompanyRegistrationNo3(String s, boolean updateIDs) {
+    public final void setCompanyRegistrationNo3(String s, boolean doUpdate) {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo3 = s;
-        if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.CompanyRegistrationNoTypeID);
-            if (updateIDs) {
-                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
-            }
+        if (doUpdate) {
+            update(Env.CompanyRegistrationNoTypeID, s);
         }
     }
 
     /**
      * @param s the CompanyRegistrationNo4 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setCompanyRegistrationNo4(String s, boolean updateIDs) {
+    public final void setCompanyRegistrationNo4(String s, boolean doUpdate) {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo4 = s;
-        if (!s.isEmpty()) {
-            updateNonNullCollections(s, Env.CompanyRegistrationNoTypeID);
-            if (updateIDs) {
-                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
-            }
+        if (doUpdate) {
+            update(Env.CompanyRegistrationNoTypeID, s);
         }
     }
 
@@ -1257,70 +1246,67 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * @param s the ProprietorName2 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setProprietorName2(String s, boolean updateIDs) {
+    public final void setProprietorName2(String s, boolean doUpdate) {
         this.ProprietorName2 = s;
-        if (!s.isEmpty()) {
-            if (updateIDs) {
-                Env.addValue(Env.ProprietorNameTypeID, s);
-            }
-            updateNonNullCollections(s, Env.ProprietorNameTypeID);
+        if (doUpdate) {
+            update(Env.ProprietorNameTypeID, s);
         }
     }
 
     /**
      * @param s the ProprietorName3 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setProprietorName3(String s, boolean updateIDs) {
+    public final void setProprietorName3(String s, boolean doUpdate) {
         this.ProprietorName3 = s;
-        if (!s.isEmpty()) {
-            if (updateIDs) {
-                Env.addValue(Env.ProprietorNameTypeID, s);
-            }
-            updateNonNullCollections(s, Env.ProprietorNameTypeID);
+        if (doUpdate) {
+            update(Env.ProprietorNameTypeID, s);
         }
     }
 
     /**
      * @param s the ProprietorName4 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setProprietorName4(String s, boolean updateIDs) {
+    public final void setProprietorName4(String s, boolean doUpdate) {
         this.ProprietorName4 = s;
-        if (!s.isEmpty()) {
-            if (updateIDs) {
-                Env.addValue(Env.ProprietorNameTypeID, s);
-            }
-            updateNonNullCollections(s, Env.ProprietorNameTypeID);
+        if (doUpdate) {
+            update(Env.ProprietorNameTypeID, s);
         }
     }
 
     /**
      * @param s the ProprietorshipCategory2 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setProprietorshipCategory2(String s, boolean updateIDs) {
+    public final void setProprietorshipCategory2(String s, boolean doUpdate) {
         this.ProprietorshipCategory2 = s;
-        updateProprietorshipCategory(s, updateIDs);
+        if (doUpdate) {
+            update(Env.ProprietorshipCategoryTypeID, s);
+        }
     }
 
     /**
      * @param s the ProprietorshipCategory3 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setProprietorshipCategory3(String s, boolean updateIDs) {
+    public final void setProprietorshipCategory3(String s, boolean doUpdate) {
         this.ProprietorshipCategory3 = s;
-        updateProprietorshipCategory(s, updateIDs);
+        if (doUpdate) {
+            update(Env.ProprietorshipCategoryTypeID, s);
+        }
     }
 
     /**
      * @param s the ProprietorshipCategory4 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setProprietorshipCategory4(String s, boolean updateIDs) {
+    public final void setProprietorshipCategory4(String s, boolean doUpdate) {
         this.ProprietorshipCategory4 = s;
-        updateProprietorshipCategory(s, updateIDs);
+        if (doUpdate) {
+            update(Env.ProprietorshipCategoryTypeID, s);
+        }
     }
 }

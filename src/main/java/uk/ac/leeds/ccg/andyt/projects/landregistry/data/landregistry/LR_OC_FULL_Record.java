@@ -40,45 +40,45 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     }
 
     public LR_OC_FULL_Record(LR_Environment env, Generic_YearMonth YM,
-            String line, boolean updateIDs) throws Exception {
+            String line, boolean doUpdate) throws Exception {
         this.Env = env;
         this.YM = YM;
         String[] ls;
         ls = getSplitAndTrim(line);
-        initTitleNumber(ls[0].substring(1), updateIDs);
-        initTenure(ls[1], updateIDs);
-        initPropertyAddressAndID(ls[2], updateIDs);
-        initDistrict(ls[3], updateIDs);
-        initCounty(ls[4], updateIDs);
-        initRegion(ls[5], updateIDs);
-        initPostcodeAndPostcodeDistrict(ls[6], updateIDs);
+        initTitleNumber(ls[0].substring(1), doUpdate);
+        initTenure(ls[1], doUpdate);
+        initPropertyAddressAndID(ls[2], doUpdate);
+        initDistrict(ls[3], doUpdate);
+        initCounty(ls[4], doUpdate);
+        initRegion(ls[5], doUpdate);
+        initPostcodeAndPostcodeDistrict(ls[6], doUpdate);
         setMultipleAddressIndicator(ls[7]);
-        initPricePaid(ls[8], updateIDs);
-        initProprietorName1(ls[9], updateIDs);
-        initCompanyRegistrationNo1(ls[10], updateIDs);
-        initProprietorshipCategory1(ls[11], updateIDs);
-        initCountryIncorporated1(ls[12], updateIDs);
+        initPricePaid(ls[8], doUpdate);
+        initProprietorName1(ls[9], doUpdate);
+        initCompanyRegistrationNo1(ls[10], doUpdate);
+        initProprietorshipCategory1(ls[11], doUpdate);
+        initCountryIncorporated1(ls[12], doUpdate);
         setProprietor1Address1(ls[13]);
         setProprietor1Address2(ls[14]);
         setProprietor1Address3(ls[15]);
-        setProprietorName2(ls[16], updateIDs);
-        setCompanyRegistrationNo2(ls[17], updateIDs);
-        setProprietorshipCategory2(ls[18], updateIDs);
-        setCountryIncorporated2(ls[19], updateIDs);
+        setProprietorName2(ls[16], doUpdate);
+        setCompanyRegistrationNo2(ls[17], doUpdate);
+        setProprietorshipCategory2(ls[18], doUpdate);
+        setCountryIncorporated2(ls[19], doUpdate);
         setProprietor2Address1(ls[20]);
         setProprietor2Address2(ls[21]);
         setProprietor2Address3(ls[22]);
-        setProprietorName3(ls[23], updateIDs);
-        setCompanyRegistrationNo3(ls[24], updateIDs);
-        setProprietorshipCategory3(ls[25], updateIDs);
-        setCountryIncorporated3(ls[26], updateIDs);
+        setProprietorName3(ls[23], doUpdate);
+        setCompanyRegistrationNo3(ls[24], doUpdate);
+        setProprietorshipCategory3(ls[25], doUpdate);
+        setCountryIncorporated3(ls[26], doUpdate);
         setProprietor3Address1(ls[27]);
         setProprietor3Address2(ls[28]);
         setProprietor3Address3(ls[29]);
-        setProprietorName4(ls[30], updateIDs);
-        setCompanyRegistrationNo4(ls[31], updateIDs);
-        setProprietorshipCategory4(ls[32], updateIDs);
-        setCountryIncorporated4(ls[33], updateIDs);
+        setProprietorName4(ls[30], doUpdate);
+        setCompanyRegistrationNo4(ls[31], doUpdate);
+        setProprietorshipCategory4(ls[32], doUpdate);
+        setCountryIncorporated4(ls[33], doUpdate);
         setProprietor4Address1(ls[34]);
         setProprietor4Address2(ls[35]);
         setProprietor4Address3(ls[36]);
@@ -90,14 +90,14 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      * Creates a simple copy of r without changing any collections.
      *
      * @param r
-     * @param updateIDs
+     * @param doUpdate
      */
-    public LR_OC_FULL_Record(LR_OC_FULL_Record r, boolean updateIDs) {
-        super(r, updateIDs);
-        setCountryIncorporated1(r.getCountryIncorporated1(), updateIDs);
-        setCountryIncorporated2(r.getCountryIncorporated2(), updateIDs);
-        setCountryIncorporated3(r.getCountryIncorporated3(), updateIDs);
-        setCountryIncorporated4(r.getCountryIncorporated4(), updateIDs);
+    public LR_OC_FULL_Record(LR_OC_FULL_Record r, boolean doUpdate) {
+        super(r, doUpdate);
+        setCountryIncorporated1(r.getCountryIncorporated1(), doUpdate);
+        setCountryIncorporated2(r.getCountryIncorporated2(), doUpdate);
+        setCountryIncorporated3(r.getCountryIncorporated3(), doUpdate);
+        setCountryIncorporated4(r.getCountryIncorporated4(), doUpdate);
     }
 
     @Override
@@ -251,76 +251,74 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     }
 
     /**
-     * If updateIDs then if s is blank then CountryIncorporated1 is set to a
+     * If doUpdate then if s is blank then CountryIncorporated1 is set to a
      * unique number and a record is kept to look up this number from ID. If
-     * !updateIDs then the unique number set previously is obtained from what is
+     * !doUpdate then the unique number set previously is obtained from what is
      * stored.
      *
      * @param s CountryIncorporated1
-     * @param updateIDs IFF true then collections are updated otherwise ID is
-     * set from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID is set
+     * from data pulled from existing collections.
      */
-    public final void initCountryIncorporated1(String s, boolean updateIDs) {
+    public final void initCountryIncorporated1(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.CountryIncorporatedTypeID;
         if (s.isEmpty()) {
-            if (updateIDs) {
-                setCountryIncorporated1(updateNullCollection(typeID), updateIDs);
+            if (doUpdate) {
+                setCountryIncorporated1(updateNullCollection(typeID), doUpdate);
             } else {
-                setCountryIncorporated1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue(), updateIDs);
+                setCountryIncorporated1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue(), doUpdate);
             }
         } else {
-            setCountryIncorporated1(s, updateIDs);
-            if (updateIDs) {
+            setCountryIncorporated1(s, doUpdate);
+            if (doUpdate) {
                 Env.addValue(typeID, s);
             }
         }
-        if (updateIDs) {
+        if (doUpdate) {
             updateNonNullCollections(getCountryIncorporated1(), typeID);
         }
     }
 
     /**
      * @param s what CountryIncorporated1 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setCountryIncorporated1(String s, boolean updateIDs) {
+    public final void setCountryIncorporated1(String s, boolean doUpdate) {
         this.CountryIncorporated1 = s;
     }
 
     /**
      * @param s the CountryIncorporated2 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setCountryIncorporated2(String s, boolean updateIDs) {
+    public final void setCountryIncorporated2(String s, boolean doUpdate) {
         this.CountryIncorporated2 = s;
-        updateCountryIncorporated(s, updateIDs);
-    }
-
-    protected final void updateCountryIncorporated(String s, boolean updateIDs) {
-        if (!s.trim().isEmpty()) {
-            if (updateIDs) {
-                Env.addValue(Env.CountryIncorporatedTypeID, s);
-            }
+        if (doUpdate) {
+            update(Env.CountryIncorporatedTypeID, s);
         }
     }
 
     /**
      * @param s the CountryIncorporated3 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setCountryIncorporated3(String s, boolean updateIDs) {
+    public final void setCountryIncorporated3(String s, boolean doUpdate) {
         this.CountryIncorporated3 = s;
-        updateCountryIncorporated(s, updateIDs);
+        if (doUpdate) {
+            update(Env.CountryIncorporatedTypeID, s);
+        }
     }
 
     /**
      * @param s the CountryIncorporated4 to set
-     * @param updateIDs
+     * @param doUpdate
      */
-    public final void setCountryIncorporated4(String s, boolean updateIDs) {
+    public final void setCountryIncorporated4(String s, boolean doUpdate) {
         this.CountryIncorporated4 = s;
-        updateCountryIncorporated(s, updateIDs);
+        if (doUpdate) {
+            update(Env.CountryIncorporatedTypeID, s);
+        }
     }
 
     /**
