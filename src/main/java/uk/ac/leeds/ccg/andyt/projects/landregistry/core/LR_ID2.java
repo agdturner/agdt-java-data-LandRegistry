@@ -24,10 +24,10 @@ import java.util.Objects;
  */
 public class LR_ID2 implements Serializable {
 
-    private final LR_ID TitleNumberID;
-    private final LR_ID PropertyAddressID;
+    private final LR_ValueID TitleNumberID;
+    private final LR_ValueID PropertyAddressID;
 
-    public LR_ID2(LR_ID titleNumberID, LR_ID propertyAddressID) {
+    public LR_ID2(LR_ValueID titleNumberID, LR_ValueID propertyAddressID) {
         TitleNumberID = titleNumberID;
         PropertyAddressID = propertyAddressID;
     }
@@ -40,14 +40,14 @@ public class LR_ID2 implements Serializable {
     /**
      * @return the TitleNumberID
      */
-    public LR_ID getTitleNumberID() {
+    public LR_ValueID getTitleNumberID() {
         return TitleNumberID;
     }
 
     /**
      * @return the AddressID
      */
-    public LR_ID getPropertyAddressID() {
+    public LR_ValueID getPropertyAddressID() {
         return PropertyAddressID;
     }
 

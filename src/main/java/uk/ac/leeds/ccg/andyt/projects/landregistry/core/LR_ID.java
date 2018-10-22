@@ -25,7 +25,7 @@ public class LR_ID implements Serializable, Comparable {
 
     private final int ID;
 
-    public LR_ID(int ID) {
+    protected LR_ID(int ID) {
         this.ID = ID;
     }
 

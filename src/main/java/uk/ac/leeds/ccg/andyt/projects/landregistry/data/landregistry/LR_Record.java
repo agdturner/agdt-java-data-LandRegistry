@@ -23,9 +23,10 @@ import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_TypeID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
 
 /**
  *
@@ -35,7 +36,7 @@ public abstract class LR_Record extends LR_Object {
 
     protected Generic_YearMonth YM;
     protected LR_ID2 ID;
-    protected LR_ID TitleNumberID;
+    protected LR_ValueID TitleNumberID;
     private String TitleNumber;
     private String Tenure;
     private String PropertyAddress;
@@ -44,8 +45,9 @@ public abstract class LR_Record extends LR_Object {
     private String Postcode;
     private String PostcodeDistrict; // Set from Postcode
     private String MultipleAddressIndicator;
-    private long PricePaid;
-    private LR_ID PricePaidClass; // Set from PricePaid using Env.PricePaidLookup
+    private String PricePaid;
+    private Long PricePaidValue; // Null if PricePaid is empty or not an integer value
+    private LR_ValueID PricePaidClass; // Set from PricePaidValue using Env.PricePaidLookup
     private String CompanyRegistrationNo1;
     private String County;
     private String ProprietorName1;
@@ -81,8 +83,9 @@ public abstract class LR_Record extends LR_Object {
      * Creates a simple copy of r without changing any collections.
      *
      * @param r
+     * @param updateIDs
      */
-    public LR_Record(LR_Record r) {
+    public LR_Record(LR_Record r, boolean updateIDs) {
         Env = r.Env;
         YM = r.YM;
         ID = r.ID;
@@ -98,25 +101,25 @@ public abstract class LR_Record extends LR_Object {
         setPricePaid(r.getPricePaid());
         setProprietorName1(r.getProprietorName1());
         setCompanyRegistrationNo1(r.getCompanyRegistrationNo1());
-        setProprietorshipCategory1(r.getProprietorshipCategory1());
+        setProprietorshipCategory1(r.getProprietorshipCategory1(), updateIDs);
         setProprietor1Address1(r.getProprietor1Address1());
         setProprietor1Address2(r.getProprietor1Address2());
         setProprietor1Address3(r.getProprietor1Address3());
-        setProprietorName2(r.getProprietorName2());
-        setCompanyRegistrationNo2(r.getCompanyRegistrationNo2());
-        setProprietorshipCategory2(r.getProprietorshipCategory2());
+        setProprietorName2(r.getProprietorName2(), updateIDs);
+        setCompanyRegistrationNo2(r.getCompanyRegistrationNo2(), updateIDs);
+        setProprietorshipCategory2(r.getProprietorshipCategory2(), updateIDs);
         setProprietor2Address1(r.getProprietor2Address1());
         setProprietor2Address2(r.getProprietor2Address2());
         setProprietor2Address3(r.getProprietor2Address3());
-        setProprietorName3(r.getProprietorName3());
-        setCompanyRegistrationNo3(r.getCompanyRegistrationNo3());
-        setProprietorshipCategory3(r.getProprietorshipCategory3());
+        setProprietorName3(r.getProprietorName3(), updateIDs);
+        setCompanyRegistrationNo3(r.getCompanyRegistrationNo3(), updateIDs);
+        setProprietorshipCategory3(r.getProprietorshipCategory3(), updateIDs);
         setProprietor3Address1(r.getProprietor3Address1());
         setProprietor3Address2(r.getProprietor3Address2());
         setProprietor3Address3(r.getProprietor3Address3());
-        setProprietorName4(r.getProprietorName4());
-        setCompanyRegistrationNo4(r.getCompanyRegistrationNo4());
-        setProprietorshipCategory4(r.getProprietorshipCategory4());
+        setProprietorName4(r.getProprietorName4(), updateIDs);
+        setCompanyRegistrationNo4(r.getCompanyRegistrationNo4(), updateIDs);
+        setProprietorshipCategory4(r.getProprietorshipCategory4(), updateIDs);
         setProprietor4Address1(r.getProprietor4Address1());
         setProprietor4Address2(r.getProprietor4Address2());
         setProprietor4Address3(r.getProprietor4Address3());
@@ -183,25 +186,25 @@ public abstract class LR_Record extends LR_Object {
      *
      * @param s The key to set.
      * @param typeID The typeID of collection to set in.
-     * @return The LR_ID of s for sType.
+     * @return The LR_TypeID of s for sType.
      */
-    protected LR_ID updateNonNullCollections(String s, LR_ID typeID) {
-        LR_ID result;
-        HashMap<String, LR_ID> ToID;
-        HashMap<LR_ID, String> IDTo;
-        ToID = Env.ToIDLookups.get(typeID);
-        if (ToID == null) {
+    protected LR_ValueID updateNonNullCollections(String s, LR_TypeID typeID) {
+        LR_ValueID result;
+        HashMap<String, LR_ValueID> TypeIDToValuesStringLookup;
+        HashSet<LR_ValueID> values;
+        TypeIDToValuesStringLookup = Env.TypeIDToStringToValueIDLookup.get(typeID);
+        if (TypeIDToValuesStringLookup == null) {
             int debug = 1;
             result = null;
         } else {
-            if (ToID.containsKey(s)) {
-                result = ToID.get(s);
+            if (TypeIDToValuesStringLookup.containsKey(s)) {
+                result = TypeIDToValuesStringLookup.get(s);
             } else {
-                result = new LR_ID(ToID.size());
-                ToID.put(s, result);
-                IDTo = Env.IDToLookups.get(typeID);
-                IDTo.put(result, s);
-                Env.UpdatedNonNullTypes.put(typeID, true);
+                result = new LR_ValueID(TypeIDToValuesStringLookup.size(), s);
+                TypeIDToValuesStringLookup.put(s, result);
+                values = Env.TypeIDToValuesLookups.get(typeID);
+                values.add(result);
+//                Env.UpdatedIDLookups.put(typeID, true);
             }
         }
         return result;
@@ -221,7 +224,7 @@ public abstract class LR_Record extends LR_Object {
         if (updateIDs) {
             TitleNumberID = updateNonNullCollections(s, Env.TitleNumberTypeID);
         } else {
-            TitleNumberID = Env.ToIDLookups.get(Env.TitleNumberTypeID).get(s);
+            TitleNumberID = Env.TypeIDToStringToValueIDLookup.get(Env.TitleNumberTypeID).get(s);
         }
     }
 
@@ -252,57 +255,56 @@ public abstract class LR_Record extends LR_Object {
      * set from data pulled from existing collections.
      */
     public final void initPropertyAddressAndID(String s, boolean updateIDs) {
-        LR_ID typeID;
+        LR_TypeID typeID;
         typeID = Env.PropertyAddressTypeID;
         if (s.isEmpty()) {
             if (updateIDs) {
                 setPropertyAddress(updateNullCollection(typeID));
             } else {
-                LR_ID paID;
+                LR_ValueID paID;
                 paID = Env.TitleNumberIDToAddressIDLookup.get(TitleNumberID);
-                String pa;
-                pa = Env.IDToLookups.get(typeID).get(paID);
-                setPropertyAddress(pa);
+                setPropertyAddress(paID.getValue());
             }
         } else {
+//            if (updateIDs) {
+//                Env.addValue(typeID, s);
+//            }
             setPropertyAddress(s);
         }
         String pa;
         pa = getPropertyAddress();
         if (updateIDs) {
-            LR_ID id;
-            id = updateNonNullCollections(pa, typeID);
+            LR_ValueID valueID;
+            valueID = updateNonNullCollections(pa, typeID);
             // init ID
-            ID = new LR_ID2(TitleNumberID, id);
+            ID = new LR_ID2(TitleNumberID, valueID);
             if (!Env.IDs.contains(ID)) {
                 Env.IDs.add(ID);
-                Env.UpdatedIDs = true;
+//                Env.UpdatedIDs = true;
             }
-            HashSet<LR_ID> titleNumberIDs;
-            if (Env.AddressIDToTitleNumberIDsLookup.containsKey(id)) {
-                titleNumberIDs = Env.AddressIDToTitleNumberIDsLookup.get(id);
+            HashSet<LR_ValueID> titleNumberIDs;
+            if (Env.AddressIDToTitleNumberIDsLookup.containsKey(valueID)) {
+                titleNumberIDs = Env.AddressIDToTitleNumberIDsLookup.get(valueID);
             } else {
                 titleNumberIDs = new HashSet<>();
-                Env.AddressIDToTitleNumberIDsLookup.put(id, titleNumberIDs);
+                Env.AddressIDToTitleNumberIDsLookup.put(valueID, titleNumberIDs);
             }
             if (!titleNumberIDs.contains(TitleNumberID)) {
                 titleNumberIDs.add(TitleNumberID);
-                Env.UpdatedAddressIDToTitleNumberIDsLookup = true;
+//                Env.UpdatedAddressIDToTitleNumberIDsLookup = true;
             }
-            LR_ID change;
-            change = Env.TitleNumberIDToAddressIDLookup.put(TitleNumberID, id);
+            LR_ValueID change;
+            change = Env.TitleNumberIDToAddressIDLookup.put(TitleNumberID, valueID);
             if (change != null) {
-                if (!change.equals(id)) {
-                    String previousAddress;
-                    previousAddress = Env.IDToLookups.get(typeID).get(change);
+                if (!change.equals(valueID)) {
                     System.out.println("Address for TitleNumer " + TitleNumber
-                            + " changed from \"" + previousAddress + "\" to \""
-                            + pa + "\"");
-                    Env.UpdatedTitleNumberIDToAddressIDLookup = true;
+                            + " changed from \"" + change.getValue()
+                            + "\" to \"" + pa + "\"");
+//                    Env.UpdatedTitleNumberIDToAddressIDLookup = true;
                 }
             }
         } else {
-            LR_ID addressID;
+            LR_ValueID addressID;
             addressID = Env.TitleNumberIDToAddressIDLookup.get(TitleNumberID);
             ID = new LR_ID2(TitleNumberID, addressID);
         }
@@ -310,40 +312,37 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * If updateIDs then if s is blank then PricePaid is set to a unique
-     * negative number and a record is kept to look up this number from ID. If !updateIDs
-     * then the unique number set previously is obtained from what is stored.
+     * negative number and a record is kept to look up this number from ID. If
+     * !updateIDs then the unique number set previously is obtained from what is
+     * stored.
      *
      * @param s PricePaid
      * @param updateIDs IFF true then collections are updated otherwise ID is
      * set from data pulled from existing collections.
      */
     public final void initPricePaid(String s, boolean updateIDs) {
+        setPricePaid(s);
         if (s.isEmpty()) {
             if (updateIDs) {
-                setPricePaid(updateNullPricePaid());
-            } else {
-                HashMap<LR_ID2, LR_ID> m;
-                m = Env.NullCollections.get(Env.PricePaidTypeID);
-                setPricePaid(Long.valueOf(Env.IDToType.get(m.get(ID))));
+                updateNullCollection(Env.PricePaidTypeID);
             }
         } else {
             try {
                 long l;
                 l = Long.valueOf(s);
-                setPricePaid(l);
+                setPricePaidValue(l);
                 setPricePaidClass(l);
             } catch (NumberFormatException e) {
                 System.err.println("PricePaid is: \"" + s + "\" which is not "
                         + "recognised as a long.");
-                setPricePaid(updateNullPricePaid());
             }
         }
     }
 
     public void setPricePaidClass(long l) {
-        Iterator<LR_ID> ite;
+        Iterator<LR_ValueID> ite;
         ite = Env.PricePaidLookup.keySet().iterator();
-        LR_ID k;
+        LR_ValueID k;
         Generic_Interval_long1 i;
         while (ite.hasNext()) {
             k = ite.next();
@@ -358,33 +357,23 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * The LR_IDs effectively start at -10000.
-     * @return 
-     */
-    public final long updateNullPricePaid() {
-        LR_ID typeID;
-        typeID = Env.PricePaidTypeID;
-        return Long.valueOf("-" + (updateNullCollection(typeID) + 10000));
-    }
-
-    /**
      *
      * @param typeID
      * @return
      */
-    public String updateNullCollection(LR_ID typeID) {
+    public String updateNullCollection(LR_TypeID typeID) {
         String result;
-        HashMap<LR_ID2, LR_ID> m;
-        m = Env.NullCollections.get(typeID);
+        HashMap<LR_ID2, LR_ValueID> m;
+        m = Env.NullTitleNumberIDCollections.get(typeID);
         if (m == null) {
-            m = new HashMap<LR_ID2, LR_ID>();
-            Env.NullCollections.put(typeID, m);
+            m = new HashMap<>();
+            Env.NullTitleNumberIDCollections.put(typeID, m);
         }
         int i;
         i = m.size();
         result = Integer.toString(i);
-        m.put(ID, new LR_ID(i));
-        Env.UpdatedNullTypes.put(typeID, true);
+        m.put(ID, new LR_ValueID(i, Integer.toString(i)));
+//        Env.UpdatedNullTitleNumberIDCollections.put(typeID, true);
         return result;
     }
 
@@ -398,18 +387,19 @@ public abstract class LR_Record extends LR_Object {
      * set from data pulled from existing collections.
      */
     public final void initProprietorName1(String s, boolean updateIDs) {
-        LR_ID typeID;
+        LR_TypeID typeID;
         typeID = Env.ProprietorNameTypeID;
         if (s.isEmpty()) {
             if (updateIDs) {
                 setProprietorName1(updateNullCollection(typeID));
             } else {
-                HashMap<LR_ID2, LR_ID> m;
-                m = Env.NullCollections.get(typeID);
-                setProprietorName1(Env.IDToType.get(m.get(ID)));
+                setProprietorName1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         } else {
             setProprietorName1(s);
+            if (updateIDs) {
+                Env.addValue(typeID, s);
+            }
         }
         if (updateIDs) {
             updateNonNullCollections(getProprietorName1(), typeID);
@@ -417,27 +407,29 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * If updateIDs then if s is blank then CompanyRegistrationNo1 is set to a unique
-     * number and a record is kept to look up this number from ID. If !updateIDs
-     * then the unique number set previously is obtained from what is stored.
+     * If updateIDs then if s is blank then CompanyRegistrationNo1 is set to a
+     * unique number and a record is kept to look up this number from ID. If
+     * !updateIDs then the unique number set previously is obtained from what is
+     * stored.
      *
      * @param s CompanyRegistrationNo1
      * @param updateIDs IFF true then collections are updated otherwise ID is
      * set from data pulled from existing collections.
      */
     public final void initCompanyRegistrationNo1(String s, boolean updateIDs) {
-        LR_ID typeID;
+        LR_TypeID typeID;
         typeID = Env.CompanyRegistrationNoTypeID;
         if (s.isEmpty()) {
             if (updateIDs) {
                 setCompanyRegistrationNo1(updateNullCollection(typeID));
             } else {
-                HashMap<LR_ID2, LR_ID> m;
-                m = Env.NullCollections.get(typeID);
-                setCompanyRegistrationNo1(Env.IDToType.get(m.get(ID)));
+                setCompanyRegistrationNo1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         } else {
             setCompanyRegistrationNo1(s);
+//            if (updateIDs) {
+//                Env.addValue(typeID, s);
+//            }
         }
         if (updateIDs) {
             updateNonNullCollections(getCompanyRegistrationNo1(), typeID);
@@ -445,27 +437,116 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * If updateIDs then if s is blank then ProprietorshipCategory1 is set to a unique
-     * number and a record is kept to look up this number from ID. If !updateIDs
-     * then the unique number set previously is obtained from what is stored.
+     * If updateIDs then if s is blank then District is set to a unique number
+     * and a record is kept to look up this number from ID. If !updateIDs then
+     * the unique number set previously is obtained from what is stored.
+     *
+     * @param s CompanyRegistrationNo1
+     * @param updateIDs IFF true then collections are updated otherwise ID is
+     * set from data pulled from existing collections.
+     */
+    public final void initDistrict(String s, boolean updateIDs) {
+        LR_TypeID typeID;
+        typeID = Env.DistrictTypeID;
+        if (s.isEmpty()) {
+            if (updateIDs) {
+                setDistrict(updateNullCollection(typeID));
+            } else {
+                setDistrict(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
+            }
+        } else {
+            setDistrict(s);
+            if (updateIDs) {
+                Env.addValue(typeID, s);
+            }
+        }
+        if (updateIDs) {
+            updateNonNullCollections(getDistrict(), typeID);
+        }
+    }
+
+    /**
+     * If updateIDs then if s is blank then County is set to a unique number and
+     * a record is kept to look up this number from ID. If !updateIDs then the
+     * unique number set previously is obtained from what is stored.
+     *
+     * @param s CompanyRegistrationNo1
+     * @param updateIDs IFF true then collections are updated otherwise ID is
+     * set from data pulled from existing collections.
+     */
+    public final void initCounty(String s, boolean updateIDs) {
+        LR_TypeID typeID;
+        typeID = Env.CountyTypeID;
+        if (s.isEmpty()) {
+            if (updateIDs) {
+                setCounty(updateNullCollection(typeID));
+            } else {
+                setCounty(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
+            }
+        } else {
+            setCounty(s);
+            if (updateIDs) {
+                Env.addValue(typeID, s);
+            }
+        }
+        if (updateIDs) {
+            updateNonNullCollections(getCounty(), typeID);
+        }
+    }
+
+    /**
+     * If updateIDs then if s is blank then Region is set to a unique number and
+     * a record is kept to look up this number from ID. If !updateIDs then the
+     * unique number set previously is obtained from what is stored.
+     *
+     * @param s CompanyRegistrationNo1
+     * @param updateIDs IFF true then collections are updated otherwise ID is
+     * set from data pulled from existing collections.
+     */
+    public final void initRegion(String s, boolean updateIDs) {
+        LR_TypeID typeID;
+        typeID = Env.RegionTypeID;
+        if (s.isEmpty()) {
+            if (updateIDs) {
+                setRegion(updateNullCollection(typeID));
+            } else {
+                setRegion(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
+            }
+        } else {
+            setRegion(s);
+            if (updateIDs) {
+                Env.addValue(typeID, s);
+            }
+        }
+        if (updateIDs) {
+            updateNonNullCollections(getRegion(), typeID);
+        }
+    }
+
+    /**
+     * If updateIDs then if s is blank then ProprietorshipCategory1 is set to a
+     * unique number and a record is kept to look up this number from ID. If
+     * !updateIDs then the unique number set previously is obtained from what is
+     * stored.
      *
      * @param s ProprietorshipCategory1
      * @param updateIDs IFF true then collections are updated otherwise ID is
      * set from data pulled from existing collections.
      */
     public final void initProprietorshipCategory1(String s, boolean updateIDs) {
-        LR_ID typeID;
+        LR_TypeID typeID;
         typeID = Env.ProprietorshipCategoryTypeID;
         if (s.isEmpty()) {
             if (updateIDs) {
-                setProprietorshipCategory1(updateNullCollection(typeID));
+                setProprietorshipCategory1(updateNullCollection(typeID), updateIDs);
             } else {
-                HashMap<LR_ID2, LR_ID> m;
-                m = Env.NullCollections.get(typeID);
-                setProprietorshipCategory1(Env.IDToType.get(m.get(ID)));
+                setProprietorshipCategory1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue(), updateIDs);
             }
         } else {
-            setProprietorshipCategory1(s);
+            setProprietorshipCategory1(s, updateIDs);
+            if (updateIDs) {
+                Env.addValue(typeID, s);
+            }
         }
         if (updateIDs) {
             updateNonNullCollections(getProprietorshipCategory1(), typeID);
@@ -475,71 +556,71 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @return the TitleNumberID
      */
-    public final LR_ID getTitleNumberID() {
+    public final LR_ValueID getTitleNumberID() {
         return TitleNumberID;
     }
 
     /**
      * @return the PropertyAddressID
      */
-    public final LR_ID getPropertyAddressID() {
+    public final LR_ValueID getPropertyAddressID() {
         return ID.getPropertyAddressID();
     }
 
     /**
      * @return the ProprietorName1ID
      */
-    public final LR_ID getProprietorName1ID() {
-        return Env.ToIDLookups.get(Env.ProprietorNameTypeID).get(getProprietorName1());
+    public final LR_ValueID getProprietorName1ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorNameTypeID).get(getProprietorName1());
     }
 
     /**
      * @return the ProprietorName2ID
      */
-    public final LR_ID getProprietorName2ID() {
-        return Env.ToIDLookups.get(Env.ProprietorNameTypeID).get(getProprietorName2());
+    public final LR_ValueID getProprietorName2ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorNameTypeID).get(getProprietorName2());
     }
 
     /**
      * @return the ProprietorName3ID
      */
-    public final LR_ID getProprietorName3ID() {
-       return Env.ToIDLookups.get(Env.ProprietorNameTypeID).get(getProprietorName3());
+    public final LR_ValueID getProprietorName3ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorNameTypeID).get(getProprietorName3());
     }
 
     /**
      * @return the ProprietorName4ID
      */
-    public final LR_ID getProprietorName4ID() {
-        return Env.ToIDLookups.get(Env.ProprietorNameTypeID).get(getProprietorName4());
+    public final LR_ValueID getProprietorName4ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorNameTypeID).get(getProprietorName4());
     }
 
     /**
      * @return the CompanyRegistrationNo1ID
      */
-    public final LR_ID getCompanyRegistrationNo1ID() {
-        return Env.ToIDLookups.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo1());
+    public final LR_ValueID getCompanyRegistrationNo1ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo1());
     }
 
     /**
      * @return the CompanyRegistrationNo2ID
      */
-    public final LR_ID getCompanyRegistrationNo2ID() {
-        return Env.ToIDLookups.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo2());
+    public final LR_ValueID getCompanyRegistrationNo2ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo2());
     }
 
     /**
      * @return the CompanyRegistrationNo3ID
      */
-    public final LR_ID getCompanyRegistrationNo3ID() {
-        return Env.ToIDLookups.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo3());
+    public final LR_ValueID getCompanyRegistrationNo3ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo3());
     }
 
     /**
      * @return the CompanyRegistrationNo4ID
      */
-    public final LR_ID getCompanyRegistrationNo4ID() {
-        return Env.ToIDLookups.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo4());
+    public final LR_ValueID getCompanyRegistrationNo4ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo4());
     }
 
     /**
@@ -559,8 +640,8 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @return the TenureID
      */
-    public final LR_ID getTenureID() {
-        return Env.ToIDLookups.get(Env.TenureTypeID).get(getTenure());
+    public final LR_ValueID getTenureID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.TenureTypeID).get(getTenure());
     }
 
     /**
@@ -594,21 +675,28 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @return the PostcodeDistrictID
      */
-    public final LR_ID getPostcodeDistrictID() {
-        return Env.ToIDLookups.get(Env.PostcodeDistrictTypeID).get(getPostcodeDistrict());
+    public final LR_ValueID getPostcodeDistrictID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.PostcodeDistrictTypeID).get(getPostcodeDistrict());
     }
 
     /**
      * @return the PricePaid
      */
-    public final long getPricePaid() {
+    public final String getPricePaid() {
         return PricePaid;
+    }
+
+    /**
+     * @return the PricePaid
+     */
+    public final Long getPricePaidValue() {
+        return PricePaidValue;
     }
 
     /**
      * @return the PricePaidClass
      */
-    public final LR_ID getPricePaidClass() {
+    public final LR_ValueID getPricePaidClass() {
         return PricePaidClass;
     }
 
@@ -643,8 +731,8 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @return the ProprietorshipCategory1ID
      */
-    public final LR_ID getProprietorshipCategory1ID() {
-        return Env.ToIDLookups.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory1());
+    public final LR_ValueID getProprietorshipCategory1ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory1());
     }
 
     /**
@@ -811,8 +899,8 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @return the ProprietorshipCategory2ID
      */
-    public final LR_ID getProprietorshipCategory2ID() {
-        return Env.ToIDLookups.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory2());
+    public final LR_ValueID getProprietorshipCategory2ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory2());
     }
 
     /**
@@ -825,8 +913,8 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @return the ProprietorshipCategory3ID
      */
-    public final LR_ID getProprietorshipCategory3ID() {
-        return Env.ToIDLookups.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory3());
+    public final LR_ValueID getProprietorshipCategory3ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory3());
     }
 
     /**
@@ -839,8 +927,8 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @return the ProprietorshipCategory4ID
      */
-    public final LR_ID getProprietorshipCategory4ID() {
-        return Env.ToIDLookups.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory4());
+    public final LR_ValueID getProprietorshipCategory4ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory4());
     }
 
     /**
@@ -853,8 +941,8 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @return the CountryIncorporated1ID
      */
-    public LR_ID getCountryIncorporated1ID() {
-        return Env.ToIDLookups.get(Env.CountryIncorporatedTypeID).get(getCountryIncorporated1());
+    public LR_ValueID getCountryIncorporated1ID() {
+        return Env.TypeIDToStringToValueIDLookup.get(Env.CountryIncorporatedTypeID).get(getCountryIncorporated1());
     }
 
     /**
@@ -893,9 +981,15 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * If updateIDs then if s is blank then Postcode and PostcodeDistrict are set to a unique
-     * number and a record is kept to look up this number from ID. If !updateIDs
-     * then the unique number set previously is obtained from what is stored.
+     * If updateIDs then if s is blank then Postcode and PostcodeDistrict are
+     * set to a unique number and a record is kept to look up this number from
+     * ID. If !updateIDs then the unique number set previously is obtained from
+     * what is stored.
+     *
+     * @TODO The way things currently are, the postcode is checked each time the
+     * data is read in so as to set the Postcode District. This could be avoided
+     * by storing formatted versions of records in collections that are loaded
+     * back in.
      *
      * @param s Postcode
      * @param updateIDs IFF true then collections are updated otherwise ID is
@@ -903,7 +997,7 @@ public abstract class LR_Record extends LR_Object {
      */
     public final void initPostcodeAndPostcodeDistrict(String s, boolean updateIDs) {
         setPostcode(s);
-        LR_ID typeID;
+        LR_TypeID typeID;
         typeID = Env.PostcodeDistrictTypeID;
         if (Env.PostcodeHandler.isValidPostcodeForm(s)) {
             String[] split;
@@ -914,14 +1008,14 @@ public abstract class LR_Record extends LR_Object {
             setPostcodeDistrict(s0);
             if (updateIDs) {
                 updateNonNullCollections(s0, typeID);
+                Env.addValue(typeID, s);
             }
         } else {
             if (updateIDs) {
                 setPostcodeDistrict(updateNullCollection(typeID));
             } else {
-                HashMap<LR_ID2, LR_ID> m;
-                m = Env.NullCollections.get(typeID);
-                setPostcodeDistrict(Env.IDToType.get(m.get(ID)));
+                HashMap<LR_ID2, LR_ValueID> m;
+                setPostcodeDistrict(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
             }
         }
     }
@@ -948,10 +1042,17 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
-     * @param PricePaid the PricePaid to set
+     * @param s the PricePaid to set
      */
-    public final void setPricePaid(long PricePaid) {
-        this.PricePaid = PricePaid;
+    public final void setPricePaid(String s) {
+        this.PricePaid = s;
+    }
+
+    /**
+     * @param l the PricePaidValue to set
+     */
+    public final void setPricePaidValue(Long l) {
+        this.PricePaidValue = l;
     }
 
     /**
@@ -989,21 +1090,25 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * @param s the ProprietorshipCategory1 to set
+     * @param updateIDs
      */
-    public final void setProprietorshipCategory1(String s) {
+    public final void setProprietorshipCategory1(String s, boolean updateIDs) {
         this.ProprietorshipCategory1 = s;
-        updateProprietorshipCategory(s);
+        updateProprietorshipCategory(s, updateIDs);
     }
-    
+
     /**
      * @param s the ProprietorshipCategory to set
+     * @param updateIDs
      */
-    protected final void updateProprietorshipCategory(String s){
+    protected final void updateProprietorshipCategory(String s, boolean updateIDs) {
         if (!s.isEmpty()) {
-            if (Env.ProprietorshipCategoryValues.add(s)) {
-                Env.UpdatedProprietorshipCategoryValues = true;
+            if (updateIDs) {
+                if (Env.Values.get(Env.ProprietorshipCategoryTypeID).add(s)) {
+                    Env.addValue(Env.ProprietorshipCategoryTypeID, s);
+                }
+                updateNonNullCollections(s, Env.ProprietorshipCategoryTypeID);
             }
-            updateNonNullCollections(s, Env.ProprietorshipCategoryTypeID);
         }
     }
 
@@ -1016,34 +1121,46 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * @param s the CompanyRegistrationNo2 to set
+     * @param updateIDs
      */
-    public final void setCompanyRegistrationNo2(String s) {
+    public final void setCompanyRegistrationNo2(String s, boolean updateIDs) {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo2 = s;
         if (!s.isEmpty()) {
             updateNonNullCollections(s, Env.CompanyRegistrationNoTypeID);
+            if (updateIDs) {
+                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
+            }
         }
     }
 
     /**
      * @param s the CompanyRegistrationNo3 to set
+     * @param updateIDs
      */
-    public final void setCompanyRegistrationNo3(String s) {
+    public final void setCompanyRegistrationNo3(String s, boolean updateIDs) {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo3 = s;
         if (!s.isEmpty()) {
             updateNonNullCollections(s, Env.CompanyRegistrationNoTypeID);
+            if (updateIDs) {
+                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
+            }
         }
     }
 
     /**
      * @param s the CompanyRegistrationNo4 to set
+     * @param updateIDs
      */
-    public final void setCompanyRegistrationNo4(String s) {
+    public final void setCompanyRegistrationNo4(String s, boolean updateIDs) {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo4 = s;
         if (!s.isEmpty()) {
             updateNonNullCollections(s, Env.CompanyRegistrationNoTypeID);
+            if (updateIDs) {
+                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
+            }
         }
     }
 
@@ -1140,55 +1257,70 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * @param s the ProprietorName2 to set
+     * @param updateIDs
      */
-    public final void setProprietorName2(String s) {
+    public final void setProprietorName2(String s, boolean updateIDs) {
         this.ProprietorName2 = s;
         if (!s.isEmpty()) {
+            if (updateIDs) {
+                Env.addValue(Env.ProprietorNameTypeID, s);
+            }
             updateNonNullCollections(s, Env.ProprietorNameTypeID);
         }
     }
 
     /**
      * @param s the ProprietorName3 to set
+     * @param updateIDs
      */
-    public final void setProprietorName3(String s) {
+    public final void setProprietorName3(String s, boolean updateIDs) {
         this.ProprietorName3 = s;
         if (!s.isEmpty()) {
+            if (updateIDs) {
+                Env.addValue(Env.ProprietorNameTypeID, s);
+            }
             updateNonNullCollections(s, Env.ProprietorNameTypeID);
         }
     }
 
     /**
      * @param s the ProprietorName4 to set
+     * @param updateIDs
      */
-    public final void setProprietorName4(String s) {
+    public final void setProprietorName4(String s, boolean updateIDs) {
         this.ProprietorName4 = s;
         if (!s.isEmpty()) {
+            if (updateIDs) {
+                Env.addValue(Env.ProprietorNameTypeID, s);
+            }
             updateNonNullCollections(s, Env.ProprietorNameTypeID);
         }
     }
 
     /**
      * @param s the ProprietorshipCategory2 to set
+     * @param updateIDs
      */
-    public final void setProprietorshipCategory2(String s) {
+    public final void setProprietorshipCategory2(String s, boolean updateIDs) {
         this.ProprietorshipCategory2 = s;
-        updateProprietorshipCategory(s);
+        updateProprietorshipCategory(s, updateIDs);
     }
 
     /**
      * @param s the ProprietorshipCategory3 to set
+     * @param updateIDs
      */
-    public final void setProprietorshipCategory3(String s) {
+    public final void setProprietorshipCategory3(String s, boolean updateIDs) {
         this.ProprietorshipCategory3 = s;
-        updateProprietorshipCategory(s);
+        updateProprietorshipCategory(s, updateIDs);
     }
 
     /**
      * @param s the ProprietorshipCategory4 to set
+     * @param updateIDs
      */
-    public final void setProprietorshipCategory4(String s) {
+    public final void setProprietorshipCategory4(String s, boolean updateIDs) {
         this.ProprietorshipCategory4 = s;
-        updateProprietorshipCategory(s);
+        updateProprietorshipCategory(s, updateIDs);
     }
 }

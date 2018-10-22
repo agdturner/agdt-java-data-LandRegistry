@@ -165,10 +165,10 @@ public class LR_Select_Process extends LR_Main_Process {
                 }
             }
         }
-        // Write out lookups if necessary
-        if (writeCollections) {
-            Env.writeCollections();
-        }
+//        // Write out lookups if necessary
+//        if (writeCollections) {
+//            Env.writeCollections();
+//        }
     }
 
 }

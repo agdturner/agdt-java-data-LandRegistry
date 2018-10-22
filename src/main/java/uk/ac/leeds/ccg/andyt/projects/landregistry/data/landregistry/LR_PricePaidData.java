@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
 
 /**
  *
@@ -28,7 +28,7 @@ public class LR_PricePaidData extends LR_Object {
      * Classified counts For storing counts of the number of classes of a
      * particular value.
      */
-    private final TreeMap<LR_ID, Integer> PricePaidCounts;
+    private final TreeMap<LR_ValueID, Integer> PricePaidCounts;
 
     public LR_PricePaidData(LR_Environment env) {
         super(env);
@@ -46,18 +46,26 @@ public class LR_PricePaidData extends LR_Object {
     /**
      * @return the PricePaidCounts
      */
-    public TreeMap<LR_ID, Integer> getPricePaidCounts() {
+    public TreeMap<LR_ValueID, Integer> getPricePaidCounts() {
         return PricePaidCounts;
     }
-    
+
     /**
      * @param r
      */
     public void add(LR_Record r) {
-        if (!Env.NullCollections.get(Env.PricePaidTypeID).containsKey(r.ID)) {
-            PricePaid.add(new BigDecimal(r.getPricePaid()));
-            Generic_Collections.addToMap(PricePaidCounts, r.getPricePaidClass(), 1);
+        Long pp;
+        pp = r.getPricePaidValue();
+        if (pp != null) {
+            PricePaid.add(new BigDecimal(pp));
+            LR_ValueID v;
+            v = r.getPricePaidClass();
+            if (v != null) {
+                Generic_Collections.addToMap(PricePaidCounts, v, 1);
+            } else {
+                int debug= 1;
+            }
         }
     }
-    
+
 }

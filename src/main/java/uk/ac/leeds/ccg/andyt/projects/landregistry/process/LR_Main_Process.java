@@ -19,10 +19,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_TypeID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
 /**
@@ -68,10 +70,10 @@ public class LR_Main_Process extends LR_Object {
 
         // Main switches
 //        writeCollections = true;
-//        doSelect = true;
+        doSelect = true;
         doGeneralise = true;
         doGeneraliseAreas = true;
-        doGeneraliseAll = true;
+//        doGeneraliseAll = true;
 //        doTransitions = true;
 //        doTransitionsAreas = true;
 //        doTransitionsAll = true;
@@ -107,11 +109,18 @@ public class LR_Main_Process extends LR_Object {
                 sp.run(area, doFull, overwrite, writeCollections);
                 doFull = false;
                 // If on the last run then writeCollections
-                if (!ite.hasNext()) {
-                    writeCollections = true;
-                }
+//                if (!ite.hasNext()) {
+//                    writeCollections = true;
+//                }
                 sp.run(area, doFull, overwrite, writeCollections);
                 writeCollections = false;
+            }
+
+            // Write out cache if it does not exist.
+            File f;
+            f = Files.getEnvDataFile();
+            if (!f.exists()) {
+                Generic_StaticIO.writeObject(Env, f, "Env");
             }
         }
 
@@ -223,10 +232,10 @@ public class LR_Main_Process extends LR_Object {
                 tp.run(area, doAll, inputDataDir, minCC, minOC, overwrite);
             }
         }
-        if (writeCollections) {
-            // If any collections have changed then write them out again.
-            Env.writeCollections();
-        }
+//        if (writeCollections) {
+//            // If any collections have changed then write them out again.
+//            Env.writeCollections();
+//        }
     }
 
     /**
@@ -237,7 +246,7 @@ public class LR_Main_Process extends LR_Object {
     protected HashMap<LR_ID, Integer> getMinsCC(int defaultMin) {
         HashMap<LR_ID, Integer> result;
         result = new HashMap<>();
-        Iterator<LR_ID> ite;
+        Iterator<LR_TypeID> ite;
         ite = Env.NonNullTypes.iterator();
         LR_ID typeID;
         while (ite.hasNext()) {
@@ -261,7 +270,7 @@ public class LR_Main_Process extends LR_Object {
     protected HashMap<LR_ID, Integer> getMinsOC(int defaultMin) {
         HashMap<LR_ID, Integer> result;
         result = new HashMap<>();
-        Iterator<LR_ID> ite;
+        Iterator<LR_TypeID> ite;
         ite = Env.NonNullTypes.iterator();
         LR_ID typeID;
         while (ite.hasNext()) {
@@ -330,5 +339,4 @@ public class LR_Main_Process extends LR_Object {
         }
         return names2;
     }
-
 }

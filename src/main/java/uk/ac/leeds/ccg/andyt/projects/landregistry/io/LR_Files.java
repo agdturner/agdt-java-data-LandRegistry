@@ -25,7 +25,7 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
  */
 public class LR_Files extends Generic_Files {
 
-    protected LR_Strings Strings;
+    protected transient LR_Strings Strings;
 
     protected LR_Files(){}
     
@@ -68,5 +68,9 @@ public class LR_Files extends Generic_Files {
         File f;
         f = new File(dir, name + "_" + type + "." + Strings.S_dat);
         return f;
+    }
+    
+    public File getEnvDataFile() {
+        return new File(getGeneratedDataDir(Strings), "Env.dat");
     }
 }

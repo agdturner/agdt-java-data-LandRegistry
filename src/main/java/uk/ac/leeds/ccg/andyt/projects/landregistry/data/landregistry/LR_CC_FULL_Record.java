@@ -16,11 +16,8 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 
 /**
  *
@@ -48,9 +45,9 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         initTitleNumber(ls[0].substring(1), updateIDs);
         initTenure(ls[1], updateIDs);
         initPropertyAddressAndID(ls[2], updateIDs);
-        setDistrict(ls[3]);
-        setCounty(ls[4]);
-        setRegion(ls[5]);
+        initDistrict(ls[3], updateIDs);
+        initCounty(ls[4], updateIDs);
+        initRegion(ls[5], updateIDs);
         initPostcodeAndPostcodeDistrict(ls[6], updateIDs);
         setMultipleAddressIndicator(ls[7]);
         initPricePaid(ls[8], updateIDs);
@@ -60,21 +57,21 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
         setProprietor1Address1(ls[12]);
         setProprietor1Address2(ls[13]);
         setProprietor1Address3(ls[14]);
-        setProprietorName2(ls[15]);
-        setCompanyRegistrationNo2(ls[16]);
-        setProprietorshipCategory2(ls[17]);
+        setProprietorName2(ls[15], updateIDs);
+        setCompanyRegistrationNo2(ls[16], updateIDs);
+        setProprietorshipCategory2(ls[17], updateIDs);
         setProprietor2Address1(ls[18]);
         setProprietor2Address2(ls[19]);
         setProprietor2Address3(ls[20]);
-        setProprietorName3(ls[21]);
-        setCompanyRegistrationNo3(ls[22]);
-        setProprietorshipCategory3(ls[23]);
+        setProprietorName3(ls[21], updateIDs);
+        setCompanyRegistrationNo3(ls[22], updateIDs);
+        setProprietorshipCategory3(ls[23], updateIDs);
         setProprietor3Address1(ls[24]);
         setProprietor3Address2(ls[25]);
         setProprietor3Address3(ls[26]);
-        setProprietorName4(ls[27]);
-        setCompanyRegistrationNo4(ls[28]);
-        setProprietorshipCategory4(ls[29]);
+        setProprietorName4(ls[27], updateIDs);
+        setCompanyRegistrationNo4(ls[28], updateIDs);
+        setProprietorshipCategory4(ls[29], updateIDs);
         setProprietor4Address1(ls[30]);
         setProprietor4Address2(ls[31]);
         setProprietor4Address3(ls[32]);
@@ -86,9 +83,10 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
      * Creates a simple copy of r without changing any collections.
      *
      * @param r
+     * @param updateIDs
      */
-    public LR_CC_FULL_Record(LR_Record r) {
-        super(r);
+    public LR_CC_FULL_Record(LR_Record r, boolean updateIDs) {
+        super(r, updateIDs);
     }
 
     @Override

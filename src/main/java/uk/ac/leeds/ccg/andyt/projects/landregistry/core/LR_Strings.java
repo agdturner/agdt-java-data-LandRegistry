@@ -64,7 +64,8 @@ public class LR_Strings extends Generic_Strings {
     public final String S_CompanyRegistrationNo4 = S_CompanyRegistrationNo + "4";
     public final String S_CountryIncorporated = "CountryIncorporated";
     public final String S_CountryIncorporated1 = S_CountryIncorporated + "1";
-    public final String S_CountryIncorporatedValues = "CountryIncorporatedValues";
+    public final String S_County = "County";
+    public final String S_District = "District";
     public final String S_Postcode = "Postcode";
     public final String S_PostcodeDistrict = "PostcodeDistrict";
     public final String S_PricePaid = "PricePaid";
@@ -79,9 +80,10 @@ public class LR_Strings extends Generic_Strings {
     public final String S_ProprietorshipCategory2 = S_ProprietorshipCategory + "2";
     public final String S_ProprietorshipCategory3 = S_ProprietorshipCategory + "3";
     public final String S_ProprietorshipCategory4 = S_ProprietorshipCategory + "4";
-    public final String S_ProprietorshipCategoryValues = "ProprietorshipCategoryValues";
+    public final String S_Region = "Region";
     public final String S_Tenure = "Tenure";
     public final String S_TitleNumber = "TitleNumber";
+    public final String S_Values = "Values";
 
     /**
      * Collection names
@@ -92,10 +94,10 @@ public class LR_Strings extends Generic_Strings {
     public final String S_TitleNumberIDToAddressID = "TitleNumberIDToAddressID";
     public final String S_PricePaidLookup = "PricePaidLookup";
     public final String S_IDs = "IDs";
-    public final String S_IDTo = "IDTo";
-    public final String S_ToID = "ToID";
     public final String S_IDToType = "IDToType";
-    public final String S_TypeToID = "TypeToID";
+    public final String S_TypeToTypeID = "TypeToTypeID";
+    public final String S_StringToValueID = "StringToValueID";
+    public final String S_ValueID = "ValueID";
 
     public LR_Strings() {
         super();
