@@ -571,7 +571,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         while (ite.hasNext()) {
             typeID = ite.next();
             printGeneralisation(pws.get(typeID), NonNullPricePaid.get(typeID),
-                    Env.ValueReverseLookups.get(typeID));
+                    Env.ValueIDs.get(typeID));
         }
     }
 
@@ -579,11 +579,11 @@ public class LR_Generalise_Process extends LR_Main_Process {
      *
      * @param pw
      * @param pricePaid
-     * @param nameMap
+     * @param values
      */
     protected void printGeneralisation(PrintWriter pw,
             TreeMap<LR_ValueID, LR_PricePaidData> pricePaid,
-            HashMap<LR_ValueID, String> nameMap) {
+            HashSet<LR_ValueID> values) {
         LR_ValueID ppValueID;
         Iterator<LR_ValueID> ite;
         TreeMap<LR_ValueID, Integer> ppCounts;
@@ -593,10 +593,10 @@ public class LR_Generalise_Process extends LR_Main_Process {
         Iterator<LR_ValueID> ite3;
         String name;
         LR_ValueID valueID;
-        ite3 = nameMap.keySet().iterator();
+        ite3 = values.iterator();
         while (ite3.hasNext()) {
             valueID = ite3.next();
-            name = nameMap.get(valueID);
+            name = valueID.getValue();
             ppd = pricePaid.get(valueID);
             ppCounts = ppd.getPricePaidCounts();
             ite = ppCounts.keySet().iterator();

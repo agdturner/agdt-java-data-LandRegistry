@@ -101,7 +101,7 @@ public abstract class LR_Record extends LR_Object {
         setPricePaid(r.getPricePaid());
         setProprietorName1(r.getProprietorName1());
         setCompanyRegistrationNo1(r.getCompanyRegistrationNo1());
-        setProprietorshipCategory1(r.getProprietorshipCategory1(), doUpdate);
+        setProprietorshipCategory1(r.getProprietorshipCategory1());
         setProprietor1Address1(r.getProprietor1Address1());
         setProprietor1Address2(r.getProprietor1Address2());
         setProprietor1Address3(r.getProprietor1Address3());
@@ -185,14 +185,27 @@ public abstract class LR_Record extends LR_Object {
     /**
      * @param typeID The typeID of the variable.
      * @param s The variable value.
+     * @param doUpdate
+     */
+    protected final void update(LR_TypeID typeID, String s, boolean doUpdate) {
+        if (s.isEmpty()) {
+            if (doUpdate) {
+                updateNullCollection(typeID, s);
+            }
+        } else {
+            update(typeID, s);
+        }
+    }
+
+    /**
+     * @param typeID The typeID of the variable.
+     * @param s The variable value.
      */
     protected final void update(LR_TypeID typeID, String s) {
-        if (!s.isEmpty()) {
-            if (Env.Values.get(typeID).add(s)) {
-                Env.addValue(typeID, s);
-            }
-            updateNonNullCollections(s, typeID);
+        if (Env.Values.get(typeID).add(s)) {
+            Env.addValue(typeID, s);
         }
+        updateNonNullCollections(s, typeID);
     }
 
     /**
@@ -269,30 +282,31 @@ public abstract class LR_Record extends LR_Object {
     public final void initPropertyAddressAndID(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.PropertyAddressTypeID;
-        if (s.isEmpty()) {
-            if (doUpdate) {
-                setPropertyAddress(updateNullCollection(typeID));
-            } else {
-                LR_ValueID paID;
-                paID = Env.TitleNumberIDToAddressIDLookup.get(TitleNumberID);
-                setPropertyAddress(paID.getValue());
-            }
-        } else {
+        setPropertyAddress(s);
+//        if (s.isEmpty()) {
 //            if (doUpdate) {
-//                Env.addValue(typeID, s);
+//                updateNullCollection(typeID, s);
+////            } else {
+////                setPropertyAddress(Env.TitleNumberIDToAddressIDLookup.get(TitleNumberID).getValue());
 //            }
-            setPropertyAddress(s);
-        }
-        String pa;
-        pa = getPropertyAddress();
+////        } else {
+////            if (doUpdate) {
+////                Env.addValue(typeID, s);
+////            }
+//        }
+////        String pa;
+////        pa = getPropertyAddress();
         if (doUpdate) {
             LR_ValueID valueID;
-            valueID = updateNonNullCollections(pa, typeID);
+            //valueID = updateNonNullCollections(pa, typeID);
+            valueID = updateNonNullCollections(s, typeID);
             // init ID
             ID = new LR_ID2(TitleNumberID, valueID);
             if (!Env.IDs.contains(ID)) {
                 Env.IDs.add(ID);
-//                Env.UpdatedIDs = true;
+            }
+            if (s.isEmpty()) {
+                updateNullCollection(typeID, s);
             }
             HashSet<LR_ValueID> titleNumberIDs;
             if (Env.AddressIDToTitleNumberIDsLookup.containsKey(valueID)) {
@@ -309,10 +323,12 @@ public abstract class LR_Record extends LR_Object {
             change = Env.TitleNumberIDToAddressIDLookup.put(TitleNumberID, valueID);
             if (change != null) {
                 if (!change.equals(valueID)) {
+//                    System.out.println("Address for TitleNumer " + TitleNumber
+//                            + " changed from \"" + change.getValue()
+//                            + "\" to \"" + pa + "\"");
                     System.out.println("Address for TitleNumer " + TitleNumber
                             + " changed from \"" + change.getValue()
-                            + "\" to \"" + pa + "\"");
-//                    Env.UpdatedTitleNumberIDToAddressIDLookup = true;
+                            + "\" to \"" + s + "\"");
                 }
             }
         } else {
@@ -335,7 +351,7 @@ public abstract class LR_Record extends LR_Object {
         setPricePaid(s);
         if (s.isEmpty()) {
             if (doUpdate) {
-                updateNullCollection(Env.PricePaidTypeID);
+                updateNullCollection(Env.PricePaidTypeID, s);
             }
         } else {
             try {
@@ -370,21 +386,28 @@ public abstract class LR_Record extends LR_Object {
     /**
      *
      * @param typeID
-     * @return
+     * @param s
      */
-    public String updateNullCollection(LR_TypeID typeID) {
-        String result;
+    protected void updateNullCollection(LR_TypeID typeID, String s) {
         HashMap<LR_ID2, LR_ValueID> m;
         m = Env.NullTitleNumberIDCollections.get(typeID);
         if (m == null) {
             m = new HashMap<>();
             Env.NullTitleNumberIDCollections.put(typeID, m);
         }
-        int i;
-        i = m.size();
-        result = Integer.toString(i);
-        m.put(ID, new LR_ValueID(i, Integer.toString(i)));
-        return result;
+        if (m.containsKey(ID)) {
+            if (!s.isEmpty()) {
+                int i;
+                i = m.size();
+                LR_ValueID newv = new LR_ValueID(i, s);
+                LR_ValueID v;
+                v = m.put(ID, newv);
+                if (v != null) {
+                    System.out.println("Updated Null Collection for ID " + ID.toString()
+                            + " from " + v.toString() + " to " + newv.toString());
+                }
+            }
+        }
     }
 
     /**
@@ -399,21 +422,8 @@ public abstract class LR_Record extends LR_Object {
     public final void initProprietorName1(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.ProprietorNameTypeID;
-        if (s.isEmpty()) {
-            if (doUpdate) {
-                setProprietorName1(updateNullCollection(typeID));
-            } else {
-                setProprietorName1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
-            }
-        } else {
-            setProprietorName1(s);
-            if (doUpdate) {
-                Env.addValue(typeID, s);
-            }
-        }
-        if (doUpdate) {
-            updateNonNullCollections(getProprietorName1(), typeID);
-        }
+        setProprietorName1(s);
+        update(typeID, s, doUpdate);
     }
 
     /**
@@ -429,21 +439,8 @@ public abstract class LR_Record extends LR_Object {
     public final void initCompanyRegistrationNo1(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.CompanyRegistrationNoTypeID;
-        if (s.isEmpty()) {
-            if (doUpdate) {
-                setCompanyRegistrationNo1(updateNullCollection(typeID));
-            } else {
-                setCompanyRegistrationNo1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
-            }
-        } else {
-            setCompanyRegistrationNo1(s);
-            if (doUpdate) {
-                Env.addValue(typeID, s);
-            }
-        }
-        if (doUpdate) {
-            updateNonNullCollections(getCompanyRegistrationNo1(), typeID);
-        }
+        setCompanyRegistrationNo1(s);
+        update(typeID, s, doUpdate);
     }
 
     /**
@@ -458,21 +455,8 @@ public abstract class LR_Record extends LR_Object {
     public final void initDistrict(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.DistrictTypeID;
-        if (s.isEmpty()) {
-            if (doUpdate) {
-                setDistrict(updateNullCollection(typeID));
-            } else {
-                setDistrict(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
-            }
-        } else {
-            setDistrict(s);
-            if (doUpdate) {
-                Env.addValue(typeID, s);
-            }
-        }
-        if (doUpdate) {
-            updateNonNullCollections(getDistrict(), typeID);
-        }
+        setDistrict(s);
+        update(typeID, s, doUpdate);
     }
 
     /**
@@ -487,21 +471,8 @@ public abstract class LR_Record extends LR_Object {
     public final void initCounty(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.CountyTypeID;
-        if (s.isEmpty()) {
-            if (doUpdate) {
-                setCounty(updateNullCollection(typeID));
-            } else {
-                setCounty(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
-            }
-        } else {
-            setCounty(s);
-            if (doUpdate) {
-                Env.addValue(typeID, s);
-            }
-        }
-        if (doUpdate) {
-            updateNonNullCollections(getCounty(), typeID);
-        }
+        setCounty(s);
+        update(typeID, s, doUpdate);
     }
 
     /**
@@ -516,21 +487,8 @@ public abstract class LR_Record extends LR_Object {
     public final void initRegion(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.RegionTypeID;
-        if (s.isEmpty()) {
-            if (doUpdate) {
-                setRegion(updateNullCollection(typeID));
-            } else {
-                setRegion(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
-            }
-        } else {
-            setRegion(s);
-            if (doUpdate) {
-                Env.addValue(typeID, s);
-            }
-        }
-        if (doUpdate) {
-            updateNonNullCollections(getRegion(), typeID);
-        }
+        setRegion(s);
+        update(typeID, s, doUpdate);
     }
 
     /**
@@ -546,23 +504,8 @@ public abstract class LR_Record extends LR_Object {
     public final void initProprietorshipCategory1(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.ProprietorshipCategoryTypeID;
-        if (s.isEmpty()) {
-            if (doUpdate) {
-                setProprietorshipCategory1(updateNullCollection(typeID), doUpdate);
-            } else {
-                String s2;
-                s2 = Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue();
-                setProprietorshipCategory1(s2, doUpdate);
-            }
-        } else {
-            setProprietorshipCategory1(s, doUpdate);
-            if (doUpdate) {
-                Env.addValue(typeID, s);
-            }
-        }
-        if (doUpdate) {
-            updateNonNullCollections(getProprietorshipCategory1(), typeID);
-        }
+        setProprietorshipCategory1(s);
+        update(typeID, s, doUpdate);
     }
 
     /**
@@ -1019,14 +962,12 @@ public abstract class LR_Record extends LR_Object {
             s0 = split[0];
             setPostcodeDistrict(s0);
             if (doUpdate) {
-                updateNonNullCollections(s0, typeID);
-                Env.addValue(typeID, s);
+                update(typeID, s0);
             }
         } else {
+            setPostcodeDistrict(s);
             if (doUpdate) {
-                setPostcodeDistrict(updateNullCollection(typeID));
-            } else {
-                setPostcodeDistrict(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue());
+                updateNullCollection(typeID, s);
             }
         }
     }
@@ -1101,13 +1042,9 @@ public abstract class LR_Record extends LR_Object {
 
     /**
      * @param s the ProprietorshipCategory1 to set
-     * @param doUpdate
      */
-    public final void setProprietorshipCategory1(String s, boolean doUpdate) {
+    public final void setProprietorshipCategory1(String s) {
         this.ProprietorshipCategory1 = s;
-        if (doUpdate) {
-            update(Env.ProprietorshipCategoryTypeID, s);
-        }
     }
 
     /**
@@ -1125,7 +1062,9 @@ public abstract class LR_Record extends LR_Object {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo2 = s;
         if (doUpdate) {
-            update(Env.CompanyRegistrationNoTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.CompanyRegistrationNoTypeID, s);
+            }
         }
     }
 
@@ -1137,7 +1076,9 @@ public abstract class LR_Record extends LR_Object {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo3 = s;
         if (doUpdate) {
-            update(Env.CompanyRegistrationNoTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.CompanyRegistrationNoTypeID, s);
+            }
         }
     }
 
@@ -1149,7 +1090,9 @@ public abstract class LR_Record extends LR_Object {
         s = getStringWithoutLeadingZeroes(s);
         this.CompanyRegistrationNo4 = s;
         if (doUpdate) {
-            update(Env.CompanyRegistrationNoTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.CompanyRegistrationNoTypeID, s);
+            }
         }
     }
 
@@ -1251,7 +1194,9 @@ public abstract class LR_Record extends LR_Object {
     public final void setProprietorName2(String s, boolean doUpdate) {
         this.ProprietorName2 = s;
         if (doUpdate) {
-            update(Env.ProprietorNameTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.ProprietorNameTypeID, s);
+            }
         }
     }
 
@@ -1262,7 +1207,9 @@ public abstract class LR_Record extends LR_Object {
     public final void setProprietorName3(String s, boolean doUpdate) {
         this.ProprietorName3 = s;
         if (doUpdate) {
-            update(Env.ProprietorNameTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.ProprietorNameTypeID, s);
+            }
         }
     }
 
@@ -1273,7 +1220,9 @@ public abstract class LR_Record extends LR_Object {
     public final void setProprietorName4(String s, boolean doUpdate) {
         this.ProprietorName4 = s;
         if (doUpdate) {
-            update(Env.ProprietorNameTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.ProprietorNameTypeID, s);
+            }
         }
     }
 
@@ -1284,7 +1233,9 @@ public abstract class LR_Record extends LR_Object {
     public final void setProprietorshipCategory2(String s, boolean doUpdate) {
         this.ProprietorshipCategory2 = s;
         if (doUpdate) {
-            update(Env.ProprietorshipCategoryTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.ProprietorshipCategoryTypeID, s);
+            }
         }
     }
 
@@ -1295,7 +1246,9 @@ public abstract class LR_Record extends LR_Object {
     public final void setProprietorshipCategory3(String s, boolean doUpdate) {
         this.ProprietorshipCategory3 = s;
         if (doUpdate) {
-            update(Env.ProprietorshipCategoryTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.ProprietorshipCategoryTypeID, s);
+            }
         }
     }
 
@@ -1306,7 +1259,9 @@ public abstract class LR_Record extends LR_Object {
     public final void setProprietorshipCategory4(String s, boolean doUpdate) {
         this.ProprietorshipCategory4 = s;
         if (doUpdate) {
-            update(Env.ProprietorshipCategoryTypeID, s);
+            if (!s.isEmpty()) {
+                update(Env.ProprietorshipCategoryTypeID, s);
+            }
         }
     }
 }

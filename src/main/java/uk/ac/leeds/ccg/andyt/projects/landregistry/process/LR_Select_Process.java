@@ -49,9 +49,8 @@ public class LR_Select_Process extends LR_Main_Process {
      * @param doFull If doFull the run selects from the FULL data otherwise it
      * selects from the Change Only Update (COU) data.
      * @param overwrite
-     * @param writeCollections
      */
-    public void run(String area, boolean doFull, boolean overwrite, boolean writeCollections) {
+    public void run(String area, boolean doFull, boolean overwrite) {
         this.overwrite = overwrite;
         File inputDataDir;
         inputDataDir = Files.getInputDataDir(Strings);

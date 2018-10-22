@@ -23,7 +23,7 @@ import java.io.Serializable;
  */
 public class LR_ID implements Serializable, Comparable {
 
-    private final int ID;
+    protected final int ID;
 
     protected LR_ID(int ID) {
         this.ID = ID;
@@ -38,7 +38,7 @@ public class LR_ID implements Serializable, Comparable {
 
     @Override
     public String toString() {
-        return Integer.toString(ID);
+        return "LR_ID(" + Integer.toString(ID) + ")";
     }
 
     @Override

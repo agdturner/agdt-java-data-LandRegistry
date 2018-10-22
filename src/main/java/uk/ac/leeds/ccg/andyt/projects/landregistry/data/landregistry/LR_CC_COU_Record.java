@@ -32,8 +32,8 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
     }
 
     public LR_CC_COU_Record(LR_Environment env, Generic_YearMonth YM, 
-            String line, boolean updateIDs) throws Exception {
-        super(env, YM, line, updateIDs);
+            String line, boolean doUpdate) throws Exception {
+        super(env, YM, line, doUpdate);
         init(line);
     }
 

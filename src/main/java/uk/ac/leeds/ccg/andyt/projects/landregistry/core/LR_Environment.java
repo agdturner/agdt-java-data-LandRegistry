@@ -94,11 +94,6 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public final HashMap<LR_TypeID, HashSet<LR_ValueID>> ValueIDs;
 
     /**
-     * ValueReverseLookups
-     */
-    public final HashMap<LR_TypeID, HashMap<LR_ValueID, String>> ValueReverseLookups;
-
-    /**
      * For looking up the upper and lower bounds for PricePaid data classes
      */
     public HashMap<LR_ValueID, Generic_Interval_long1> PricePaidLookup;
@@ -193,7 +188,6 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             this.TitleNumberIDToAddressIDLookup = cache.TitleNumberIDToAddressIDLookup;
             this.Values = cache.Values;
             this.ValueIDs = cache.ValueIDs;
-            this.ValueReverseLookups = cache.ValueReverseLookups;
             // TypeIDs
             this.CompanyRegistrationNoTypeID = cache.CompanyRegistrationNoTypeID;
             this.CountryIncorporatedTypeID = cache.CountryIncorporatedTypeID;
@@ -225,7 +219,6 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             TypeIDToStringToValueIDLookup = new HashMap<>();
             Values = new HashMap<>();
             ValueIDs = new HashMap<>();
-            ValueReverseLookups = new HashMap<>();
             // TypeIDs
             CompanyRegistrationNoTypeID = getTypeID(Strings.S_CompanyRegistrationNo);
             CountryIncorporatedTypeID = getTypeID(Strings.S_CountryIncorporated);
@@ -434,13 +427,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * @param typeID The LR_ID of the value type to be added.
      */
     protected void addValueType(LR_TypeID typeID) {
-        HashSet<LR_ValueID> values;
-        HashMap<LR_ValueID, String> valueReverseLookup;
-        values = new HashSet<>();
-        valueReverseLookup = new HashMap<>();
         Values.put(typeID, new HashSet<>());
-        ValueIDs.put(typeID, values);
-        ValueReverseLookups.put(typeID, valueReverseLookup);
+        ValueIDs.put(typeID, new HashSet<>());
     }
 
     /**
@@ -457,14 +445,11 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         if (!values.contains(s)) {
             values.add(s);
             HashSet<LR_ValueID> valueIDs;
-            HashMap<LR_ValueID, String> valueReverseLookup;
             valueIDs = ValueIDs.get(typeID);
-            valueReverseLookup = ValueReverseLookups.get(typeID);
             LR_ValueID valueID;
             int i = values.size();
             valueID = new LR_ValueID(i, s);
             valueIDs.add(valueID);
-            valueReverseLookup.put(valueID, s);
         }
     }
 

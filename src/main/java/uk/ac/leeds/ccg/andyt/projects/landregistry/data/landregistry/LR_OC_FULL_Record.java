@@ -94,7 +94,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     public LR_OC_FULL_Record(LR_OC_FULL_Record r, boolean doUpdate) {
         super(r, doUpdate);
-        setCountryIncorporated1(r.getCountryIncorporated1(), doUpdate);
+        setCountryIncorporated1(r.getCountryIncorporated1());
         setCountryIncorporated2(r.getCountryIncorporated2(), doUpdate);
         setCountryIncorporated3(r.getCountryIncorporated3(), doUpdate);
         setCountryIncorporated4(r.getCountryIncorporated4(), doUpdate);
@@ -263,28 +263,14 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void initCountryIncorporated1(String s, boolean doUpdate) {
         LR_TypeID typeID;
         typeID = Env.CountryIncorporatedTypeID;
-        if (s.isEmpty()) {
-            if (doUpdate) {
-                setCountryIncorporated1(updateNullCollection(typeID), doUpdate);
-            } else {
-                setCountryIncorporated1(Env.NullTitleNumberIDCollections.get(typeID).get(ID).getValue(), doUpdate);
-            }
-        } else {
-            setCountryIncorporated1(s, doUpdate);
-            if (doUpdate) {
-                Env.addValue(typeID, s);
-            }
-        }
-        if (doUpdate) {
-            updateNonNullCollections(getCountryIncorporated1(), typeID);
-        }
+        setCountryIncorporated1(s);
+        update(typeID, s, doUpdate);
     }
 
     /**
      * @param s what CountryIncorporated1 to set
-     * @param doUpdate
      */
-    public final void setCountryIncorporated1(String s, boolean doUpdate) {
+    public final void setCountryIncorporated1(String s) {
         this.CountryIncorporated1 = s;
     }
 
@@ -295,7 +281,9 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated2(String s, boolean doUpdate) {
         this.CountryIncorporated2 = s;
         if (doUpdate) {
-            update(Env.CountryIncorporatedTypeID, s);
+            if (!s.isEmpty()) {
+        update(Env.CountryIncorporatedTypeID, s);
+            }
         }
     }
 
@@ -306,7 +294,9 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated3(String s, boolean doUpdate) {
         this.CountryIncorporated3 = s;
         if (doUpdate) {
-            update(Env.CountryIncorporatedTypeID, s);
+            if (!s.isEmpty()) {
+        update(Env.CountryIncorporatedTypeID, s);
+            }
         }
     }
 
@@ -317,7 +307,9 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     public final void setCountryIncorporated4(String s, boolean doUpdate) {
         this.CountryIncorporated4 = s;
         if (doUpdate) {
-            update(Env.CountryIncorporatedTypeID, s);
+            if (!s.isEmpty()) {
+        update(Env.CountryIncorporatedTypeID, s);
+            }
         }
     }
 

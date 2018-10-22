@@ -1302,7 +1302,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s0 = f.getProprietorshipCategory1();
         s1 = c.getProprietorshipCategory1();
         if (!s0.equalsIgnoreCase(s1)) {
-            f.setProprietorshipCategory1(s1, updateIDs);
+            f.setProprietorshipCategory1(s1);
             ownershipChange = doDiff(Strings.S_ProprietorshipCategory1,
                     s0, s1, printDiff, ownershipChange);
             changeCount++;
@@ -1427,7 +1427,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s0 = f.getCountryIncorporated1();
         s1 = c.getCountryIncorporated1();
         if (!s0.equalsIgnoreCase(s1)) {
-            f.setCountryIncorporated1(s1, updateIDs);
+            f.setCountryIncorporated1(s1);
             if (!s0.trim().isEmpty()) {
                 s3 = "CountryIncorporated1 changed from " + s0 + " to " + s1;
                 System.out.println(s3);

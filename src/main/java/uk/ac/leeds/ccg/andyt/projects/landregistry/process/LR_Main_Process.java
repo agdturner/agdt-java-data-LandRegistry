@@ -64,13 +64,12 @@ public class LR_Main_Process extends LR_Object {
     boolean doTransitions = false;
     boolean doTransitionsAreas = false;
     boolean doTransitionsAll = false;
-    boolean writeCollections = false;
 
     public void run() {
 
         // Main switches
 //        writeCollections = true;
-//        doSelect = true;
+        doSelect = true;
         doGeneralise = true;
         doGeneraliseAreas = true;
 //        doGeneraliseAll = true;
@@ -106,14 +105,9 @@ public class LR_Main_Process extends LR_Object {
             while (ite.hasNext()) {
                 area = ite.next();
                 doFull = true;
-                sp.run(area, doFull, overwrite, writeCollections);
+                sp.run(area, doFull, overwrite);
                 doFull = false;
-                // If on the last run then writeCollections
-//                if (!ite.hasNext()) {
-//                    writeCollections = true;
-//                }
-                sp.run(area, doFull, overwrite, writeCollections);
-                writeCollections = false;
+                sp.run(area, doFull, overwrite);
             }
 
             // Write out cache if it does not exist.
@@ -165,8 +159,8 @@ public class LR_Main_Process extends LR_Object {
                     area = ite.next();
                     doFull = true;
                     gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
-                    doFull = false;
-                    gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+//                    doFull = false;
+//                    gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
                 }
             }
             if (doGeneraliseAll) {
