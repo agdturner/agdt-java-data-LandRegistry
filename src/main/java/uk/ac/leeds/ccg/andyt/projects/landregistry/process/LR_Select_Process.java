@@ -57,7 +57,6 @@ public class LR_Select_Process extends LR_Main_Process {
         File outputDataDir;
         outputDataDir = Files.getOutputDataDir(Strings);
 
-        boolean updateIDs = true;
         ArrayList<String> names0;
         //ArrayList<String> names1;
         ArrayList<String> setNames;
@@ -140,7 +139,7 @@ public class LR_Select_Process extends LR_Main_Process {
                                 read = true;
                             } else {
                                 try {
-                                    r = LR_Record.create(isCCOD, doFull, Env, YM, line, updateIDs);
+                                    r = LR_Record.create(isCCOD, doFull, Env, YM, line, true);
                                     if (r != null) {
                                         if (r.getDistrict().equalsIgnoreCase(area)) {
                                             //System.out.println(r.toCSV());

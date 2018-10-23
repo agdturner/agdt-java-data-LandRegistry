@@ -26,7 +26,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public transient static final String EOL = System.getProperty("line.separator");
 
     /**
-     * A collection of all current Comprised of NonNullTypes and NullTypes.
+     * A collection of all unique IDs ()current records.
      */
     public final HashSet<LR_ID2> IDs;
 
@@ -58,16 +58,6 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public final HashMap<String, LR_TypeID> TypeToTypeID;
 
     /**
-     * Keys are types and values are a set of values for that type.
-     */
-    public final HashMap<LR_TypeID, HashSet<LR_ValueID>> TypeIDToValuesLookups;
-
-    /**
-     * Keys are types and values are Lookups of a value String to an value ID.
-     */
-    public final HashMap<LR_TypeID, HashMap<String, LR_ValueID>> TypeIDToStringToValueIDLookup;
-
-    /**
      * Keys are typeID and values are Collections of lookups from the ID of a
      * record to the respective value ID of the value assigned for the typeID.
      */
@@ -84,14 +74,19 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public final HashMap<LR_ValueID, LR_ValueID> TitleNumberIDToAddressIDLookup;
 
     /**
-     * Stores all the different types of value.
+     * Keys are types and values are Sets of values.
      */
     public final HashMap<LR_TypeID, HashSet<String>> Values;
 
     /**
-     * ValueLookups
+     * Keys are types and values are Sets of value IDs.
      */
     public final HashMap<LR_TypeID, HashSet<LR_ValueID>> ValueIDs;
+
+    /**
+     * Keys are types and values are Lookups of a value String to an value ID.
+     */
+    public final HashMap<LR_TypeID, HashMap<String, LR_ValueID>> ValueReverseLookups;
 
     /**
      * For looking up the upper and lower bounds for PricePaid data classes
@@ -183,8 +178,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             this.PricePaidLookup = cache.PricePaidLookup;
             this.TypeIDs = cache.TypeIDs;
             this.TypeToTypeID = cache.TypeToTypeID;
-            this.TypeIDToValuesLookups = cache.TypeIDToValuesLookups;
-            this.TypeIDToStringToValueIDLookup = cache.TypeIDToStringToValueIDLookup;
+//            this.TypeIDToValuesLookups = cache.TypeIDToValuesLookups;
+            this.ValueReverseLookups = cache.ValueReverseLookups;
             this.TitleNumberIDToAddressIDLookup = cache.TitleNumberIDToAddressIDLookup;
             this.Values = cache.Values;
             this.ValueIDs = cache.ValueIDs;
@@ -215,8 +210,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             TitleNumberIDToAddressIDLookup = new HashMap<>();
             TypeToTypeID = new HashMap<>();
             TypeIDs = new HashSet<>();
-            TypeIDToValuesLookups = new HashMap<>();
-            TypeIDToStringToValueIDLookup = new HashMap<>();
+//            TypeIDToValuesLookups = new HashMap<>();
+            ValueReverseLookups = new HashMap<>();
             Values = new HashMap<>();
             ValueIDs = new HashMap<>();
             // TypeIDs
@@ -332,8 +327,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         LR_TypeID typeID;
         typeID = getTypeID(type);
         NonNullTypes.add(typeID);
-        TypeIDToStringToValueIDLookup.put(typeID, new HashMap<>());
-        TypeIDToValuesLookups.put(typeID, new HashSet<>());
+        ValueReverseLookups.put(typeID, new HashMap<>());
+//        TypeIDToValuesLookups.put(typeID, new HashSet<>());
+        addValueType(typeID);
     }
 
     protected void addNonNullPricePaidType(String type) {
@@ -432,25 +428,31 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     /**
-     * Adds a value s to ValueLookups.get(valueType) and
-     * ValueReverseLookups.get(valueType). This does not first test if s is
+     * Adds a value s to Values.get(valueType) and
+     * ValueReverseLookups.get(valueType).This does not first test if s is
      * already a key in ValueLookups.get(valueType).
      *
      * @param typeID
      * @param s
+     * @return
      */
-    public void addValue(LR_TypeID typeID, String s) {
-        HashSet<String> values;
-        values = Values.get(typeID);
-        if (!values.contains(s)) {
-            values.add(s);
-            HashSet<LR_ValueID> valueIDs;
-            valueIDs = ValueIDs.get(typeID);
-            LR_ValueID valueID;
-            int i = values.size();
-            valueID = new LR_ValueID(i, s);
-            valueIDs.add(valueID);
+    public LR_ValueID addValue(LR_TypeID typeID, String s) {
+        LR_ValueID result;
+        HashMap<String, LR_ValueID> valueReverseLookup;
+        valueReverseLookup = ValueReverseLookups.get(typeID);
+        if (valueReverseLookup.containsKey(s)) {
+            result = valueReverseLookup.get(s);
+        } else {
+            int i = valueReverseLookup.size();
+            result = new LR_ValueID(i, s);
+            valueReverseLookup.put(s, result);
+            HashSet<String> values;
+            values = Values.get(typeID);
+            if (values.add(s)) {
+                ValueIDs.get(typeID).add(result);
+            }
         }
+        return result;
     }
 
     /**
@@ -465,12 +467,14 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         LR_TypeID typeID;
         typeID = TypeToTypeID.get(type);
         HashMap<String, LR_ValueID> m;
-        m = TypeIDToStringToValueIDLookup.get(typeID);
+        m = ValueReverseLookups.get(typeID);
         if (!m.containsKey(type)) {
             LR_ValueID valueID;
             valueID = new LR_ValueID(m.size(), country);
             m.put(country, valueID);
-            TypeIDToValuesLookups.get(typeID).add(valueID);
+//            TypeIDToValuesLookups.get(typeID).add(valueID);
+            ValueIDs.get(typeID).add(valueID);
+            Values.get(typeID).add(country);
         }
     }
 

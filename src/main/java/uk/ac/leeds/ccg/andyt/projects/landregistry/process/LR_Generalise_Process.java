@@ -142,8 +142,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
         String type;
         LR_TypeID typeID;
 
-        HashMap<LR_ID2, LR_ValueID> nullPricePaid;
-        nullPricePaid = Env.NullTitleNumberIDCollections.get(Env.PricePaidTypeID);
+//        HashMap<LR_ID2, LR_ValueID> nullPricePaid;
+//        nullPricePaid = Env.NullTitleNumberIDCollections.get(Env.PricePaidTypeID);
         Iterator<String> ite0;
         Iterator<String> ite2;
         ite0 = names0.iterator();
@@ -253,15 +253,35 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             // Init S_Tenure PricePaid
                             type = Strings.S_Tenure;
                             typeID = Env.TenureTypeID;
-                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs);
+                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init S_CountryIncorporated1 PricePaid
                             type = Strings.S_CountryIncorporated1;
                             typeID = Env.CountryIncorporatedTypeID;
-                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs);
-                            // Init S_Tenure PricePaid
+                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
+                            // Init S_ProprietorshipCategory1 PricePaid
                             type = Strings.S_ProprietorshipCategory1;
                             typeID = Env.ProprietorshipCategoryTypeID;
-                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs);
+                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
+                            // Init Region PricePaid
+                            type = Strings.S_Region;
+                            typeID = Env.RegionTypeID;
+                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
+                            // Init County PricePaid
+                            type = Strings.S_County;
+                            typeID = Env.CountyTypeID;
+                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
+                            // Init District PricePaid
+                            type = Strings.S_District;
+                            typeID = Env.DistrictTypeID;
+                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
+                            // Init ProprietorName1 PricePaid
+                            type = Strings.S_ProprietorName1;
+                            typeID = Env.ProprietorNameTypeID;
+                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
+                            // Init CompanyRegistrationNo1 PricePaid
+                            type = Strings.S_CompanyRegistrationNo1;
+                            typeID = Env.CompanyRegistrationNoTypeID;
+                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
 
                             // Init NullCounts 
                             fout = new File(outdir, "GeneralCounts.csv");
@@ -282,7 +302,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                         r = LR_Record.create(isCCOD, doFull, Env, YM, line, upDateIDs);
                                         if (r != null) {
                                             addToNonNullCounts(r, nonNullPWs.keySet());
-                                            addToNonNullPricePaid(nullPricePaid, r, nonNullPricePaidPWs.keySet());
+                                            //addToNonNullPricePaid(nullPricePaid, r, nonNullPricePaidPWs.keySet());
+                                            addToNonNullPricePaid(r, nonNullPricePaidPWs.keySet());
                                             addToNullCounts(r);
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -296,15 +317,14 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 }
                             }
 
-                            // Output NonNullCounts
+                            // Output NonNullCounts and NonNullPricePaid
                             if (isCCOD) {
                                 printNonNullGeneralisation(nonNullPWs, minsCC);
+                                printNonNullPricePaidGeneralisation(nonNullPricePaidPWs, minsCC);
                             } else {
                                 printNonNullGeneralisation(nonNullPWs, minsOC);
+                                printNonNullPricePaidGeneralisation(nonNullPricePaidPWs, minsOC);
                             }
-
-                            // Outputs NonNullPricePaid
-                            printNonNullPricePaidGeneralisation(nonNullPricePaidPWs);
 
                             // Output NullCounts
                             iteTypes = Env.NullTypes.iterator();
@@ -372,9 +392,14 @@ public class LR_Generalise_Process extends LR_Main_Process {
      * @param typeID
      * @param outdir
      * @param pws
+     * @param nonNullPWs
      */
     protected void addNonNullPricePaidType(String type, LR_TypeID typeID,
-            File outdir, HashMap<LR_TypeID, PrintWriter> pws) {
+            File outdir, HashMap<LR_TypeID, PrintWriter> pws, 
+            HashMap<LR_TypeID, PrintWriter> nonNullPWs) {
+        if (!nonNullPWs.containsKey(typeID)) {
+            addNonNullCounts(type, typeID, outdir, nonNullPWs);
+        }
         File f;
         f = new File(outdir, type + Strings.S_PricePaid + ".csv");
         try {
@@ -382,10 +407,14 @@ public class LR_Generalise_Process extends LR_Main_Process {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(LR_Generalise_Process.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Iterator<LR_ValueID> ite;
-        ite = Env.ValueIDs.get(typeID).iterator();
         TreeMap<LR_ValueID, LR_PricePaidData> m;
         m = new TreeMap<>();
+        Iterator<LR_ValueID> ite;
+        ite = Env.ValueIDs.get(typeID).iterator();
+
+//        if (!ite.hasNext()) {
+//            System.out.println("Env.ValueIDs.get(typeID).iterator() is empty! type " + type + " typeID" + typeID);
+//        }
         LR_ValueID valueID;
         while (ite.hasNext()) {
             valueID = ite.next();
@@ -412,16 +441,24 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                 } else if (typeID.equals(Env.CompanyRegistrationNoTypeID)) {
                     id = r.getCompanyRegistrationNo1ID();
-                    Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    if (id != null) {
+                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
                 } else if (typeID.equals(Env.ProprietorshipCategoryTypeID)) {
                     id = r.getProprietorshipCategory1ID();
-                    Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    if (id != null) {
+                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
                 } else if (typeID.equals(Env.ProprietorNameTypeID)) {
                     id = r.getProprietorName1ID();
-                    Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    if (id != null) {
+                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
                 } else if (typeID.equals(Env.CountryIncorporatedTypeID)) {
                     id = r.getCountryIncorporated1ID();
-                    Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    if (id != null) {
+                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
                 } else if (typeID.equals(Env.PostcodeDistrictTypeID)) {
                     id = r.getPostcodeDistrictID();
                     if (id != null) {
@@ -440,8 +477,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         }
     }
 
-    protected void addToNonNullPricePaid(HashMap<LR_ID2, LR_ValueID> nullPricePaid,
-            LR_Record r, Set<LR_TypeID> s) {
+    protected void addToNonNullPricePaid(LR_Record r, Set<LR_TypeID> s) {
         if (r != null) {
             LR_ValueID valueID;
             Iterator<LR_TypeID> iteTypes;
@@ -454,54 +490,45 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 } else {
                     if (typeID.equals(Env.TenureTypeID)) {
                         valueID = r.getTenureID();
-
                         TreeMap<LR_ValueID, LR_PricePaidData> m;
                         m = NonNullPricePaid.get(typeID);
-
-                        // This is supposed to be already done!
-                        if (m == null) {
-                            m = new TreeMap<>();
-                            NonNullPricePaid.put(typeID, m);
-                            int debug = 1;
-                        }
-
+//                        // This is supposed to be already done!
+//                        if (m == null) {
+//                            m = new TreeMap<>();
+//                            NonNullPricePaid.put(typeID, m);
+//                            int debug = 1;
+//                        }
                         LR_PricePaidData ppd;
                         ppd = m.get(valueID);
-
-                        // This is supposed to be already done!
-                        if (ppd == null) {
-                            ppd = new LR_PricePaidData(Env);
-                            m.put(valueID, ppd);
-                            int debug = 1;
-                        }
-
+//                        // This is supposed to be already done!
+//                        if (ppd == null) {
+//                            ppd = new LR_PricePaidData(Env);
+//                            m.put(valueID, ppd);
+//                            int debug = 1;
+//                        }
                         ppd.add(r);
                         //System.out.println("Tenure " + r.getTenure());
                         //NonNullPricePaid.get(typeID).get(valueID).add(r);
                     } else if (typeID.equals(Env.CountryIncorporatedTypeID)) {
                         if (!r.getCountryIncorporated1().trim().isEmpty()) {
                             valueID = r.getCountryIncorporated1ID();
-
                             TreeMap<LR_ValueID, LR_PricePaidData> m;
                             m = NonNullPricePaid.get(typeID);
-
-                            // This is supposed to be already done!
-                            if (m == null) {
-                                m = new TreeMap<>();
-                                NonNullPricePaid.put(typeID, m);
-                                int debug = 1;
-                            }
-
+//                            // This is supposed to be already done!
+//                            if (m == null) {
+//                                m = new TreeMap<>();
+//                                NonNullPricePaid.put(typeID, m);
+//                                int debug = 1;
+//                            }
                             LR_PricePaidData ppd;
                             ppd = m.get(valueID);
-
-                            // This is supposed to be already done!
+                            // For adding United_Kingdom. (@TODO find a better way to do this.)
+                            // This is supposed to be already done! 
                             if (ppd == null) {
                                 ppd = new LR_PricePaidData(Env);
                                 m.put(valueID, ppd);
                                 int debug = 1;
                             }
-
                             ppd.add(r);
                             //System.out.println("CountryIncorporated1 " + r.getCountryIncorporated1());
                             //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {
@@ -511,26 +538,145 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             valueID = r.getProprietorshipCategory1ID();
                             TreeMap<LR_ValueID, LR_PricePaidData> m;
                             m = NonNullPricePaid.get(typeID);
-
-                            // This is supposed to be already done!
-                            if (m == null) {
-                                m = new TreeMap<>();
-                                NonNullPricePaid.put(typeID, m);
-                                int debug = 1;
-                            }
-
+//                            // This is supposed to be already done!
+//                            if (m == null) {
+//                                m = new TreeMap<>();
+//                                NonNullPricePaid.put(typeID, m);
+//                                int debug = 1;
+//                            }
                             LR_PricePaidData ppd;
                             ppd = m.get(valueID);
-
-                            // This is supposed to be already done!
-                            if (ppd == null) {
-                                ppd = new LR_PricePaidData(Env);
-                                m.put(valueID, ppd);
-                                int debug = 1;
-                            }
-
+//                            // This is supposed to be already done!
+//                            if (ppd == null) {
+//                                ppd = new LR_PricePaidData(Env);
+//                                m.put(valueID, ppd);
+//                                int debug = 1;
+//                            }
                             ppd.add(r);
                             //System.out.println("ProprietorshipCategory1 " + r.getProprietorshipCategory1());
+                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                        }
+                    } else if (typeID.equals(Env.ProprietorNameTypeID)) {
+                        if (!r.getProprietorName1().trim().isEmpty()) {
+                            valueID = r.getProprietorName1ID();
+                            TreeMap<LR_ValueID, LR_PricePaidData> m;
+                            m = NonNullPricePaid.get(typeID);
+//                            // This is supposed to be already done!
+//                            if (m == null) {
+//                                m = new TreeMap<>();
+//                                NonNullPricePaid.put(typeID, m);
+//                                int debug = 1;
+//                            }
+                            LR_PricePaidData ppd;
+                            ppd = m.get(valueID);
+//                            // This is supposed to be already done!
+//                            if (ppd == null) {
+//                                ppd = new LR_PricePaidData(Env);
+//                                m.put(valueID, ppd);
+//                                int debug = 1;
+//                            }
+                            ppd.add(r);
+                            //System.out.println("ProprietorName1 " + r.getProprietorName1());
+                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                        }
+                    } else if (typeID.equals(Env.CompanyRegistrationNoTypeID)) {
+                        if (!r.getCompanyRegistrationNo1().trim().isEmpty()) {
+                            valueID = r.getCompanyRegistrationNo1ID();
+                            if (valueID != null) {
+                                TreeMap<LR_ValueID, LR_PricePaidData> m;
+                                m = NonNullPricePaid.get(typeID);
+                                // This is supposed to be already done!
+                                if (m == null) {
+                                    m = new TreeMap<>();
+                                    NonNullPricePaid.put(typeID, m);
+                                    int debug = 1;
+                                }
+                                LR_PricePaidData ppd;
+                                ppd = m.get(valueID);
+//                            // This is supposed to be already done!
+//                            if (ppd == null) {
+//                                ppd = new LR_PricePaidData(Env);
+//                                m.put(valueID, ppd);
+//                                int debug = 1;
+//                            }
+                                ppd.add(r);
+                            }
+                            //System.out.println("CompanyRegistrationNo1 " + r.getCompanyRegistrationNo1());
+                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                        }
+                    } else if (typeID.equals(Env.RegionTypeID)) {
+                        if (!r.getRegion().trim().isEmpty()) {
+                            valueID = r.getRegionID();
+                            if (valueID != null) {
+                                TreeMap<LR_ValueID, LR_PricePaidData> m;
+                                m = NonNullPricePaid.get(typeID);
+                                // This is supposed to be already done!
+                                if (m == null) {
+                                    m = new TreeMap<>();
+                                    NonNullPricePaid.put(typeID, m);
+                                    int debug = 1;
+                                }
+                                LR_PricePaidData ppd;
+                                ppd = m.get(valueID);
+//                            // This is supposed to be already done!
+//                            if (ppd == null) {
+//                                ppd = new LR_PricePaidData(Env);
+//                                m.put(valueID, ppd);
+//                                int debug = 1;
+//                            }
+                                ppd.add(r);
+                            }
+                            //System.out.println("Region " + r.getRegion());
+                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                        }
+                    } else if (typeID.equals(Env.CountyTypeID)) {
+                        if (!r.getCounty().trim().isEmpty()) {
+                            valueID = r.getCountyID();
+                            if (valueID != null) {
+                                TreeMap<LR_ValueID, LR_PricePaidData> m;
+                                m = NonNullPricePaid.get(typeID);
+                                // This is supposed to be already done!
+                                if (m == null) {
+                                    m = new TreeMap<>();
+                                    NonNullPricePaid.put(typeID, m);
+                                    int debug = 1;
+                                }
+                                LR_PricePaidData ppd;
+                                ppd = m.get(valueID);
+//                            // This is supposed to be already done!
+//                            if (ppd == null) {
+//                                ppd = new LR_PricePaidData(Env);
+//                                m.put(valueID, ppd);
+//                                int debug = 1;
+//                            }
+                                ppd.add(r);
+                            }
+                            //System.out.println("County " + r.getCounty());
+                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                        }
+                    } else if (typeID.equals(Env.DistrictTypeID)) {
+                        if (!r.getDistrict().trim().isEmpty()) {
+                            valueID = r.getDistrictID();
+                            if (valueID != null) {
+                                TreeMap<LR_ValueID, LR_PricePaidData> m;
+                                m = NonNullPricePaid.get(typeID);
+                                // This is supposed to be already done!
+                                if (m == null) {
+                                    m = new TreeMap<>();
+                                    NonNullPricePaid.put(typeID, m);
+                                    int debug = 1;
+                                }
+                                LR_PricePaidData ppd;
+                                ppd = m.get(valueID);
+//                            // This is supposed to be already done!
+//                            if (ppd == null) {
+//                                ppd = new LR_PricePaidData(Env);
+//                                m.put(valueID, ppd);
+//                                int debug = 1;
+//                            }
+                                ppd.add(r);
+                            }
+                            //System.out.println("District " + r.getDistrict());
                             //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
                         }
                     } else {
@@ -562,16 +708,22 @@ public class LR_Generalise_Process extends LR_Main_Process {
     /**
      *
      * @param pws
+     * @param mins
      */
     protected void printNonNullPricePaidGeneralisation(
-            HashMap<LR_TypeID, PrintWriter> pws) {
+            HashMap<LR_TypeID, PrintWriter> pws, HashMap<LR_ID, Integer> mins) {
         Iterator<LR_TypeID> ite;
         ite = pws.keySet().iterator();
         LR_TypeID typeID;
         while (ite.hasNext()) {
             typeID = ite.next();
-            printGeneralisation(pws.get(typeID), NonNullPricePaid.get(typeID),
-                    Env.ValueIDs.get(typeID));
+            if (!NonNullCounts.containsKey(typeID)) {
+                System.out.println("!NonNullCounts.containsKey(typeID)");
+            } else {
+                printGeneralisation(pws.get(typeID), NonNullPricePaid.get(typeID),
+                        Env.ValueIDs.get(typeID), NonNullCounts.get(typeID),
+                        mins.get(typeID));
+            }
         }
     }
 
@@ -579,40 +731,95 @@ public class LR_Generalise_Process extends LR_Main_Process {
      *
      * @param pw
      * @param pricePaid
-     * @param values
+     * @param valueIDs
+     * @param counts
+     * @param min
      */
     protected void printGeneralisation(PrintWriter pw,
             TreeMap<LR_ValueID, LR_PricePaidData> pricePaid,
-            HashSet<LR_ValueID> values) {
+            HashSet<LR_ValueID> valueIDs, Map<LR_ValueID, Integer> counts, int min) {
         LR_ValueID ppValueID;
         Iterator<LR_ValueID> ite;
+        Iterator<LR_ValueID> ite2;
         TreeMap<LR_ValueID, Integer> ppCounts;
-        int count;
+        Integer count;
         String value;
         LR_PricePaidData ppd;
-        Iterator<LR_ValueID> ite3;
+//        Iterator<LR_ValueID> ite3;
         String name;
         LR_ValueID valueID;
-        ite3 = values.iterator();
-        while (ite3.hasNext()) {
-            valueID = ite3.next();
-            name = valueID.getValue();
-            ppd = pricePaid.get(valueID);
-            ppCounts = ppd.getPricePaidCounts();
-            ite = ppCounts.keySet().iterator();
-            if (ite.hasNext()) {
-                pw.println(name);
-                pw.println("PricePaid Classes");
-                pw.println("Value, Count");
-                while (ite.hasNext()) {
-                    ppValueID = ite.next();
-                    count = ppCounts.get(ppValueID);
-                    value = Env.PricePaidLookup.get(ppValueID).toString();
-                    pw.println("\"" + value + "\"," + count);
+
+        int smallCount = 0;
+        boolean reportedSmallCount = false;
+        int allCount;
+        allCount = 0;
+
+        Map<LR_ValueID, Integer> sortedCounts;
+        sortedCounts = Generic_Collections.sortByValue(counts);
+        ite = sortedCounts.keySet().iterator();
+        while (ite.hasNext()) {
+            valueID = ite.next();
+            count = counts.get(valueID);
+            if (count == null) {
+                count = 0;
+            }
+            allCount += count;
+            if (count >= min) {
+                if (!reportedSmallCount) {
+                    pw.println("Those with less than " + min + "," + smallCount);
+                    reportedSmallCount = true;
                 }
-                printSummaryStatistics(ppd.getPricePaid(), pw);
+                if (valueIDs == null) {
+                    pw.println("\"" + valueID + "\"," + count);
+                } else {
+                    pw.println("\"" + valueID.getValue() + "\"," + count);
+                }
+                name = valueID.getValue();
+                ppd = pricePaid.get(valueID);
+                ppCounts = ppd.getPricePaidCounts();
+                ite2 = ppCounts.keySet().iterator();
+                if (ite2.hasNext()) {
+                    pw.println(name);
+                    pw.println("PricePaid Classes");
+                    pw.println("Value, Count");
+                    while (ite2.hasNext()) {
+                        ppValueID = ite2.next();
+                        count = ppCounts.get(ppValueID);
+                        value = Env.PricePaidLookup.get(ppValueID).toString();
+                        pw.println("\"" + value + "\"," + count);
+                    }
+                    printSummaryStatistics(ppd.getPricePaid(), pw);
+                }
+            } else {
+                smallCount += count;
             }
         }
+
+//        ite3 = valueIDs.iterator();
+//        while (ite3.hasNext()) {
+//            valueID = ite3.next();
+//            count = counts.get(valueID);
+//            if (count > min) {
+//                name = valueID.getValue();
+//                ppd = pricePaid.get(valueID);
+//                ppCounts = ppd.getPricePaidCounts();
+//                ite = ppCounts.keySet().iterator();
+//                if (ite.hasNext()) {
+//                    pw.println(name);
+//                    pw.println("PricePaid Classes");
+//                    pw.println("Value, Count");
+//                    while (ite.hasNext()) {
+//                        ppValueID = ite.next();
+//                        count = ppCounts.get(ppValueID);
+//                        value = Env.PricePaidLookup.get(ppValueID).toString();
+//                        pw.println("\"" + value + "\"," + count);
+//                    }
+//                    printSummaryStatistics(ppd.getPricePaid(), pw);
+//                }
+//            }
+//        }
+        pw.println("All Count " + allCount);
+        pw.println();
     }
 
     public void printSummaryStatistics(ArrayList<BigDecimal> data,
@@ -686,26 +893,25 @@ public class LR_Generalise_Process extends LR_Main_Process {
             typeID = iteTypes.next();
             min = mins.get(typeID);
             printGeneralisation(pws, typeID, NonNullCounts.get(typeID),
-                    Env.TypeIDToValuesLookups.get(typeID), min);
+                    Env.ValueIDs.get(typeID), min);
         }
     }
 
     /**
      *
-     * @param <K>
      * @param pws
      * @param typeID
      * @param counts
-     * @param lookup
+     * @param valueIDs
      * @param min
      */
     protected void printGeneralisation(
             HashMap<LR_TypeID, PrintWriter> pws, LR_TypeID typeID,
-            Map<LR_ValueID, Integer> counts, HashSet<LR_ValueID> lookup, int min) {
+            Map<LR_ValueID, Integer> counts, HashSet<LR_ValueID> valueIDs, int min) {
         PrintWriter pw;
         pw = pws.get(typeID);
         pw.println(typeID.getType());
-        LR_ValueID k;
+        LR_ValueID valueID;
         Integer count;
         int smallCount = 0;
         boolean reportedSmallCount = false;
@@ -716,16 +922,16 @@ public class LR_Generalise_Process extends LR_Main_Process {
         if (typeID.equals(Env.PricePaidTypeID)) {
             ite = counts.keySet().iterator();
             while (ite.hasNext()) {
-                k = ite.next();
-                count = counts.get(k);
+                valueID = ite.next();
+                count = counts.get(valueID);
                 if (count == null) {
                     count = 0;
                 }
                 allCount += count;
-                if (lookup == null) {
-                    pw.println("\"" + k + "\"," + count);
+                if (valueIDs == null) {
+                    pw.println("\"" + valueID + "\"," + count);
                 } else {
-                    pw.println("\"" + Env.PricePaidLookup.get(k).toString() + "\"," + count);
+                    pw.println("\"" + Env.PricePaidLookup.get(valueID).toString() + "\"," + count);
                 }
             }
         } else {
@@ -733,8 +939,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
             sortedCounts = Generic_Collections.sortByValue(counts);
             ite = sortedCounts.keySet().iterator();
             while (ite.hasNext()) {
-                k = ite.next();
-                count = counts.get(k);
+                valueID = ite.next();
+                count = counts.get(valueID);
                 if (count == null) {
                     count = 0;
                 }
@@ -744,10 +950,10 @@ public class LR_Generalise_Process extends LR_Main_Process {
                         pw.println("Those with less than " + min + "," + smallCount);
                         reportedSmallCount = true;
                     }
-                    if (lookup == null) {
-                        pw.println("\"" + k + "\"," + count);
+                    if (valueIDs == null) {
+                        pw.println("\"" + valueID + "\"," + count);
                     } else {
-                        pw.println("\"" + k.getValue() + "\"," + count);
+                        pw.println("\"" + valueID.getValue() + "\"," + count);
                     }
                 } else {
                     smallCount += count;
@@ -758,75 +964,6 @@ public class LR_Generalise_Process extends LR_Main_Process {
         pw.println();
     }
 
-//    /**
-//     *
-//     * @param <K>
-//     * @param pws
-//     * @param typeID
-//     * @param counts
-//     * @param lookup
-//     * @param min
-//     */
-//    protected <K> void printGeneralisation(
-//            HashMap<LR_TypeID, PrintWriter> pws, LR_TypeID typeID,
-//            Map<K, Integer> counts, Map<K, String> lookup, int min) {
-//        PrintWriter pw;
-//        pw = pws.get(typeID);
-//        pw.println(typeID.getType());
-//        K k;
-//        Integer count;
-//        int smallCount = 0;
-//        boolean reportedSmallCount = false;
-//        int allCount;
-//        allCount = 0;
-//        Iterator<K> ite;
-//        pw.println("Value, Count");
-//        if (typeID.equals(Env.PricePaidTypeID)) {
-//            ite = counts.keySet().iterator();
-//            while (ite.hasNext()) {
-//                k = ite.next();
-//                count = counts.get(k);
-//                if (count == null) {
-//                    count = 0;
-//                }
-//                allCount += count;
-//                if (lookup == null) {
-//                    pw.println("\"" + k + "\"," + count);
-//                } else {
-//                    pw.println("\"" + Env.PricePaidLookup.get(k).toString() + "\"," + count);
-//                }
-//            }
-//        } else {
-//            Map<K, Integer> sortedCounts;
-//            sortedCounts = Generic_Collections.sortByValue(counts);
-//            ite = sortedCounts.keySet().iterator();
-//            while (ite.hasNext()) {
-//                k = ite.next();
-//                count = counts.get(k);
-//                if (count == null) {
-//                    count = 0;
-//                }
-//                allCount += count;
-//                if (count >= min) {
-//                    if (!reportedSmallCount) {
-//                        pw.println("Those with less than " + min + "," + smallCount);
-//                        reportedSmallCount = true;
-//                    }
-//                    if (lookup == null) {
-//                        pw.println("\"" + k + "\"," + count);
-//                    } else {
-//                        String v;
-//                        v = lookup.get(k);
-//                        pw.println("\"" + v + "\"," + count);
-//                    }
-//                } else {
-//                    smallCount += count;
-//                }
-//            }
-//        }
-//        pw.println("All Count " + allCount);
-//        pw.println();
-//    }
     /**
      *
      * @param pws

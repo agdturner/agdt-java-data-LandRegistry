@@ -6,7 +6,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
 
 import java.io.Serializable;
-import java.util.Objects;
+//import java.util.Objects;
 
 /**
  *
@@ -40,40 +40,40 @@ public class LR_TypeID extends LR_ID implements Serializable {
             if (super.equals(o)) {
                 LR_TypeID o2 = (LR_TypeID) o;
                 if (this.hashCode() == o2.hashCode()) {
-                    return true;
+                    return this.Type.equalsIgnoreCase(o2.Type);
                 }
             }
         }
         return false;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 79 * hash + Objects.hashCode(this.Type);
-        return hash;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        if (o == null) {
-            return -1;
-        }
-        if (o instanceof LR_TypeID) {
-            int s;
-            s = super.compareTo(o);
-            if (s == 0) {
-                int compare = this.Type.compareTo(((LR_TypeID) o).Type);
-                if (compare < 0) {
-                    return -1;
-                } else if (compare > 0) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-            return s;
-        }
-        return -1;
-    }
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        hash = 79 * hash + Objects.hashCode(this.Type);
+//        return hash;
+//    }
+//
+//    @Override
+//    public int compareTo(Object o) {
+//        if (o == null) {
+//            return -1;
+//        }
+//        if (o instanceof LR_TypeID) {
+//            int s;
+//            s = super.compareTo(o);
+//            if (s == 0) {
+//                int compare = this.Type.compareTo(((LR_TypeID) o).Type);
+//                if (compare < 0) {
+//                    return -1;
+//                } else if (compare > 0) {
+//                    return 1;
+//                } else {
+//                    return 0;
+//                }
+//            }
+//            return s;
+//        }
+//        return -1;
+//    }
 }

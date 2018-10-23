@@ -282,7 +282,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         this.CountryIncorporated2 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-        update(Env.CountryIncorporatedTypeID, s);
+                Env.addValue(Env.CountryIncorporatedTypeID, s);
             }
         }
     }
@@ -295,7 +295,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         this.CountryIncorporated3 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-        update(Env.CountryIncorporatedTypeID, s);
+                Env.addValue(Env.CountryIncorporatedTypeID, s);
             }
         }
     }
@@ -308,7 +308,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         this.CountryIncorporated4 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-        update(Env.CountryIncorporatedTypeID, s);
+                Env.addValue(Env.CountryIncorporatedTypeID, s);
             }
         }
     }
@@ -318,7 +318,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     @Override
     public final LR_ValueID getCountryIncorporated1ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.CountryIncorporatedTypeID).get(getCountryIncorporated1());
+        return Env.ValueReverseLookups.get(Env.CountryIncorporatedTypeID).get(getCountryIncorporated1());
     }
 
 }

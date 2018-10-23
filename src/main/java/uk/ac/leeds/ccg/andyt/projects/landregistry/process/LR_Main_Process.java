@@ -69,10 +69,10 @@ public class LR_Main_Process extends LR_Object {
 
         // Main switches
 //        writeCollections = true;
-        doSelect = true;
+//        doSelect = true;
         doGeneralise = true;
         doGeneraliseAreas = true;
-//        doGeneraliseAll = true;
+        doGeneraliseAll = true;
 //        doTransitions = true;
 //        doTransitionsAreas = true;
 //        doTransitionsAll = true;
@@ -182,8 +182,8 @@ public class LR_Main_Process extends LR_Object {
                     area = ite.next();
                     doFull = true;
                     gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
-                    doFull = false;
-                    gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
+//                    doFull = false;
+//                    gp.run(area, doAll, minsCC, minsOC, inputDataDir, doCCOD, doOCOD, doFull, overwrite);
                 }
             }
         }

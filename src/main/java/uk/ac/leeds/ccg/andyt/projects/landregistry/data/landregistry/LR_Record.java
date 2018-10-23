@@ -193,47 +193,43 @@ public abstract class LR_Record extends LR_Object {
                 updateNullCollection(typeID, s);
             }
         } else {
-            update(typeID, s);
-        }
-    }
-
-    /**
-     * @param typeID The typeID of the variable.
-     * @param s The variable value.
-     */
-    protected final void update(LR_TypeID typeID, String s) {
-        if (Env.Values.get(typeID).add(s)) {
             Env.addValue(typeID, s);
         }
-        updateNonNullCollections(s, typeID);
     }
 
-    /**
-     *
-     * @param s The key to set.
-     * @param typeID The typeID of collection to set in.
-     * @return The LR_TypeID of s for sType.
-     */
-    protected LR_ValueID updateNonNullCollections(String s, LR_TypeID typeID) {
-        LR_ValueID result;
-        HashMap<String, LR_ValueID> TypeIDToValuesStringLookup;
-        HashSet<LR_ValueID> values;
-        TypeIDToValuesStringLookup = Env.TypeIDToStringToValueIDLookup.get(typeID);
-        if (TypeIDToValuesStringLookup == null) {
-            int debug = 1;
-            result = null;
-        } else {
-            if (TypeIDToValuesStringLookup.containsKey(s)) {
-                result = TypeIDToValuesStringLookup.get(s);
-            } else {
-                result = new LR_ValueID(TypeIDToValuesStringLookup.size(), s);
-                TypeIDToValuesStringLookup.put(s, result);
-                values = Env.TypeIDToValuesLookups.get(typeID);
-                values.add(result);
-            }
-        }
-        return result;
-    }
+//    /**
+//     * @param typeID The typeID of the variable.
+//     * @param s The variable value.
+//     */
+//    protected final void update(LR_TypeID typeID, String s) {
+//        Env.addValue(typeID, s);
+//        updateNonNullCollections(s, typeID);
+//    }
+//
+//    /**
+//     *
+//     * @param s The key to set.
+//     * @param typeID The typeID of collection to set in.
+//     * @return The LR_TypeID of s for sType.
+//     */
+//    protected LR_ValueID updateNonNullCollections(String s, LR_TypeID typeID) {
+//        LR_ValueID result;
+//        HashMap<String, LR_ValueID> valueReverseLookup;
+//        valueReverseLookup = Env.ValueReverseLookups.get(typeID);
+//            if (valueReverseLookup.containsKey(s)) {
+//                result = valueReverseLookup.get(s);
+//            } else {
+//                result = new LR_ValueID(valueReverseLookup.size(), s);
+//                valueReverseLookup.put(s, result);
+//                HashSet<LR_ValueID> valueIDs;
+//                valueIDs = Env.ValueIDs.get(typeID);
+//                valueIDs.add(result);
+//                HashSet<String> values;
+//                values = Env.Values.get(typeID);
+//                values.add(s);                
+//            }
+//        return result;
+//    }
 
     /**
      * @param s TitleNumber
@@ -247,9 +243,9 @@ public abstract class LR_Record extends LR_Object {
         }
         setTitleNumber(s);
         if (doUpdate) {
-            TitleNumberID = updateNonNullCollections(s, Env.TitleNumberTypeID);
+            TitleNumberID = Env.addValue(Env.TitleNumberTypeID, s);
         } else {
-            TitleNumberID = Env.TypeIDToStringToValueIDLookup.get(Env.TitleNumberTypeID).get(s);
+            TitleNumberID = Env.ValueReverseLookups.get(Env.TitleNumberTypeID).get(s);
         }
     }
 
@@ -266,9 +262,9 @@ public abstract class LR_Record extends LR_Object {
             throw new Exception("Unexpected Tenure: \"" + s + "\"");
         }
         setTenure(s);
-        if (doUpdate) {
-            updateNonNullCollections(s, Env.TenureTypeID);
-        }
+//        if (doUpdate) {
+//            updateNonNullCollections(s, Env.TenureTypeID);
+//        }
     }
 
     /**
@@ -297,9 +293,11 @@ public abstract class LR_Record extends LR_Object {
 ////        String pa;
 ////        pa = getPropertyAddress();
         if (doUpdate) {
-            LR_ValueID valueID;
+            LR_ValueID valueID = null;
+            if (!s.isEmpty()) {
             //valueID = updateNonNullCollections(pa, typeID);
-            valueID = updateNonNullCollections(s, typeID);
+            valueID = Env.addValue(typeID, s);
+            }
             // init ID
             ID = new LR_ID2(TitleNumberID, valueID);
             if (!Env.IDs.contains(ID)) {
@@ -526,56 +524,56 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorName1ID
      */
     public final LR_ValueID getProprietorName1ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorNameTypeID).get(getProprietorName1());
+        return Env.ValueReverseLookups.get(Env.ProprietorNameTypeID).get(getProprietorName1());
     }
 
     /**
      * @return the ProprietorName2ID
      */
     public final LR_ValueID getProprietorName2ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorNameTypeID).get(getProprietorName2());
+        return Env.ValueReverseLookups.get(Env.ProprietorNameTypeID).get(getProprietorName2());
     }
 
     /**
      * @return the ProprietorName3ID
      */
     public final LR_ValueID getProprietorName3ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorNameTypeID).get(getProprietorName3());
+        return Env.ValueReverseLookups.get(Env.ProprietorNameTypeID).get(getProprietorName3());
     }
 
     /**
      * @return the ProprietorName4ID
      */
     public final LR_ValueID getProprietorName4ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorNameTypeID).get(getProprietorName4());
+        return Env.ValueReverseLookups.get(Env.ProprietorNameTypeID).get(getProprietorName4());
     }
 
     /**
      * @return the CompanyRegistrationNo1ID
      */
     public final LR_ValueID getCompanyRegistrationNo1ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo1());
+        return Env.ValueReverseLookups.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo1());
     }
 
     /**
      * @return the CompanyRegistrationNo2ID
      */
     public final LR_ValueID getCompanyRegistrationNo2ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo2());
+        return Env.ValueReverseLookups.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo2());
     }
 
     /**
      * @return the CompanyRegistrationNo3ID
      */
     public final LR_ValueID getCompanyRegistrationNo3ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo3());
+        return Env.ValueReverseLookups.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo3());
     }
 
     /**
      * @return the CompanyRegistrationNo4ID
      */
     public final LR_ValueID getCompanyRegistrationNo4ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo4());
+        return Env.ValueReverseLookups.get(Env.CompanyRegistrationNoTypeID).get(getCompanyRegistrationNo4());
     }
 
     /**
@@ -596,7 +594,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the TenureID
      */
     public final LR_ValueID getTenureID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.TenureTypeID).get(getTenure());
+        return Env.ValueReverseLookups.get(Env.TenureTypeID).get(getTenure());
     }
 
     /**
@@ -607,12 +605,26 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
+     * @return the DistrictID
+     */
+    public final LR_ValueID getDistrictID() {
+        return Env.ValueReverseLookups.get(Env.DistrictTypeID).get(getDistrict());
+    }
+    
+    /**
      * @return the Region
      */
     public final String getRegion() {
         return Region;
     }
 
+    /**
+     * @return the RegionID
+     */
+    public final LR_ValueID getRegionID() {
+        return Env.ValueReverseLookups.get(Env.RegionTypeID).get(getRegion());
+    }
+    
     /**
      * @return the Postcode
      */
@@ -631,7 +643,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the PostcodeDistrictID
      */
     public final LR_ValueID getPostcodeDistrictID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.PostcodeDistrictTypeID).get(getPostcodeDistrict());
+        return Env.ValueReverseLookups.get(Env.PostcodeDistrictTypeID).get(getPostcodeDistrict());
     }
 
     /**
@@ -670,6 +682,13 @@ public abstract class LR_Record extends LR_Object {
     }
 
     /**
+     * @return the CountyID
+     */
+    public final LR_ValueID getCountyID() {
+        return Env.ValueReverseLookups.get(Env.CountyTypeID).get(getCounty());
+    }
+    
+    /**
      * @return the ProprietorName1
      */
     public final String getProprietorName1() {
@@ -687,7 +706,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorshipCategory1ID
      */
     public final LR_ValueID getProprietorshipCategory1ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory1());
+        return Env.ValueReverseLookups.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory1());
     }
 
     /**
@@ -855,7 +874,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorshipCategory2ID
      */
     public final LR_ValueID getProprietorshipCategory2ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory2());
+        return Env.ValueReverseLookups.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory2());
     }
 
     /**
@@ -869,7 +888,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorshipCategory3ID
      */
     public final LR_ValueID getProprietorshipCategory3ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory3());
+        return Env.ValueReverseLookups.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory3());
     }
 
     /**
@@ -883,7 +902,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the ProprietorshipCategory4ID
      */
     public final LR_ValueID getProprietorshipCategory4ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory4());
+        return Env.ValueReverseLookups.get(Env.ProprietorshipCategoryTypeID).get(getProprietorshipCategory4());
     }
 
     /**
@@ -897,7 +916,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the CountryIncorporated1ID
      */
     public LR_ValueID getCountryIncorporated1ID() {
-        return Env.TypeIDToStringToValueIDLookup.get(Env.CountryIncorporatedTypeID).get(getCountryIncorporated1());
+        return Env.ValueReverseLookups.get(Env.CountryIncorporatedTypeID).get(getCountryIncorporated1());
     }
 
     /**
@@ -962,7 +981,7 @@ public abstract class LR_Record extends LR_Object {
             s0 = split[0];
             setPostcodeDistrict(s0);
             if (doUpdate) {
-                update(typeID, s0);
+                Env.addValue(typeID, s0);
             }
         } else {
             setPostcodeDistrict(s);
@@ -1063,7 +1082,7 @@ public abstract class LR_Record extends LR_Object {
         this.CompanyRegistrationNo2 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.CompanyRegistrationNoTypeID, s);
+                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
             }
         }
     }
@@ -1077,7 +1096,7 @@ public abstract class LR_Record extends LR_Object {
         this.CompanyRegistrationNo3 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.CompanyRegistrationNoTypeID, s);
+                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
             }
         }
     }
@@ -1091,7 +1110,7 @@ public abstract class LR_Record extends LR_Object {
         this.CompanyRegistrationNo4 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.CompanyRegistrationNoTypeID, s);
+                Env.addValue(Env.CompanyRegistrationNoTypeID, s);
             }
         }
     }
@@ -1195,7 +1214,7 @@ public abstract class LR_Record extends LR_Object {
         this.ProprietorName2 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.ProprietorNameTypeID, s);
+                Env.addValue(Env.ProprietorNameTypeID, s);
             }
         }
     }
@@ -1208,7 +1227,7 @@ public abstract class LR_Record extends LR_Object {
         this.ProprietorName3 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.ProprietorNameTypeID, s);
+                Env.addValue(Env.ProprietorNameTypeID, s);
             }
         }
     }
@@ -1221,7 +1240,7 @@ public abstract class LR_Record extends LR_Object {
         this.ProprietorName4 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.ProprietorNameTypeID, s);
+                Env.addValue(Env.ProprietorNameTypeID, s);
             }
         }
     }
@@ -1234,7 +1253,7 @@ public abstract class LR_Record extends LR_Object {
         this.ProprietorshipCategory2 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.ProprietorshipCategoryTypeID, s);
+                Env.addValue(Env.ProprietorshipCategoryTypeID, s);
             }
         }
     }
@@ -1247,7 +1266,7 @@ public abstract class LR_Record extends LR_Object {
         this.ProprietorshipCategory3 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.ProprietorshipCategoryTypeID, s);
+                Env.addValue(Env.ProprietorshipCategoryTypeID, s);
             }
         }
     }
@@ -1260,7 +1279,7 @@ public abstract class LR_Record extends LR_Object {
         this.ProprietorshipCategory4 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                update(Env.ProprietorshipCategoryTypeID, s);
+                Env.addValue(Env.ProprietorshipCategoryTypeID, s);
             }
         }
     }
