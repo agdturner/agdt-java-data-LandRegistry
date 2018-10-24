@@ -121,7 +121,6 @@ public class LR_Generalise_Process extends LR_Main_Process {
         }
         boolean isCCOD;
 
-        boolean upDateIDs = false;
         // Initialise transparencyMap
         loadTransparencyMap();
 
@@ -135,8 +134,6 @@ public class LR_Generalise_Process extends LR_Main_Process {
         PrintWriter pw;
         // Initialise Types, IDToType and TypeToID.
 
-        nonNullPWs = new HashMap<>();
-        nonNullPricePaidPWs = new HashMap<>();
         Iterator<LR_TypeID> iteTypes;
 
         String type;
@@ -213,16 +210,19 @@ public class LR_Generalise_Process extends LR_Main_Process {
                         LR_Record r;
                         // read header
                         Generic_ReadCSV.readLine(st, null);
-                        int ID;
-                        ID = 1;
+                        int lineNumber;
+                        lineNumber = 0;
+                        int N;
+                        N = 0;
                         Generic_YearMonth YM = null;
                         // Initialise printwriters
+                        nonNullPWs = new HashMap<>();
+                        nonNullPricePaidPWs = new HashMap<>();
                         try {
                             outdir.mkdirs();
                             /**
                              * Initialise collections and outputs.
                              */
-
                             // Init NonNullCounts
                             NonNullCounts = new HashMap<>();
                             type = Strings.S_CountryIncorporated1;
@@ -294,24 +294,27 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             }
 
                             while (!read) {
+                                lineNumber ++;
                                 line = Generic_ReadCSV.readLine(st, null);
                                 if (line == null) {
                                     read = true;
                                 } else {
                                     try {
-                                        r = LR_Record.create(isCCOD, doFull, Env, YM, line, upDateIDs);
+                                        r = LR_Record.create(isCCOD, doFull, Env, YM, line, false);
                                         if (r != null) {
                                             addToNonNullCounts(r, nonNullPWs.keySet());
                                             //addToNonNullPricePaid(nullPricePaid, r, nonNullPricePaidPWs.keySet());
                                             addToNonNullPricePaid(r, nonNullPricePaidPWs.keySet());
                                             addToNullCounts(r);
+                                            N ++;
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
-                                        //e.printStackTrace(System.err);
-                                        System.out.println("Line " + ID + " is not a nomal line:" + line);
+                                        e.printStackTrace(System.err);
+                                        System.out.println("Line: " + lineNumber + "\"" + line + "\"");
+                                        Logger.getLogger(LR_Select_Process.class.getName()).log(Level.SEVERE, null, e);
                                     } catch (Exception ex) {
                                         ex.printStackTrace(System.err);
-                                        System.err.println("Line: " + line);
+                                        System.err.println("Line: " + lineNumber + "\"" + line + "\"");
                                         Logger.getLogger(LR_Select_Process.class.getName()).log(Level.SEVERE, null, ex);
                                     }
                                 }
@@ -326,7 +329,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 printNonNullPricePaidGeneralisation(nonNullPricePaidPWs, minsOC);
                             }
 
+                            // Output GeneralCounts
+                            pw.println("GeneralCounts");
+                            pw.println("Number of records " + N);
+                            pw.println();
                             // Output NullCounts
+                            pw.println("Counts of Null values");
                             iteTypes = Env.NullTypes.iterator();
                             int n;
                             while (iteTypes.hasNext()) {
@@ -335,7 +343,21 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 n = NullCounts.get(typeID);
                                 pw.println("Count of null " + type + " " + n);
                             }
-
+                            pw.println();
+                            // Output NullCounts
+                            pw.println("Percentages of Null values");
+                            iteTypes = Env.NullTypes.iterator();
+                            double n2;
+                            double percentage;
+                            while (iteTypes.hasNext()) {
+                                typeID = iteTypes.next();
+                                type = typeID.getType();
+                                n2 = NullCounts.get(typeID);
+                                percentage = (n2 * 100.0d) / (double) N;
+                                pw.println("Percentage of null " + type + " " 
+                                        + String.format( "%.2f", percentage));
+                            } 
+                            pw.println();
                             // Close printWriters
                             iteTypes = nonNullPWs.keySet().iterator();
                             while (iteTypes.hasNext()) {
@@ -361,10 +383,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 }
             }
         }
-
         // Write out summaries.
-        System.out.println(" Write out summaries");
-
+        System.out.println("Write out summaries");
+        
     }
 
     /**
@@ -442,7 +463,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 } else if (typeID.equals(Env.CompanyRegistrationNoTypeID)) {
                     id = r.getCompanyRegistrationNo1ID();
                     if (id != null) {
-                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                            Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
                 } else if (typeID.equals(Env.ProprietorshipCategoryTypeID)) {
                     id = r.getProprietorshipCategory1ID();
@@ -468,6 +489,21 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     id = r.getPricePaidClass();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
+                } else if (typeID.equals(Env.RegionTypeID)) {
+                    id = r.getRegionID();
+                    if (id != null) {
+                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
+                } else if (typeID.equals(Env.CountyTypeID)) {
+                    id = r.getCountyID();
+                    if (id != null) {
+                        Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
+                    }
+                } else if (typeID.equals(Env.DistrictTypeID)) {
+                    id = r.getDistrictID();
+                    if (id != null) {
+                            Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
                 } else {
                     System.out.println("Type " + typeID.getType()
@@ -593,12 +629,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 }
                                 LR_PricePaidData ppd;
                                 ppd = m.get(valueID);
-//                            // This is supposed to be already done!
-//                            if (ppd == null) {
-//                                ppd = new LR_PricePaidData(Env);
-//                                m.put(valueID, ppd);
-//                                int debug = 1;
-//                            }
+                            // This is supposed to be already done!
+                            if (ppd == null) {
+                                ppd = new LR_PricePaidData(Env);
+                                m.put(valueID, ppd);
+                                int debug = 1;
+                            }
                                 ppd.add(r);
                             }
                             //System.out.println("CompanyRegistrationNo1 " + r.getCompanyRegistrationNo1());
@@ -728,7 +764,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
     }
 
     /**
-     *
+     * Print price paid generalisation
      * @param pw
      * @param pricePaid
      * @param valueIDs
@@ -737,7 +773,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
      */
     protected void printGeneralisation(PrintWriter pw,
             TreeMap<LR_ValueID, LR_PricePaidData> pricePaid,
-            HashSet<LR_ValueID> valueIDs, Map<LR_ValueID, Integer> counts, int min) {
+            HashSet<LR_ValueID> valueIDs, Map<LR_ValueID, Integer> counts, 
+            int min) {
         LR_ValueID ppValueID;
         Iterator<LR_ValueID> ite;
         Iterator<LR_ValueID> ite2;
@@ -767,13 +804,10 @@ public class LR_Generalise_Process extends LR_Main_Process {
             if (count >= min) {
                 if (!reportedSmallCount) {
                     pw.println("Those with less than " + min + "," + smallCount);
+                    pw.println();
                     reportedSmallCount = true;
                 }
-                if (valueIDs == null) {
-                    pw.println("\"" + valueID + "\"," + count);
-                } else {
-                    pw.println("\"" + valueID.getValue() + "\"," + count);
-                }
+                pw.println("\"" + valueID.getValue() + "\"," + count);
                 name = valueID.getValue();
                 ppd = pricePaid.get(valueID);
                 ppCounts = ppd.getPricePaidCounts();
@@ -789,6 +823,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
                         pw.println("\"" + value + "\"," + count);
                     }
                     printSummaryStatistics(ppd.getPricePaid(), pw);
+                } else {
+                    pw.println("No price paid data is available for these listings!");
+                    pw.println();
                 }
             } else {
                 smallCount += count;

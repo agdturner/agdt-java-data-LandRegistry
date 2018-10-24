@@ -30,7 +30,7 @@ public class LR_ValueID extends LR_ID implements Comparable, Serializable {
     
     @Override
     public String toString() {
-        return "LR_ValueID(" + super.toString() + ", Type(" + Value + ")";
+        return "LR_ValueID(" + super.toString() + ", Type(" + Value + "))";
     }
     
 //    @Override

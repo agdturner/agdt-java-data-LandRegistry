@@ -230,7 +230,6 @@ public abstract class LR_Record extends LR_Object {
 //            }
 //        return result;
 //    }
-
     /**
      * @param s TitleNumber
      * @param doUpdate IFF true then collections are updated otherwise ID is set
@@ -279,32 +278,26 @@ public abstract class LR_Record extends LR_Object {
         LR_TypeID typeID;
         typeID = Env.PropertyAddressTypeID;
         setPropertyAddress(s);
-//        if (s.isEmpty()) {
-//            if (doUpdate) {
-//                updateNullCollection(typeID, s);
-////            } else {
-////                setPropertyAddress(Env.TitleNumberIDToAddressIDLookup.get(TitleNumberID).getValue());
-//            }
-////        } else {
-////            if (doUpdate) {
-////                Env.addValue(typeID, s);
-////            }
-//        }
-////        String pa;
-////        pa = getPropertyAddress();
         if (doUpdate) {
             LR_ValueID valueID = null;
             if (!s.isEmpty()) {
-            //valueID = updateNonNullCollections(pa, typeID);
-            valueID = Env.addValue(typeID, s);
+                valueID = Env.addValue(typeID, s);
+            } else {
+                valueID = updateNullCollection(typeID, s);
             }
             // init ID
             ID = new LR_ID2(TitleNumberID, valueID);
             if (!Env.IDs.contains(ID)) {
                 Env.IDs.add(ID);
             }
+            /**
+             * Add to Env.NullTitleNumberIDCollections where ID was null when
+             * updateNullCollection(typeID, s) was called above.
+             */
             if (s.isEmpty()) {
-                updateNullCollection(typeID, s);
+                if (valueID.getValue().isEmpty()) {
+                    Env.NullTitleNumberIDCollections.get(typeID).put(ID, valueID);
+                }
             }
             HashSet<LR_ValueID> titleNumberIDs;
             if (Env.AddressIDToTitleNumberIDsLookup.containsKey(valueID)) {
@@ -385,8 +378,9 @@ public abstract class LR_Record extends LR_Object {
      *
      * @param typeID
      * @param s
+     * @return 
      */
-    protected void updateNullCollection(LR_TypeID typeID, String s) {
+    protected LR_ValueID updateNullCollection(LR_TypeID typeID, String s) {
         HashMap<LR_ID2, LR_ValueID> m;
         m = Env.NullTitleNumberIDCollections.get(typeID);
         if (m == null) {
@@ -394,18 +388,67 @@ public abstract class LR_Record extends LR_Object {
             Env.NullTitleNumberIDCollections.put(typeID, m);
         }
         if (m.containsKey(ID)) {
-            if (!s.isEmpty()) {
-                int i;
-                i = m.size();
-                LR_ValueID newv = new LR_ValueID(i, s);
-                LR_ValueID v;
-                v = m.put(ID, newv);
-                if (v != null) {
-                    System.out.println("Updated Null Collection for ID " + ID.toString()
-                            + " from " + v.toString() + " to " + newv.toString());
-                }
+            LR_ValueID v0;
+            v0 = m.get(ID);
+            if (s.isEmpty()) {
+                String s0;
+                s0 = v0.getValue();
+                //if (!s0.isEmpty()) {
+                return updateNullCollection(typeID, s, m, v0);
+//                } else {
+//                    
+//                }
+            } else {
+//                if (v0 != null) {
+                return updateNullCollection(typeID, s, m, v0);
+//                }
+            }
+        } else {
+            return updateNullCollection(typeID, s, m, null);
+        }
+    }
+
+    protected LR_ValueID updateNullCollection(LR_TypeID typeID, String s,
+            HashMap<LR_ID2, LR_ValueID> m, LR_ValueID v0) {
+        LR_ValueID v1;
+        if (v0 == null) {
+            if (ID == null) {
+                v1 = Env.addValue(typeID, s);
+//                System.out.println("Added " + v1.toString()
+//                        + " to Null Collection for typeID " + typeID.toString()
+//                        + " ID null");
+            } else {
+                v1 = addToNullCollection(m, s);
+//                System.out.println("Added " + v1.toString()
+//                        + " to Null Collection for typeID " + typeID.toString()
+//                        + " ID " + ID.toString());
+            }
+        } else {
+            if (ID == null) {
+                v1 = Env.addValue(typeID, s);
+//                System.out.println("Updated Null Collection for typeID "
+//                        + typeID.toString() + " ID null "
+//                        + " from " + v0.toString() + " to " + v1.toString());
+            } else {
+                v1 = addToNullCollection(m, s);
+//                System.out.println("Updated Null Collection for typeID "
+//                        + typeID.toString() + " ID " + ID.toString()
+//                        + " from " + v0.toString() + " to " + v1.toString());
             }
         }
+        return v1;
+    }
+
+    protected LR_ValueID addToNullCollection(
+            HashMap<LR_ID2, LR_ValueID> m, String s) {
+        int i;
+        i = m.size();
+        LR_ValueID v;
+        v = new LR_ValueID(i, s);
+        if (ID != null) {
+            m.put(ID, v);
+        }
+        return v;
     }
 
     /**
@@ -610,7 +653,7 @@ public abstract class LR_Record extends LR_Object {
     public final LR_ValueID getDistrictID() {
         return Env.ValueReverseLookups.get(Env.DistrictTypeID).get(getDistrict());
     }
-    
+
     /**
      * @return the Region
      */
@@ -624,7 +667,7 @@ public abstract class LR_Record extends LR_Object {
     public final LR_ValueID getRegionID() {
         return Env.ValueReverseLookups.get(Env.RegionTypeID).get(getRegion());
     }
-    
+
     /**
      * @return the Postcode
      */
@@ -687,7 +730,7 @@ public abstract class LR_Record extends LR_Object {
     public final LR_ValueID getCountyID() {
         return Env.ValueReverseLookups.get(Env.CountyTypeID).get(getCounty());
     }
-    
+
     /**
      * @return the ProprietorName1
      */

@@ -34,6 +34,10 @@ public class LR_ID2 implements Serializable {
 
     @Override
     public String toString() {
+        String s;
+//        if (TitleNumberID == null) {
+//            s = "LR_ValueID()"
+//        }
         return TitleNumberID.toString() + ", " + PropertyAddressID.toString();
     }
 
