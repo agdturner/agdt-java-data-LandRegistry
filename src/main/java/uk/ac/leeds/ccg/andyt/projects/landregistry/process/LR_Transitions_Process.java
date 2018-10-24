@@ -28,7 +28,6 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
 import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
@@ -105,10 +104,6 @@ public class LR_Transitions_Process extends LR_Main_Process {
     HashMap<String, HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>>> deletedCCR;
     HashMap<String, HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>>> addedOCR;
     HashMap<String, HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>>> deletedOCR;
-//    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> addedCCR;
-//    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> deletedCCR;
-//    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> addedOCR;
-//    HashMap<String, HashMap<LR_ID, ArrayList<LR_Record>>> deletedOCR;
 
     HashMap<LR_ID2, LR_CC_FULL_Record> fullCCR;
     HashMap<LR_ID2, LR_OC_FULL_Record> fullOCR;
@@ -135,7 +130,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         boolean isCCOD;
         //names1.add("COU");
         //names1.add("FULL");
-        
+
         boolean upDateIDs = true;
 
         YMTitleNumberIDToCompanyRegistrationNoID = new TreeMap<>();
@@ -167,11 +162,12 @@ public class LR_Transitions_Process extends LR_Main_Process {
         File fin;
         File fout;
         ArrayList<String> lines;
+
+        // Initialise Transitions Generalisation output
         PrintWriter pw = null;
-        if (doAll) {
+        outdir = new File(outputDataDir, Strings.S_Transitions);
+        if (!doAll) {
             outdir = new File(outputDataDir, Strings.S_Transitions);
-        } else {
-            outdir = new File(outputDataDir, area + Strings.S_Transitions);
             outdir = new File(outdir, Strings.S_Subsets);
             outdir = new File(outdir, area);
         }
@@ -249,7 +245,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 e.printStackTrace(System.err);
             } catch (Exception ex) {
                 ex.printStackTrace(System.err);
-                                        Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
@@ -290,12 +286,9 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 e.printStackTrace(System.err);
             } catch (Exception ex) {
                 ex.printStackTrace(System.err);
-                                        Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
-        writeTitleNumberCompanyRegistrationNoIDLookups(ym);
-        writeProprietorNameIDCompanyRegistrationNoIDLookups(ym);
 
         // Check if there are OCR in CCR
         Set<LR_ID2> s;
@@ -374,17 +367,17 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 for (int ID = 1; ID < lines.size(); ID++) {
                     try {
                         if (isCCOD) {
-                           // ccr = new LR_CC_COU_Record(Env, ym, lines.get(ID));
-                           // add(addedCCRTime, deletedCCRTime, ccr);
+                            // ccr = new LR_CC_COU_Record(Env, ym, lines.get(ID));
+                            // add(addedCCRTime, deletedCCRTime, ccr);
                         } else {
-                          //  ocr = new LR_OC_COU_Record(Env, ym, lines.get(ID));
-                           // add(addedOCRTime, deletedOCRTime, ocr);
+                            //  ocr = new LR_OC_COU_Record(Env, ym, lines.get(ID));
+                            // add(addedOCRTime, deletedOCRTime, ocr);
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
                         e.printStackTrace(System.err);
                     } catch (Exception ex) {
                         ex.printStackTrace(System.err);
-                                        Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -924,7 +917,27 @@ public class LR_Transitions_Process extends LR_Main_Process {
         pw.close();
     }
 
-    // Update key lookups
+    /**
+     * Updates key lookups.
+     *
+     * @param CompanyRegistrationNo1ID
+     * @param CompanyRegistrationNo2ID
+     * @param CompanyRegistrationNo3ID
+     * @param CompanyRegistrationNo4ID
+     * @param TitleNumberID
+     * @param ProprietorName1ID
+     * @param ProprietorName2ID
+     * @param ProprietorName3ID
+     * @param ProprietorName4ID
+     * @param TitleNumberIDToCompanyRegistrationNoID TitleNumberID to
+     * CompanyRegistrationNoID lookup.
+     * @param CompanyRegistrationNoIDToTitleNumberID CompanyRegistrationNoID to
+     * TitleNumberID lookup.
+     * @param ProprietorNameIDToCompanyRegistrationNoID ProprietorNameID to
+     * CompanyRegistrationNoID lookup.
+     * @param CompanyRegistrationNoIDToProprietorNameID CompanyRegistrationNoID
+     * to ProprietorNameID lookup.
+     */
     protected void updateKeyLookups(LR_ValueID CompanyRegistrationNo1ID,
             LR_ValueID CompanyRegistrationNo2ID, LR_ValueID CompanyRegistrationNo3ID,
             LR_ValueID CompanyRegistrationNo4ID, LR_ValueID TitleNumberID,
@@ -1023,7 +1036,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
         // CompanyRegistrationNo3ID
         if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo3ID)) {
-                        companyRegistrationNo = CompanyRegistrationNo3ID.getValue();
+            companyRegistrationNo = CompanyRegistrationNo3ID.getValue();
             ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo3ID);
             if (ProprietorNameID != ProprietorName3ID) {
                 if (!ProprietorNameID.equals(ProprietorName3ID)) {
@@ -1340,9 +1353,10 @@ public class LR_Transitions_Process extends LR_Main_Process {
 
     /**
      * Report the ProprietorName change.
+     *
      * @param companyRegistrationNo
      * @param ProprietorName0ID
-     * @param ProprietorName1ID 
+     * @param ProprietorName1ID
      */
     protected void reportProprietorNameChange(String companyRegistrationNo,
             LR_ValueID ProprietorName0ID, LR_ValueID ProprietorName1ID) {
@@ -1587,76 +1601,6 @@ public class LR_Transitions_Process extends LR_Main_Process {
             System.out.println("Zero count for " + type);
         }
         pw.println();
-    }
-
-    public void writeTitleNumberCompanyRegistrationNoIDLookups(Generic_YearMonth ym) {
-        if (UpdatedTitleNumberCompanyRegistrationNoLookups) {
-            File dir;
-            dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
-            File f;
-            f = new File(dir, "TitleNumberIDToCompanyRegistrationNoID.dat");
-            Generic_StaticIO.writeObject(YMTitleNumberIDToCompanyRegistrationNoID.get(ym), f);
-            f = new File(dir, "CompanyRegistrationNoIDToTitleNumberID.dat");
-            Generic_StaticIO.writeObject(YMCompanyRegistrationNoIDToTitleNumberID.get(ym), f);
-        }
-    }
-
-    public HashMap<LR_ID, ArrayList<LR_ID>> loadTitleNumberIDToCompanyRegistrationNoID(Generic_YearMonth ym) {
-        File dir;
-        dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
-        File f;
-        f = new File(dir, "TitleNumberIDToCompanyRegistrationNoID.dat");
-        if (!f.exists()) {
-            return new HashMap<>();
-        } else {
-            return (HashMap<LR_ID, ArrayList<LR_ID>>) Generic_StaticIO.readObject(f);
-        }
-    }
-
-    public HashMap<LR_ID, HashSet<LR_ID>> loadCompanyRegistrationNoIDToTitleNumberID(Generic_YearMonth ym) {
-        File f;
-        f = new File(Files.getGeneratedDataDir(Strings), "CompanyRegistrationNoIDToTitleNumberID.dat");
-        if (!f.exists()) {
-            return new HashMap<>();
-        } else {
-            return (HashMap<LR_ID, HashSet<LR_ID>>) Generic_StaticIO.readObject(f);
-        }
-    }
-
-    public void writeProprietorNameIDCompanyRegistrationNoIDLookups(Generic_YearMonth ym) {
-        if (UpdatedProprietorNameIDCompanyRegistrationNoLookups) {
-            File dir;
-            dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
-            File f;
-            f = new File(dir, "ProprietorNameIDToCompanyRegistrationNoID.dat");
-            Generic_StaticIO.writeObject(YMProprietorNameIDToCompanyRegistrationNoID.get(ym), f);
-            f = new File(dir, "CompanyRegistrationNoIDToProprietorNameID.dat");
-            Generic_StaticIO.writeObject(YMCompanyRegistrationNoIDToProprietorNameID.get(ym), f);
-        }
-    }
-
-    public HashMap<LR_ID, HashSet<LR_ID>> loadProprietorNameIDToCompanyRegistrationNoIDLookup(Generic_YearMonth ym) {
-        File dir;
-        dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
-        File f;
-        f = new File(dir, "ProprietorNameIDToCompanyRegistrationNoID.dat");
-        if (!f.exists()) {
-            return new HashMap<>();
-        } else {
-            return (HashMap<LR_ID, HashSet<LR_ID>>) Generic_StaticIO.readObject(f);
-        }
-    }
-
-    public HashMap<LR_ID, ArrayList<LR_ID>> loadCompanyRegistrationNoIDToProprietorNameLookup(Generic_YearMonth ym) {
-        File dir;
-        dir = new File(Files.getGeneratedDataDir(Strings), ym.getYYYYMM());
-        File f;
-        f = new File(dir, "CompanyRegistrationNoIDToProprietorNameID.dat");
-        if (!f.exists()) {
-            return new HashMap<>();
-        } else {
-            return (HashMap<LR_ID, ArrayList<LR_ID>>) Generic_StaticIO.readObject(f);
-        }
     }
 
 }

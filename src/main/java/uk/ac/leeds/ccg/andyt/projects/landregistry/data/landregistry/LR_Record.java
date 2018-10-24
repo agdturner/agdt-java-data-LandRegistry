@@ -393,15 +393,17 @@ public abstract class LR_Record extends LR_Object {
             if (s.isEmpty()) {
                 String s0;
                 s0 = v0.getValue();
-                //if (!s0.isEmpty()) {
-                return updateNullCollection(typeID, s, m, v0);
-//                } else {
-//                    
-//                }
+                if (!s0.isEmpty()) {
+                    return updateNullCollection(typeID, s0, m, v0);
+                } else {
+                    return updateNullCollection(typeID, s0, m, v0);
+                }
             } else {
-//                if (v0 != null) {
-                return updateNullCollection(typeID, s, m, v0);
-//                }
+                if (v0 != null) {
+                    return updateNullCollection(typeID, s, m, v0);
+                } else {
+                    return updateNullCollection(typeID, s, m, v0);
+                }
             }
         } else {
             return updateNullCollection(typeID, s, m, null);
