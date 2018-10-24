@@ -19,6 +19,7 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
 import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
@@ -297,6 +298,10 @@ public abstract class LR_Record extends LR_Object {
             if (s.isEmpty()) {
                 if (valueID.getValue().isEmpty()) {
                     Env.NullTitleNumberIDCollections.get(typeID).put(ID, valueID);
+//                    System.out.println("Added ID " + ID.toString() 
+//                            + " ValueID " + valueID 
+//                            + " to Env.NullTitleNumberIDCollections for TypeID " 
+//                            + typeID);
                 }
             }
             HashSet<LR_ValueID> titleNumberIDs;
@@ -378,15 +383,27 @@ public abstract class LR_Record extends LR_Object {
      *
      * @param typeID
      * @param s
-     * @return 
+     * @return
      */
     protected LR_ValueID updateNullCollection(LR_TypeID typeID, String s) {
         HashMap<LR_ID2, LR_ValueID> m;
         m = Env.NullTitleNumberIDCollections.get(typeID);
         if (m == null) {
+            // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
             m = new HashMap<>();
             Env.NullTitleNumberIDCollections.put(typeID, m);
         }
+
+        if (ID == null) {
+            // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
+            int debug = 1;
+        } else {
+            if (ID.getPropertyAddressID() == null || ID.getTitleNumberID() == null) {
+                // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
+                int debug = 1;
+            }
+        }
+
         if (m.containsKey(ID)) {
             LR_ValueID v0;
             v0 = m.get(ID);
@@ -394,14 +411,21 @@ public abstract class LR_Record extends LR_Object {
                 String s0;
                 s0 = v0.getValue();
                 if (!s0.isEmpty()) {
+                    // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
                     return updateNullCollection(typeID, s0, m, v0);
                 } else {
                     return updateNullCollection(typeID, s0, m, v0);
                 }
             } else {
                 if (v0 != null) {
+                    
+//                    if (typeID.equals(Env.PostcodeDistrictTypeID)) { // Debugging code to check the postcode.
+//                        Env.PostcodeHandler.isValidPostcodeForm(s);
+//                    }
+                    
                     return updateNullCollection(typeID, s, m, v0);
                 } else {
+                    // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
                     return updateNullCollection(typeID, s, m, v0);
                 }
             }
@@ -427,15 +451,34 @@ public abstract class LR_Record extends LR_Object {
             }
         } else {
             if (ID == null) {
+                // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
                 v1 = Env.addValue(typeID, s);
-//                System.out.println("Updated Null Collection for typeID "
-//                        + typeID.toString() + " ID null "
-//                        + " from " + v0.toString() + " to " + v1.toString());
+                System.out.println("Updated Null Collection for typeID "
+                        + typeID.toString() + " ID null "
+                        + " from " + v0.toString() + " to " + v1.toString());
             } else {
-                v1 = addToNullCollection(m, s);
-//                System.out.println("Updated Null Collection for typeID "
-//                        + typeID.toString() + " ID " + ID.toString()
-//                        + " from " + v0.toString() + " to " + v1.toString());
+                if (v0.getValue().equalsIgnoreCase(s)) {
+                    System.out.println("Not updated Null Collection for typeID "
+                            + typeID.toString() + " ID " + ID.toString()
+                            + " from " + v0.toString());
+                    
+//                    // Tested for datasets from 2017-11 to 2018-10 and the 
+//                    // following if statements do not catch anything.
+//                    if (typeID.equals(Env.PropertyAddressTypeID)) {
+//                        int debug = 1;
+//                    }
+//                    if (typeID.equals(Env.TitleNumberTypeID)) {
+//                        int debug = 1;
+//                    }
+                    
+                    return v0;
+                } else {
+                    // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
+                    v1 = addToNullCollection(m, s);
+                    System.out.println("Updated Null Collection for typeID "
+                            + typeID.toString() + " ID " + ID.toString()
+                            + " from " + v0.toString() + " to " + v1.toString());
+                }
             }
         }
         return v1;
@@ -1015,6 +1058,7 @@ public abstract class LR_Record extends LR_Object {
      * from data pulled from existing collections.
      */
     public final void initPostcodeAndPostcodeDistrict(String s, boolean doUpdate) {
+        s = Generic_StaticString.getUpperCase(s);
         setPostcode(s);
         LR_TypeID typeID;
         typeID = Env.PostcodeDistrictTypeID;
