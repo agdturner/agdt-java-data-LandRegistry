@@ -137,10 +137,10 @@ public class LR_Transitions_Process extends LR_Main_Process {
         YMCompanyRegistrationNoIDToTitleNumberID = new TreeMap<>();
         YMProprietorNameIDToCompanyRegistrationNoID = new TreeMap<>();
         YMCompanyRegistrationNoIDToProprietorNameID = new TreeMap<>();
-        HashMap<LR_ValueID, ArrayList<LR_ValueID>> TitleNumberIDToCompanyRegistrationNoID;
-        HashMap<LR_ValueID, HashSet<LR_ValueID>> CompanyRegistrationNoIDToTitleNumberID;
-        HashMap<LR_ValueID, HashSet<LR_ValueID>> ProprietorNameIDToCompanyRegistrationNoID;
-        HashMap<LR_ValueID, LR_ValueID> CompanyRegistrationNoIDToProprietorNameID;
+        HashMap<LR_ValueID, ArrayList<LR_ValueID>> titleNumberIDToCompanyRegistrationNoID;
+        HashMap<LR_ValueID, HashSet<LR_ValueID>> companyRegistrationNoIDToTitleNumberID;
+        HashMap<LR_ValueID, HashSet<LR_ValueID>> proprietorNameIDToCompanyRegistrationNoID;
+        HashMap<LR_ValueID, LR_ValueID> companyRegistrationNoIDToProprietorNameID;
 
         addedCCRCount = new HashMap<>();
         deletedCCRCount = new HashMap<>();
@@ -189,24 +189,25 @@ public class LR_Transitions_Process extends LR_Main_Process {
         Generic_YearMonth ym;
         ym = new Generic_YearMonth(Env.ge, "2017-11");
 
-        TitleNumberIDToCompanyRegistrationNoID = new HashMap<>();
-        CompanyRegistrationNoIDToTitleNumberID = new HashMap<>();
-        ProprietorNameIDToCompanyRegistrationNoID = new HashMap<>();
-        CompanyRegistrationNoIDToProprietorNameID = new HashMap<>();
-        YMTitleNumberIDToCompanyRegistrationNoID.put(ym, TitleNumberIDToCompanyRegistrationNoID);
-        YMCompanyRegistrationNoIDToTitleNumberID.put(ym, CompanyRegistrationNoIDToTitleNumberID);
-        YMProprietorNameIDToCompanyRegistrationNoID.put(ym, ProprietorNameIDToCompanyRegistrationNoID);
-        YMCompanyRegistrationNoIDToProprietorNameID.put(ym, CompanyRegistrationNoIDToProprietorNameID);
+        // Initialise key lookups
+        titleNumberIDToCompanyRegistrationNoID = new HashMap<>();
+        companyRegistrationNoIDToTitleNumberID = new HashMap<>();
+        proprietorNameIDToCompanyRegistrationNoID = new HashMap<>();
+        companyRegistrationNoIDToProprietorNameID = new HashMap<>();
+        YMTitleNumberIDToCompanyRegistrationNoID.put(ym, titleNumberIDToCompanyRegistrationNoID);
+        YMCompanyRegistrationNoIDToTitleNumberID.put(ym, companyRegistrationNoIDToTitleNumberID);
+        YMProprietorNameIDToCompanyRegistrationNoID.put(ym, proprietorNameIDToCompanyRegistrationNoID);
+        YMCompanyRegistrationNoIDToProprietorNameID.put(ym, companyRegistrationNoIDToProprietorNameID);
 
-        LR_ValueID CompanyRegistrationNo1ID;
-        LR_ValueID CompanyRegistrationNo2ID;
-        LR_ValueID CompanyRegistrationNo3ID;
-        LR_ValueID CompanyRegistrationNo4ID;
-        LR_ValueID TitleNumberID;
-        LR_ValueID ProprietorName1ID;
-        LR_ValueID ProprietorName2ID;
-        LR_ValueID ProprietorName3ID;
-        LR_ValueID ProprietorName4ID;
+        LR_ValueID companyRegistrationNo1ID;
+        LR_ValueID companyRegistrationNo2ID;
+        LR_ValueID companyRegistrationNo3ID;
+        LR_ValueID companyRegistrationNo4ID;
+        LR_ValueID titleNumberID;
+        LR_ValueID proprietorName1ID;
+        LR_ValueID proprietorName2ID;
+        LR_ValueID proprietorName3ID;
+        LR_ValueID proprietorName4ID;
 
         // init fullCCR
         fullCCR = new HashMap<>();
@@ -222,25 +223,25 @@ public class LR_Transitions_Process extends LR_Main_Process {
             try {
                 fullccr = new LR_CC_FULL_Record(Env, ym, lines.get(ID), upDateIDs);
                 fullCCR.put(fullccr.getID(), fullccr);
-                CompanyRegistrationNo1ID = fullccr.getCompanyRegistrationNo1ID();
-                CompanyRegistrationNo2ID = fullccr.getCompanyRegistrationNo2ID();
-                CompanyRegistrationNo3ID = fullccr.getCompanyRegistrationNo3ID();
-                CompanyRegistrationNo4ID = fullccr.getCompanyRegistrationNo4ID();
-                TitleNumberID = fullccr.getTitleNumberID();
-                ProprietorName1ID = fullccr.getProprietorName1ID();
-                ProprietorName2ID = fullccr.getProprietorName2ID();
-                ProprietorName3ID = fullccr.getProprietorName3ID();
-                ProprietorName4ID = fullccr.getProprietorName4ID();
+                companyRegistrationNo1ID = fullccr.getCompanyRegistrationNo1ID();
+                companyRegistrationNo2ID = fullccr.getCompanyRegistrationNo2ID();
+                companyRegistrationNo3ID = fullccr.getCompanyRegistrationNo3ID();
+                companyRegistrationNo4ID = fullccr.getCompanyRegistrationNo4ID();
+                titleNumberID = fullccr.getTitleNumberID();
+                proprietorName1ID = fullccr.getProprietorName1ID();
+                proprietorName2ID = fullccr.getProprietorName2ID();
+                proprietorName3ID = fullccr.getProprietorName3ID();
+                proprietorName4ID = fullccr.getProprietorName4ID();
                 // Update key lookups
-                updateKeyLookups(CompanyRegistrationNo1ID,
-                        CompanyRegistrationNo2ID, CompanyRegistrationNo3ID,
-                        CompanyRegistrationNo4ID, TitleNumberID,
-                        ProprietorName1ID, ProprietorName2ID, ProprietorName3ID,
-                        ProprietorName4ID,
-                        TitleNumberIDToCompanyRegistrationNoID,
-                        CompanyRegistrationNoIDToTitleNumberID,
-                        ProprietorNameIDToCompanyRegistrationNoID,
-                        CompanyRegistrationNoIDToProprietorNameID);
+                updateKeyLookups(companyRegistrationNo1ID,
+                        companyRegistrationNo2ID, companyRegistrationNo3ID,
+                        companyRegistrationNo4ID, titleNumberID,
+                        proprietorName1ID, proprietorName2ID, proprietorName3ID,
+                        proprietorName4ID,
+                        titleNumberIDToCompanyRegistrationNoID,
+                        companyRegistrationNoIDToTitleNumberID,
+                        proprietorNameIDToCompanyRegistrationNoID,
+                        companyRegistrationNoIDToProprietorNameID);
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             } catch (Exception ex) {
@@ -263,25 +264,25 @@ public class LR_Transitions_Process extends LR_Main_Process {
             try {
                 fullocr = new LR_OC_FULL_Record(Env, ym, lines.get(ID), upDateIDs);
                 fullOCR.put(fullocr.getID(), fullocr);
-                CompanyRegistrationNo1ID = fullocr.getCompanyRegistrationNo1ID();
-                CompanyRegistrationNo2ID = fullocr.getCompanyRegistrationNo2ID();
-                CompanyRegistrationNo3ID = fullocr.getCompanyRegistrationNo3ID();
-                CompanyRegistrationNo4ID = fullocr.getCompanyRegistrationNo4ID();
-                TitleNumberID = fullocr.getTitleNumberID();
-                ProprietorName1ID = fullocr.getProprietorName1ID();
-                ProprietorName2ID = fullocr.getProprietorName2ID();
-                ProprietorName3ID = fullocr.getProprietorName3ID();
-                ProprietorName4ID = fullocr.getProprietorName4ID();
+                companyRegistrationNo1ID = fullocr.getCompanyRegistrationNo1ID();
+                companyRegistrationNo2ID = fullocr.getCompanyRegistrationNo2ID();
+                companyRegistrationNo3ID = fullocr.getCompanyRegistrationNo3ID();
+                companyRegistrationNo4ID = fullocr.getCompanyRegistrationNo4ID();
+                titleNumberID = fullocr.getTitleNumberID();
+                proprietorName1ID = fullocr.getProprietorName1ID();
+                proprietorName2ID = fullocr.getProprietorName2ID();
+                proprietorName3ID = fullocr.getProprietorName3ID();
+                proprietorName4ID = fullocr.getProprietorName4ID();
                 // Update key lookups
-                updateKeyLookups(CompanyRegistrationNo1ID,
-                        CompanyRegistrationNo2ID, CompanyRegistrationNo3ID,
-                        CompanyRegistrationNo4ID, TitleNumberID,
-                        ProprietorName1ID, ProprietorName2ID, ProprietorName3ID,
-                        ProprietorName4ID,
-                        TitleNumberIDToCompanyRegistrationNoID,
-                        CompanyRegistrationNoIDToTitleNumberID,
-                        ProprietorNameIDToCompanyRegistrationNoID,
-                        CompanyRegistrationNoIDToProprietorNameID);
+                updateKeyLookups(companyRegistrationNo1ID,
+                        companyRegistrationNo2ID, companyRegistrationNo3ID,
+                        companyRegistrationNo4ID, titleNumberID,
+                        proprietorName1ID, proprietorName2ID, proprietorName3ID,
+                        proprietorName4ID,
+                        titleNumberIDToCompanyRegistrationNoID,
+                        companyRegistrationNoIDToTitleNumberID,
+                        proprietorNameIDToCompanyRegistrationNoID,
+                        companyRegistrationNoIDToProprietorNameID);
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             } catch (Exception ex) {
@@ -311,9 +312,9 @@ public class LR_Transitions_Process extends LR_Main_Process {
             address = id2.getPropertyAddressID().getValue();
             titleNumber = id2.getTitleNumberID().getValue();
             ArrayList<LR_ValueID> companyRegistrationNoIDs;
-            companyRegistrationNoIDs = TitleNumberIDToCompanyRegistrationNoID.get(id2.getTitleNumberID());
+            companyRegistrationNoIDs = titleNumberIDToCompanyRegistrationNoID.get(id2.getTitleNumberID());
             companyRegistrationNoID = companyRegistrationNoIDs.get(companyRegistrationNoIDs.size() - 1);
-            proprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(companyRegistrationNoID);
+            proprietorNameID = companyRegistrationNoIDToProprietorNameID.get(companyRegistrationNoID);
             companyRegistrationNo = companyRegistrationNoID.getValue();
             proprietorName = proprietorNameID.getValue();
             System.out.println(companyRegistrationNo + ", " + titleNumber + ", " + proprietorName + ", " + address);

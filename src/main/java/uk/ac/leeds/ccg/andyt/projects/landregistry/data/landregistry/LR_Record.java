@@ -19,7 +19,6 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
 import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
@@ -280,7 +279,7 @@ public abstract class LR_Record extends LR_Object {
         typeID = Env.PropertyAddressTypeID;
         setPropertyAddress(s);
         if (doUpdate) {
-            LR_ValueID valueID = null;
+            LR_ValueID valueID;
             if (!s.isEmpty()) {
                 valueID = Env.addValue(typeID, s);
             } else {
@@ -458,9 +457,9 @@ public abstract class LR_Record extends LR_Object {
                         + " from " + v0.toString() + " to " + v1.toString());
             } else {
                 if (v0.getValue().equalsIgnoreCase(s)) {
-                    System.out.println("Not updated Null Collection for typeID "
-                            + typeID.toString() + " ID " + ID.toString()
-                            + " from " + v0.toString());
+//                    System.out.println("Not updated Null Collection for typeID "
+//                            + typeID.toString() + " ID " + ID.toString()
+//                            + " from " + v0.toString());
                     
 //                    // Tested for datasets from 2017-11 to 2018-10 and the 
 //                    // following if statements do not catch anything.

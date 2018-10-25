@@ -69,12 +69,12 @@ public class LR_Main_Process extends LR_Object {
 
         // Main switches
 //        writeCollections = true;
-        doSelect = true;
-        doGeneralise = true;
-        doGeneraliseAreas = true;
-        doGeneraliseAll = true;
-//        doTransitions = true;
-//        doTransitionsAreas = true;
+//        doSelect = true;
+//        doGeneralise = true;
+//        doGeneraliseAreas = true;
+//        doGeneraliseAll = true;
+        doTransitions = true;
+        doTransitionsAreas = true;
 //        doTransitionsAll = true;
 
         ArrayList<String> areas;
