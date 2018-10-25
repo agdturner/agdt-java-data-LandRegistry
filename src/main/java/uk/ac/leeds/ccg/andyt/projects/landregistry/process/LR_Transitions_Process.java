@@ -58,7 +58,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
      * CompanyRegistrationNo2ID, the third is CompanyRegistrationNo3ID, and the
      * fourth is CompanyRegistrationNo4ID.
      */
-    public TreeMap<Generic_YearMonth, HashMap<LR_ValueID, ArrayList<LR_ValueID>>> YMTitleNumberIDToCompanyRegistrationNoID;
+    public TreeMap<Generic_YearMonth, HashMap<LR_ValueID, ArrayList<LR_ValueID>>> YMTitleNumberIDToCompanyRegistrationNoIDs;
     /**
      * This provides a store to look up TitleNumbers for a company at any given
      * YearMonth. If a company registration number is not known for the
@@ -68,18 +68,18 @@ public class LR_Transitions_Process extends LR_Main_Process {
      * all title numbers are added, so the search only needs to go back to find
      * a record.
      */
-    public TreeMap<Generic_YearMonth, HashMap<LR_ValueID, HashSet<LR_ValueID>>> YMCompanyRegistrationNoIDToTitleNumberID;
+    public TreeMap<Generic_YearMonth, HashMap<LR_ValueID, HashSet<LR_ValueID>>> YMCompanyRegistrationNoIDToTitleNumberIDs;
     /**
      * This provides a store to look up company registration numbers from
      * proprietor names at any given YearMonth. (There may be multiple company
      * registration numbers for a single proprietor name!)
      */
-    public TreeMap<Generic_YearMonth, HashMap<LR_ValueID, HashSet<LR_ValueID>>> YMProprietorNameIDToCompanyRegistrationNoID;
+    public TreeMap<Generic_YearMonth, HashMap<LR_ValueID, ArrayList<LR_ValueID>>> YMProprietorNameIDToCompanyRegistrationNoIDs;
     /**
      * This provides a store to look up a proprietor names from company
      * registration numbers at any given YearMonth.
      */
-    public TreeMap<Generic_YearMonth, HashMap<LR_ValueID, LR_ValueID>> YMCompanyRegistrationNoIDToProprietorNameID;
+    public TreeMap<Generic_YearMonth, HashMap<LR_ValueID, ArrayList<LR_ValueID>>> YMCompanyRegistrationNoIDToProprietorNameIDs;
 
     /**
      * Set to true if TitleNumberID to CompanyRegistrationNoID lookups are
@@ -95,6 +95,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
     public LR_Transitions_Process(LR_Environment env) {
         super(env);
     }
+
+    public HashMap<LR_ID2, ArrayList<LR_ValueID>> IDToProprietorNameIDs;
 
     HashMap<LR_ID2, Integer> addedCCRCount;
     HashMap<LR_ID2, Integer> deletedCCRCount;
@@ -133,14 +135,15 @@ public class LR_Transitions_Process extends LR_Main_Process {
 
         boolean upDateIDs = true;
 
-        YMTitleNumberIDToCompanyRegistrationNoID = new TreeMap<>();
-        YMCompanyRegistrationNoIDToTitleNumberID = new TreeMap<>();
-        YMProprietorNameIDToCompanyRegistrationNoID = new TreeMap<>();
-        YMCompanyRegistrationNoIDToProprietorNameID = new TreeMap<>();
-        HashMap<LR_ValueID, ArrayList<LR_ValueID>> titleNumberIDToCompanyRegistrationNoID;
-        HashMap<LR_ValueID, HashSet<LR_ValueID>> companyRegistrationNoIDToTitleNumberID;
-        HashMap<LR_ValueID, HashSet<LR_ValueID>> proprietorNameIDToCompanyRegistrationNoID;
-        HashMap<LR_ValueID, LR_ValueID> companyRegistrationNoIDToProprietorNameID;
+        IDToProprietorNameIDs = new HashMap<>();
+        YMTitleNumberIDToCompanyRegistrationNoIDs = new TreeMap<>();
+        YMCompanyRegistrationNoIDToTitleNumberIDs = new TreeMap<>();
+        YMProprietorNameIDToCompanyRegistrationNoIDs = new TreeMap<>();
+        YMCompanyRegistrationNoIDToProprietorNameIDs = new TreeMap<>();
+        HashMap<LR_ValueID, ArrayList<LR_ValueID>> titleNumberIDToCompanyRegistrationNoIDs;
+        HashMap<LR_ValueID, HashSet<LR_ValueID>> companyRegistrationNoIDToTitleNumberIDs;
+        HashMap<LR_ValueID, ArrayList<LR_ValueID>> proprietorNameIDToCompanyRegistrationNoIDs;
+        HashMap<LR_ValueID, ArrayList<LR_ValueID>> companyRegistrationNoIDToProprietorNameIDs;
 
         addedCCRCount = new HashMap<>();
         deletedCCRCount = new HashMap<>();
@@ -190,14 +193,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
         ym = new Generic_YearMonth(Env.ge, "2017-11");
 
         // Initialise key lookups
-        titleNumberIDToCompanyRegistrationNoID = new HashMap<>();
-        companyRegistrationNoIDToTitleNumberID = new HashMap<>();
-        proprietorNameIDToCompanyRegistrationNoID = new HashMap<>();
-        companyRegistrationNoIDToProprietorNameID = new HashMap<>();
-        YMTitleNumberIDToCompanyRegistrationNoID.put(ym, titleNumberIDToCompanyRegistrationNoID);
-        YMCompanyRegistrationNoIDToTitleNumberID.put(ym, companyRegistrationNoIDToTitleNumberID);
-        YMProprietorNameIDToCompanyRegistrationNoID.put(ym, proprietorNameIDToCompanyRegistrationNoID);
-        YMCompanyRegistrationNoIDToProprietorNameID.put(ym, companyRegistrationNoIDToProprietorNameID);
+        titleNumberIDToCompanyRegistrationNoIDs = new HashMap<>();
+        companyRegistrationNoIDToTitleNumberIDs = new HashMap<>();
+        proprietorNameIDToCompanyRegistrationNoIDs = new HashMap<>();
+        companyRegistrationNoIDToProprietorNameIDs = new HashMap<>();
+        YMTitleNumberIDToCompanyRegistrationNoIDs.put(ym, titleNumberIDToCompanyRegistrationNoIDs);
+        YMCompanyRegistrationNoIDToTitleNumberIDs.put(ym, companyRegistrationNoIDToTitleNumberIDs);
+        YMProprietorNameIDToCompanyRegistrationNoIDs.put(ym, proprietorNameIDToCompanyRegistrationNoIDs);
+        YMCompanyRegistrationNoIDToProprietorNameIDs.put(ym, companyRegistrationNoIDToProprietorNameIDs);
 
         LR_ValueID companyRegistrationNo1ID;
         LR_ValueID companyRegistrationNo2ID;
@@ -219,29 +222,35 @@ public class LR_Transitions_Process extends LR_Main_Process {
         indir = new File(indir, name);
         fin = new File(indir, name + ".csv");
         lines = Generic_ReadCSV.read(fin, null, 7);
-        for (int ID = 1; ID < lines.size(); ID++) {
+        LR_ID2 ID;
+        for (int line = 1; line < lines.size(); line++) {
             try {
-                fullccr = new LR_CC_FULL_Record(Env, ym, lines.get(ID), upDateIDs);
+                fullccr = new LR_CC_FULL_Record(Env, ym, lines.get(line), upDateIDs);
                 fullCCR.put(fullccr.getID(), fullccr);
+                ID = fullccr.getID();
+                // update IDToProprietorNameIDs
+                proprietorName1ID = fullccr.getProprietorName1ID();
+                proprietorName2ID = fullccr.getProprietorName2ID();
+                proprietorName3ID = fullccr.getProprietorName3ID();
+                proprietorName4ID = fullccr.getProprietorName4ID();
+                updateIDToProprietorNameIDs(ID, proprietorName1ID,
+                        proprietorName2ID, proprietorName3ID,
+                        proprietorName4ID);
                 companyRegistrationNo1ID = fullccr.getCompanyRegistrationNo1ID();
                 companyRegistrationNo2ID = fullccr.getCompanyRegistrationNo2ID();
                 companyRegistrationNo3ID = fullccr.getCompanyRegistrationNo3ID();
                 companyRegistrationNo4ID = fullccr.getCompanyRegistrationNo4ID();
                 titleNumberID = fullccr.getTitleNumberID();
-                proprietorName1ID = fullccr.getProprietorName1ID();
-                proprietorName2ID = fullccr.getProprietorName2ID();
-                proprietorName3ID = fullccr.getProprietorName3ID();
-                proprietorName4ID = fullccr.getProprietorName4ID();
                 // Update key lookups
-                updateKeyLookups(companyRegistrationNo1ID,
+                updateKeyLookups(ID, companyRegistrationNo1ID,
                         companyRegistrationNo2ID, companyRegistrationNo3ID,
                         companyRegistrationNo4ID, titleNumberID,
                         proprietorName1ID, proprietorName2ID, proprietorName3ID,
                         proprietorName4ID,
-                        titleNumberIDToCompanyRegistrationNoID,
-                        companyRegistrationNoIDToTitleNumberID,
-                        proprietorNameIDToCompanyRegistrationNoID,
-                        companyRegistrationNoIDToProprietorNameID);
+                        titleNumberIDToCompanyRegistrationNoIDs,
+                        companyRegistrationNoIDToTitleNumberIDs,
+                        proprietorNameIDToCompanyRegistrationNoIDs,
+                        companyRegistrationNoIDToProprietorNameIDs);
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             } catch (Exception ex) {
@@ -260,10 +269,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
         indir = new File(indir, name);
         fin = new File(indir, name + ".csv");
         lines = Generic_ReadCSV.read(fin, null, 7);
-        for (int ID = 1; ID < lines.size(); ID++) {
+        for (int line = 1; line < lines.size(); line++) {
             try {
-                fullocr = new LR_OC_FULL_Record(Env, ym, lines.get(ID), upDateIDs);
+                fullocr = new LR_OC_FULL_Record(Env, ym, lines.get(line), upDateIDs);
                 fullOCR.put(fullocr.getID(), fullocr);
+                ID = fullocr.getID();
                 companyRegistrationNo1ID = fullocr.getCompanyRegistrationNo1ID();
                 companyRegistrationNo2ID = fullocr.getCompanyRegistrationNo2ID();
                 companyRegistrationNo3ID = fullocr.getCompanyRegistrationNo3ID();
@@ -273,16 +283,19 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 proprietorName2ID = fullocr.getProprietorName2ID();
                 proprietorName3ID = fullocr.getProprietorName3ID();
                 proprietorName4ID = fullocr.getProprietorName4ID();
+                updateIDToProprietorNameIDs(ID, proprietorName1ID,
+                        proprietorName2ID, proprietorName3ID,
+                        proprietorName4ID);
                 // Update key lookups
-                updateKeyLookups(companyRegistrationNo1ID,
+                updateKeyLookups(ID, companyRegistrationNo1ID,
                         companyRegistrationNo2ID, companyRegistrationNo3ID,
                         companyRegistrationNo4ID, titleNumberID,
                         proprietorName1ID, proprietorName2ID, proprietorName3ID,
                         proprietorName4ID,
-                        titleNumberIDToCompanyRegistrationNoID,
-                        companyRegistrationNoIDToTitleNumberID,
-                        proprietorNameIDToCompanyRegistrationNoID,
-                        companyRegistrationNoIDToProprietorNameID);
+                        titleNumberIDToCompanyRegistrationNoIDs,
+                        companyRegistrationNoIDToTitleNumberIDs,
+                        proprietorNameIDToCompanyRegistrationNoIDs,
+                        companyRegistrationNoIDToProprietorNameIDs);
             } catch (ArrayIndexOutOfBoundsException e) {
                 e.printStackTrace(System.err);
             } catch (Exception ex) {
@@ -298,23 +311,31 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s.retainAll(fullOCR.keySet());
         System.out.println("There are " + s.size() + " oversees corporate owners.");
         Iterator<LR_ID2> ite;
-        LR_ID2 id2;
         String address;
         String titleNumber;
         LR_ValueID companyRegistrationNoID;
         LR_ValueID proprietorNameID;
         String companyRegistrationNo;
         String proprietorName;
+        ArrayList<LR_ValueID> companyRegistrationNoIDs;
+        ArrayList<LR_ValueID> proprietorNameIDs;
         ite = s.iterator();
         System.out.println("CompanyRegistrationNo, TitleNumber, ProprietorName, Address");
         while (ite.hasNext()) {
-            id2 = ite.next();
-            address = id2.getPropertyAddressID().getValue();
-            titleNumber = id2.getTitleNumberID().getValue();
-            ArrayList<LR_ValueID> companyRegistrationNoIDs;
-            companyRegistrationNoIDs = titleNumberIDToCompanyRegistrationNoID.get(id2.getTitleNumberID());
-            companyRegistrationNoID = companyRegistrationNoIDs.get(companyRegistrationNoIDs.size() - 1);
-            proprietorNameID = companyRegistrationNoIDToProprietorNameID.get(companyRegistrationNoID);
+            ID = ite.next();
+            address = ID.getPropertyAddressID().getValue();
+            titleNumber = ID.getTitleNumberID().getValue();
+            companyRegistrationNoIDs = titleNumberIDToCompanyRegistrationNoIDs.get(ID.getTitleNumberID());
+            if (companyRegistrationNoIDs.size() > 1) {
+                companyRegistrationNoID = companyRegistrationNoIDs.get(companyRegistrationNoIDs.size() - 1);
+                proprietorNameIDs = companyRegistrationNoIDToProprietorNameIDs.get(companyRegistrationNoID);
+                proprietorNameID = proprietorNameIDs.get(proprietorNameIDs.size() - 1);
+            } else {
+                proprietorNameIDs = IDToProprietorNameIDs.get(ID);
+                proprietorNameID = proprietorNameIDs.get(proprietorNameIDs.size() - 1);
+                companyRegistrationNoIDs = proprietorNameIDToCompanyRegistrationNoIDs.get(proprietorNameID);
+                companyRegistrationNoID = companyRegistrationNoIDs.get(companyRegistrationNoIDs.size() - 1);
+            }
             companyRegistrationNo = companyRegistrationNoID.getValue();
             proprietorName = proprietorNameID.getValue();
             System.out.println(companyRegistrationNo + ", " + titleNumber + ", " + proprietorName + ", " + address);
@@ -365,7 +386,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 }
                 lines = Generic_ReadCSV.read(fin, null, 7);
                 //LR_Record r;
-                for (int ID = 1; ID < lines.size(); ID++) {
+                for (int line = 1; line < lines.size(); line++) {
                     try {
                         if (isCCOD) {
                             // ccr = new LR_CC_COU_Record(Env, ym, lines.get(ID));
@@ -918,150 +939,254 @@ public class LR_Transitions_Process extends LR_Main_Process {
         pw.close();
     }
 
+    protected void updateIDToProprietorNameIDs(LR_ID2 ID,
+            LR_ValueID proprietorName1ID, LR_ValueID proprietorName2ID,
+            LR_ValueID proprietorName3ID, LR_ValueID proprietorName4ID) {
+        if (proprietorName4ID != null) {
+            Generic_Collections.addToLisIfDifferentFromLast(IDToProprietorNameIDs,
+                    ID, proprietorName4ID);
+        }
+        if (proprietorName3ID != null) {
+            Generic_Collections.addToLisIfDifferentFromLast(IDToProprietorNameIDs,
+                    ID, proprietorName3ID);
+        }
+        if (proprietorName4ID != null) {
+            Generic_Collections.addToLisIfDifferentFromLast(IDToProprietorNameIDs,
+                    ID, proprietorName2ID);
+        }
+        if (proprietorName1ID != null) {
+            Generic_Collections.addToLisIfDifferentFromLast(IDToProprietorNameIDs,
+                    ID, proprietorName1ID);
+        }
+    }
+
     /**
      * Updates key lookups.
      *
-     * @param CompanyRegistrationNo1ID
-     * @param CompanyRegistrationNo2ID
-     * @param CompanyRegistrationNo3ID
-     * @param CompanyRegistrationNo4ID
-     * @param TitleNumberID
-     * @param ProprietorName1ID
-     * @param ProprietorName2ID
-     * @param ProprietorName3ID
-     * @param ProprietorName4ID
-     * @param TitleNumberIDToCompanyRegistrationNoID TitleNumberID to
+     * @param companyRegistrationNo1ID
+     * @param companyRegistrationNo2ID
+     * @param companyRegistrationNo3ID
+     * @param companyRegistrationNo4ID
+     * @param titleNumberID
+     * @param proprietorName1ID
+     * @param proprietorName2ID
+     * @param proprietorName3ID
+     * @param proprietorName4ID
+     * @param titleNumberIDToCompanyRegistrationNoID TitleNumberID to
      * CompanyRegistrationNoID lookup.
-     * @param CompanyRegistrationNoIDToTitleNumberID CompanyRegistrationNoID to
+     * @param companyRegistrationNoIDToTitleNumberIDs CompanyRegistrationNoID to
      * TitleNumberID lookup.
-     * @param ProprietorNameIDToCompanyRegistrationNoID ProprietorNameID to
+     * @param proprietorNameIDToCompanyRegistrationNoIDs ProprietorNameID to
      * CompanyRegistrationNoID lookup.
-     * @param CompanyRegistrationNoIDToProprietorNameID CompanyRegistrationNoID
+     * @param companyRegistrationNoIDToProprietorNameIDs CompanyRegistrationNoID
      * to ProprietorNameID lookup.
      */
-    protected void updateKeyLookups(LR_ValueID CompanyRegistrationNo1ID,
-            LR_ValueID CompanyRegistrationNo2ID, LR_ValueID CompanyRegistrationNo3ID,
-            LR_ValueID CompanyRegistrationNo4ID, LR_ValueID TitleNumberID,
-            LR_ValueID ProprietorName1ID, LR_ValueID ProprietorName2ID,
-            LR_ValueID ProprietorName3ID, LR_ValueID ProprietorName4ID,
-            HashMap<LR_ValueID, ArrayList<LR_ValueID>> TitleNumberIDToCompanyRegistrationNoID,
-            HashMap<LR_ValueID, HashSet<LR_ValueID>> CompanyRegistrationNoIDToTitleNumberID,
-            HashMap<LR_ValueID, HashSet<LR_ValueID>> ProprietorNameIDToCompanyRegistrationNoID,
-            HashMap<LR_ValueID, LR_ValueID> CompanyRegistrationNoIDToProprietorNameID) {
-        ArrayList<LR_ValueID> CompanyRegistrationNoIDs;
-        HashSet<LR_ValueID> TitleNumberIDs;
-        HashSet<LR_ValueID> CompanyRegistrationNoIDs2;
-        LR_ValueID ProprietorNameID;
-        // Update TitleNumberIDToCompanyRegistrationNoID
-        if (TitleNumberIDToCompanyRegistrationNoID.containsKey(TitleNumberID)) {
-            CompanyRegistrationNoIDs = TitleNumberIDToCompanyRegistrationNoID.get(TitleNumberID);
+    protected void updateKeyLookups(LR_ID2 ID, LR_ValueID companyRegistrationNo1ID,
+            LR_ValueID companyRegistrationNo2ID, LR_ValueID companyRegistrationNo3ID,
+            LR_ValueID companyRegistrationNo4ID, LR_ValueID titleNumberID,
+            LR_ValueID proprietorName1ID, LR_ValueID proprietorName2ID,
+            LR_ValueID proprietorName3ID, LR_ValueID proprietorName4ID,
+            HashMap<LR_ValueID, ArrayList<LR_ValueID>> titleNumberIDToCompanyRegistrationNoID,
+            HashMap<LR_ValueID, HashSet<LR_ValueID>> companyRegistrationNoIDToTitleNumberIDs,
+            HashMap<LR_ValueID, ArrayList<LR_ValueID>> proprietorNameIDToCompanyRegistrationNoIDs,
+            HashMap<LR_ValueID, ArrayList<LR_ValueID>> companyRegistrationNoIDToProprietorNameIDs) {
+        ArrayList<LR_ValueID> titleNumberCompanyRegistrationNoIDs = null;
+        HashSet<LR_ValueID> titleNumberIDs;
+        ArrayList<LR_ValueID> proprietorNameCompanyRegistrationNoIDs;
+        LR_ValueID proprietorNameID;
+        // Update titleNumberIDToCompanyRegistrationNoID
+        if (titleNumberID == null) {
+            // count?
+            int debug = 1;
         } else {
-            CompanyRegistrationNoIDs = new ArrayList<>();
-            TitleNumberIDToCompanyRegistrationNoID.put(TitleNumberID, CompanyRegistrationNoIDs);
+            if (titleNumberIDToCompanyRegistrationNoID.containsKey(titleNumberID)) {
+                titleNumberCompanyRegistrationNoIDs = titleNumberIDToCompanyRegistrationNoID.get(titleNumberID);
+            } else {
+                titleNumberCompanyRegistrationNoIDs = new ArrayList<>();
+                titleNumberIDToCompanyRegistrationNoID.put(titleNumberID, titleNumberCompanyRegistrationNoIDs);
+            }
         }
-        CompanyRegistrationNoIDs.add(CompanyRegistrationNo1ID);
-        CompanyRegistrationNoIDs.add(CompanyRegistrationNo2ID);
-        CompanyRegistrationNoIDs.add(CompanyRegistrationNo3ID);
-        CompanyRegistrationNoIDs.add(CompanyRegistrationNo4ID);
-        // Update CompanyRegistrationNoIDToTitleNumberID
-        if (CompanyRegistrationNoIDToTitleNumberID.containsKey(CompanyRegistrationNo1ID)) {
-            TitleNumberIDs = CompanyRegistrationNoIDToTitleNumberID.get(CompanyRegistrationNo1ID);
+        // Update companyRegistrationNoIDToTitleNumberID and get init titleNumberIDs
+        int nNullCompanyRegistrationNo1ID;
+        nNullCompanyRegistrationNo1ID = addValue(
+                companyRegistrationNo1ID, titleNumberCompanyRegistrationNoIDs);
+        titleNumberIDs = getAndAddToSet(companyRegistrationNo1ID,
+                companyRegistrationNoIDToTitleNumberIDs);
+        int nNullCompanyRegistrationNo2ID;
+        nNullCompanyRegistrationNo2ID = addValue(
+                companyRegistrationNo2ID, titleNumberCompanyRegistrationNoIDs);
+        companyRegistrationNoIDToTitleNumberIDs.put(companyRegistrationNo2ID, titleNumberIDs);
+        int nNullCompanyRegistrationNo3ID;
+        nNullCompanyRegistrationNo3ID = addValue(
+                companyRegistrationNo3ID, titleNumberCompanyRegistrationNoIDs);
+        companyRegistrationNoIDToTitleNumberIDs.put(companyRegistrationNo3ID, titleNumberIDs);
+        int nNullCompanyRegistrationNo4ID;
+        nNullCompanyRegistrationNo4ID = addValue(
+                companyRegistrationNo4ID, titleNumberCompanyRegistrationNoIDs);
+        companyRegistrationNoIDToTitleNumberIDs.put(companyRegistrationNo4ID, titleNumberIDs);
+        titleNumberIDs.add(titleNumberID);
+
+        // Update proprietorNameIDToCompanyRegistrationNoID
+        if (proprietorNameIDToCompanyRegistrationNoIDs.containsKey(proprietorName1ID)) {
+            proprietorNameCompanyRegistrationNoIDs = proprietorNameIDToCompanyRegistrationNoIDs.get(proprietorName1ID);
         } else {
-            TitleNumberIDs = new HashSet<>();
-            CompanyRegistrationNoIDToTitleNumberID.put(CompanyRegistrationNo1ID, TitleNumberIDs);
+            proprietorNameCompanyRegistrationNoIDs = new ArrayList<>();
+            proprietorNameIDToCompanyRegistrationNoIDs.put(proprietorName1ID, proprietorNameCompanyRegistrationNoIDs);
         }
-        TitleNumberIDs.add(TitleNumberID);
-        // Update ProprietorNameIDToCompanyRegistrationNoID
-        // ProprietorName1ID
-        if (ProprietorNameIDToCompanyRegistrationNoID.containsKey(ProprietorName1ID)) {
-            CompanyRegistrationNoIDs2 = ProprietorNameIDToCompanyRegistrationNoID.get(ProprietorName1ID);
-        } else {
-            CompanyRegistrationNoIDs2 = new HashSet<>();
-            ProprietorNameIDToCompanyRegistrationNoID.put(ProprietorName1ID, TitleNumberIDs);
-        }
-        CompanyRegistrationNoIDs2.add(CompanyRegistrationNo1ID);
-        // ProprietorName2ID
-        if (ProprietorNameIDToCompanyRegistrationNoID.containsKey(ProprietorName2ID)) {
-            CompanyRegistrationNoIDs2 = ProprietorNameIDToCompanyRegistrationNoID.get(ProprietorName2ID);
-        } else {
-            CompanyRegistrationNoIDs2 = new HashSet<>();
-            ProprietorNameIDToCompanyRegistrationNoID.put(ProprietorName2ID, TitleNumberIDs);
-        }
-        CompanyRegistrationNoIDs2.add(CompanyRegistrationNo2ID);
-        // ProprietorName3ID
-        if (ProprietorNameIDToCompanyRegistrationNoID.containsKey(ProprietorName3ID)) {
-            CompanyRegistrationNoIDs2 = ProprietorNameIDToCompanyRegistrationNoID.get(ProprietorName3ID);
-        } else {
-            CompanyRegistrationNoIDs2 = new HashSet<>();
-            ProprietorNameIDToCompanyRegistrationNoID.put(ProprietorName3ID, TitleNumberIDs);
-        }
-        CompanyRegistrationNoIDs2.add(CompanyRegistrationNo3ID);
-        // ProprietorName4ID
-        if (ProprietorNameIDToCompanyRegistrationNoID.containsKey(ProprietorName4ID)) {
-            CompanyRegistrationNoIDs2 = ProprietorNameIDToCompanyRegistrationNoID.get(ProprietorName4ID);
-        } else {
-            CompanyRegistrationNoIDs2 = new HashSet<>();
-            ProprietorNameIDToCompanyRegistrationNoID.put(ProprietorName4ID, TitleNumberIDs);
-        }
-        CompanyRegistrationNoIDs2.add(CompanyRegistrationNo4ID);
-        // Update CompanyRegistrationNoIDToProprietorNameID
+        int nNullProprietorName1ID;
+        nNullProprietorName1ID = addValue(
+                proprietorNameIDToCompanyRegistrationNoIDs, proprietorName1ID,
+                companyRegistrationNo1ID);
+        proprietorNameCompanyRegistrationNoIDs = getAndAddToArrayList(
+                proprietorName1ID, proprietorNameIDToCompanyRegistrationNoIDs);
+        int nNullProprietorName2ID;
+        nNullProprietorName2ID = addValue(
+                proprietorNameIDToCompanyRegistrationNoIDs, proprietorName2ID,
+                companyRegistrationNo2ID);
+        proprietorNameIDToCompanyRegistrationNoIDs.put(proprietorName2ID,
+                proprietorNameCompanyRegistrationNoIDs);
+        int nNullProprietorName3ID;
+        nNullProprietorName3ID = addValue(
+                proprietorNameIDToCompanyRegistrationNoIDs, proprietorName3ID,
+                companyRegistrationNo3ID);
+        proprietorNameIDToCompanyRegistrationNoIDs.put(proprietorName3ID,
+                proprietorNameCompanyRegistrationNoIDs);
+        int nNullProprietorName4ID;
+        nNullProprietorName4ID = addValue(
+                proprietorNameIDToCompanyRegistrationNoIDs, proprietorName4ID,
+                companyRegistrationNo4ID);
+        proprietorNameIDToCompanyRegistrationNoIDs.put(proprietorName4ID,
+                proprietorNameCompanyRegistrationNoIDs);
+
+        // Update companyRegistrationNoIDToProprietorNameIDs
         // CompanyRegistrationNo1ID
-        String companyRegistrationNo;
-        if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo1ID)) {
-            companyRegistrationNo = CompanyRegistrationNo1ID.getValue();
-            ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo1ID);
-            if (ProprietorNameID != ProprietorName1ID) {
-                if (!ProprietorNameID.equals(ProprietorName1ID)) {
-                    // This is unexpected, the proprietor name has changed!
-                    // Report the ProprietorName change.
-                    reportProprietorNameChange(companyRegistrationNo, ProprietorNameID, ProprietorName1ID);
-                }
-            }
-        } else {
-            ProprietorNameID = ProprietorName1ID;
-            CompanyRegistrationNoIDToProprietorNameID.put(CompanyRegistrationNo1ID, ProprietorNameID);
-        }
+        addValueAndReportDifferenceInAddedValueAndTheLastInTheList(
+                companyRegistrationNoIDToProprietorNameIDs,
+                companyRegistrationNo1ID, proprietorName1ID);
         // CompanyRegistrationNo2ID
-        if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo2ID)) {
-            companyRegistrationNo = CompanyRegistrationNo2ID.getValue();
-            ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo2ID);
-            if (ProprietorNameID != ProprietorName2ID) {
-                if (!ProprietorNameID.equals(ProprietorName2ID)) {
-                    // This is unexpected, the proprietor name has changed!
-                    reportProprietorNameChange(companyRegistrationNo, ProprietorNameID, ProprietorName2ID);
-                }
-            }
-        } else {
-            ProprietorNameID = ProprietorName2ID;
-            CompanyRegistrationNoIDToProprietorNameID.put(CompanyRegistrationNo2ID, ProprietorNameID);
-        }
+        addValueAndReportDifferenceInAddedValueAndTheLastInTheList(
+                companyRegistrationNoIDToProprietorNameIDs,
+                companyRegistrationNo2ID, proprietorName2ID);
         // CompanyRegistrationNo3ID
-        if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo3ID)) {
-            companyRegistrationNo = CompanyRegistrationNo3ID.getValue();
-            ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo3ID);
-            if (ProprietorNameID != ProprietorName3ID) {
-                if (!ProprietorNameID.equals(ProprietorName3ID)) {
-                    // This is unexpected, the proprietor name has changed!
-                    reportProprietorNameChange(companyRegistrationNo, ProprietorNameID, ProprietorName3ID);
-                }
-            }
-        } else {
-            ProprietorNameID = ProprietorName3ID;
-            CompanyRegistrationNoIDToProprietorNameID.put(CompanyRegistrationNo3ID, ProprietorNameID);
-        }
+        addValueAndReportDifferenceInAddedValueAndTheLastInTheList(
+                companyRegistrationNoIDToProprietorNameIDs,
+                companyRegistrationNo3ID, proprietorName3ID);
         // CompanyRegistrationNo4ID
-        if (CompanyRegistrationNoIDToProprietorNameID.containsKey(CompanyRegistrationNo4ID)) {
-            companyRegistrationNo = CompanyRegistrationNo4ID.getValue();
-            ProprietorNameID = CompanyRegistrationNoIDToProprietorNameID.get(CompanyRegistrationNo4ID);
-            if (ProprietorNameID != ProprietorName4ID) {
-                if (!ProprietorNameID.equals(ProprietorName4ID)) {
-                    // This is unexpected, the proprietor name has changed!
-                    reportProprietorNameChange(companyRegistrationNo, ProprietorNameID, ProprietorName4ID);
-                }
-            }
+        addValueAndReportDifferenceInAddedValueAndTheLastInTheList(
+                companyRegistrationNoIDToProprietorNameIDs,
+                companyRegistrationNo4ID, proprietorName4ID);
+
+    }
+
+    protected int addValue(LR_ValueID valueID,
+            ArrayList<LR_ValueID> l) {
+        int result;
+        if (valueID == null) {
+            result = 1;
         } else {
-            ProprietorNameID = ProprietorName4ID;
-            CompanyRegistrationNoIDToProprietorNameID.put(CompanyRegistrationNo4ID, ProprietorNameID);
+            l.add(valueID);
+            result = 0;
+        }
+        return result;
+    }
+
+    protected int addValue(LR_ValueID value, LR_ValueID key,
+            HashMap<LR_ValueID, HashSet<LR_ValueID>> m) {
+        int result;
+        if (value == null) {
+            result = 1;
+        } else {
+            HashSet<LR_ValueID> valueIDs;
+            if (m.containsKey(key)) {
+                valueIDs = m.get(key);
+            } else {
+                valueIDs = new HashSet<>();
+            }
+            valueIDs.add(value);
+            result = 0;
+        }
+        return result;
+    }
+
+    protected int addValue(
+            HashMap<LR_ValueID, ArrayList<LR_ValueID>> m,
+            LR_ValueID value, LR_ValueID key) {
+        int result;
+        if (value == null) {
+            result = 1;
+        } else {
+            Generic_Collections.addToLisIfDifferentFromLast(m, key, value);
+            result = 0;
+        }
+        return result;
+    }
+
+    /**
+     *
+     * @param valueID
+     * @param m
+     * @return
+     */
+    protected HashSet<LR_ValueID> getAndAddToSet(LR_ValueID valueID,
+            HashMap<LR_ValueID, HashSet<LR_ValueID>> m) {
+        HashSet<LR_ValueID> result;
+        if (m.containsKey(valueID)) {
+            result = m.get(valueID);
+        } else {
+            result = new HashSet<>();
+            m.put(valueID, result);
+        }
+        return result;
+    }
+
+    /**
+     *
+     * @param valueID
+     * @param m
+     * @return
+     */
+    protected ArrayList<LR_ValueID> getAndAddToArrayList(LR_ValueID valueID,
+            HashMap<LR_ValueID, ArrayList<LR_ValueID>> m) {
+        ArrayList<LR_ValueID> result;
+        if (m.containsKey(valueID)) {
+            result = m.get(valueID);
+        } else {
+            result = new ArrayList<>();
+            m.put(valueID, result);
+        }
+        return result;
+    }
+
+    /**
+     * adds value into the values of m for key.
+     *
+     * @param m
+     * @param key
+     * @param value
+     */
+    public void addValueAndReportDifferenceInAddedValueAndTheLastInTheList(
+            HashMap<LR_ValueID, ArrayList<LR_ValueID>> m,
+            LR_ValueID key, LR_ValueID value) {
+        if (key != null) {
+            LR_ValueID v2;
+            ArrayList<LR_ValueID> l;
+            if (m.containsKey(key)) {
+                String s;
+                s = key.getValue();
+                l = m.get(key);
+                v2 = l.get(l.size() - 1);
+                if (v2 != value) {
+                    if (!v2.equals(value)) {
+                        // This is unexpected, the proprietor name has changed!
+                        reportProprietorNameChange(s, v2, value);
+                    }
+                }
+            } else {
+                v2 = value;
+                l = new ArrayList<>();
+                l.add(v2);
+                m.put(key, l);
+            }
         }
     }
 
@@ -1070,15 +1195,16 @@ public class LR_Transitions_Process extends LR_Main_Process {
             return t1;
         } else {
             return t0 + delimeter + t1;
+
         }
     }
 
     protected void printDiff(String type, boolean printDiff, LR_ID2 aID,
-            ArrayList<? extends LR_Record> ld,
-            ArrayList<? extends LR_Record> la) {
+            ArrayList<? extends LR_Record> ld, ArrayList<? extends LR_Record> la) {
         if (printDiff) {
             String m;
-            m = "Deleted " + type + " is also added, so this is really updated.";
+            m = "Deleted " + type
+                    + " is also added, so this is really updated.";
             System.out.println(m);
             System.out.println("Current:");
             boolean b;
@@ -1104,6 +1230,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
             while (ite.hasNext()) {
                 m = ite.next().toString();
                 System.out.println(m);
+
             }
         }
     }
@@ -1120,11 +1247,15 @@ public class LR_Transitions_Process extends LR_Main_Process {
         result = l.size();
         if (result > 1) {
             String m;
-            m = "Record with ID " + aID + " " + name + " " + result
+            m = "Record with ID " + aID
+                    + " " + name
+                    + " " + result
                     + " times (more than once in a time step)!";
             System.out.println(m);
+
         }
         return result;
+
     }
 
     /**
@@ -1145,14 +1276,15 @@ public class LR_Transitions_Process extends LR_Main_Process {
             String transitionType0,
             HashMap<LR_ID2, String> transitionTypes,
             TreeMap<String, Integer> transitionTypeCounts,
-            ArrayList<? extends LR_Record> l, String delimeter) {
+            ArrayList<? extends LR_Record> l,
+            String delimeter
+    ) {
         String transitionType;
         if (mappedTransitions.containsKey(aID)) {
             transitions = mappedTransitions.get(aID);
             transitionType = transitionTypes.get(aID);
             transitionTypes.remove(aID);
-            Generic_Collections.addToMap(transitionTypeCounts, transitionType,
-                    -1);
+            Generic_Collections.addToMap(transitionTypeCounts, transitionType, -1);
         } else {
             transitions = new ArrayList<>();
             mappedTransitions.put(aID, transitions);
@@ -1235,15 +1367,18 @@ public class LR_Transitions_Process extends LR_Main_Process {
         if (l0 == null) {
             if (l1 == null) {
             } else {
-                s3 = "PricePaid changed from null to " + l1 + " perhaps look in sales data?!";
+                s3 = "PricePaid changed from null to " + l1
+                        + " perhaps look in sales data?!";
             }
         } else {
             if (l1 == null) {
-                s3 = "PricePaid changed from " + l0 + " to null!";
+                s3 = "PricePaid changed from " + l0
+                        + " to null!";
             } else {
                 if (l0.longValue() != l1.longValue()) {
                     if (printDiff) {
-                        s3 = "PricePaid changed from " + l0 + " to " + l1 + " perhaps look in sales data?!";
+                        s3 = "PricePaid changed from " + l0 + " to " + l1
+                                + " perhaps look in sales data?!";
                         System.out.println(s3);
                     }
                 }
@@ -1284,32 +1419,29 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorName1();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName1(s1);
-            ownershipChange = doDiff(
-                    Strings.S_ProprietorName1, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_ProprietorName1, s0, s1, printDiff, ownershipChange);
             changeCount++;
+
         }
         s0 = f.getProprietorName2();
         s1 = c.getProprietorName2();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName2(s1, updateIDs);
-            ownershipChange = doDiff(
-                    Strings.S_ProprietorName2, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_ProprietorName2, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorName3();
         s1 = c.getProprietorName3();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName3(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorName3,
-                    s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_ProprietorName3, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorName4();
         s1 = c.getProprietorName4();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName4(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorName4,
-                    s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_ProprietorName4, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         //ProprietorshipCategory
@@ -1317,32 +1449,28 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorshipCategory1();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory1(s1);
-            ownershipChange = doDiff(Strings.S_ProprietorshipCategory1,
-                    s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_ProprietorshipCategory1, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorshipCategory2();
         s1 = c.getProprietorshipCategory2();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory2(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorshipCategory2,
-                    s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_ProprietorshipCategory2, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorshipCategory3();
         s1 = c.getProprietorshipCategory3();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory3(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorshipCategory3,
-                    s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_ProprietorshipCategory3, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorshipCategory4();
         s1 = c.getProprietorshipCategory4();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory4(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorshipCategory4,
-                    s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(Strings.S_ProprietorshipCategory4, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         result[0] = changeCount;
@@ -1371,11 +1499,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
                     + companyRegistrationNo + "\" changed from \""
                     + proprietorName0 + "\" to \"" + proprietorName1 + "\"";
             System.out.println(s);
+
         }
     }
 
-    protected boolean doDiff(String name, String s0,
-            String s1, boolean printDiff, boolean change) {
+    protected boolean doDiff(String name, String s0, String s1, boolean printDiff, boolean change) {
         if (!s0.trim().isEmpty()) {
             if (printDiff) {
                 String s;
@@ -1385,6 +1513,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
             change = true;
         }
         return change;
+
     }
 
     /**
@@ -1398,7 +1527,9 @@ public class LR_Transitions_Process extends LR_Main_Process {
      * there has been some form of ownership change); result[3] = Boolean (true
      * iff Tenure has changed); result[4] = null.
      */
-    public Object[] difference(LR_CC_FULL_Record f, LR_CC_COU_Record c, boolean printDiff) {
+    public Object[] difference(LR_CC_FULL_Record f,
+            LR_CC_COU_Record c,
+            boolean printDiff) {
         //String s0;
         //String s1;
         Object[] result;
@@ -1427,7 +1558,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
      * iff Tenure has changed); result[4] = Boolean (true iff one of Country
      * Incorporated has changed).
      */
-    public Object[] difference(LR_OC_FULL_Record f, LR_OC_COU_Record c, boolean printDiff) {
+    public Object[] difference(LR_OC_FULL_Record f, LR_OC_COU_Record c,
+            boolean printDiff) {
         boolean updateIDs = false;
         String s0;
         String s1;
@@ -1556,7 +1688,10 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 deleted.put(aID, l);
             }
         }
-        l.add(r);
+        l
+                .add(r
+                );
+
     }
 
     void printGeneralisation(PrintWriter pw, int minCC, int minOC) {
@@ -1564,11 +1699,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
         printGeneralisation(pw, "deletedCCR", deletedCCRCount, minCC);
         printGeneralisation(pw, "addedOCR", addedOCRCount, minOC);
         printGeneralisation(pw, "deletedOCR", deletedOCRCount, minOC);
+
     }
 
     void printGeneralisation(PrintWriter pw, String type,
-            HashMap<LR_ID2, Integer> counts, int min
-    ) {
+            HashMap<LR_ID2, Integer> counts, int min) {
         pw.println(type);
         if (!counts.isEmpty()) {
             Map<LR_ID2, Integer> sortedCounts;
@@ -1585,11 +1720,13 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 count = counts.get(aID);
                 if (count >= min) {
                     if (!reportedSmallCount) {
-                        pw.println("Those with less than " + min + "," + smallCount);
+                        pw.println("Those with less than " + min
+                                + "," + smallCount);
                         reportedSmallCount = true;
                     }
                     if (aID != null) {
-                        pw.println("\"" + aID.getPropertyAddressID().getValue() + "\",\""
+                        pw.println(
+                                "\"" + aID.getPropertyAddressID().getValue() + "\",\""
                                 + aID.getTitleNumberID().getValue() + "\"," + count);
                     } else {
                         System.out.println("null ID");
