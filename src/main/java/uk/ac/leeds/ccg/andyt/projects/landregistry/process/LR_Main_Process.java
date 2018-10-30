@@ -64,6 +64,7 @@ public class LR_Main_Process extends LR_Object {
     boolean doTransitions = false;
     boolean doTransitionsAreas = false;
     boolean doTransitionsAll = false;
+    boolean doLoadPricePaidData = false;
 
     public void run() {
 
@@ -73,9 +74,10 @@ public class LR_Main_Process extends LR_Object {
 //        doGeneralise = true;
 //        doGeneraliseAreas = true;
 //        doGeneraliseAll = true;
-        doTransitions = true;
-        doTransitionsAreas = true;
+//        doTransitions = true;
+//        doTransitionsAreas = true;
 //        doTransitionsAll = true;
+        doLoadPricePaidData = true;
 
         ArrayList<String> areas;
         areas = new ArrayList<>();
@@ -226,10 +228,33 @@ public class LR_Main_Process extends LR_Object {
                 tp.run(area, doAll, inputDataDir, minCC, minOC, overwrite);
             }
         }
-//        if (writeCollections) {
-//            // If any collections have changed then write them out again.
-//            Env.writeCollections();
-//        }
+        //        if (writeCollections) {
+        //            // If any collections have changed then write them out again.
+        //            Env.writeCollections();
+        //        }
+
+        // Select Leeds
+        if (doLoadPricePaidData) {
+            // Options
+            overwrite = true;
+//            overwrite = false;
+            // Run
+            LR_LoadPricePaidData_Process p;
+            p = new LR_LoadPricePaidData_Process(Env, overwrite);
+            p.Files.setDataDirectory(Files.getDataDir());
+            ite = areas.iterator();
+            while (ite.hasNext()) {
+                area = ite.next();
+                p.run(area);
+            }
+        }
+
+        // Write out cache if it does not exist.
+        File f;
+        f = Files.getEnvDataFile();
+        if (!f.exists()) {
+            Generic_StaticIO.writeObject(Env, f, "Env");
+        }
     }
 
     /**
