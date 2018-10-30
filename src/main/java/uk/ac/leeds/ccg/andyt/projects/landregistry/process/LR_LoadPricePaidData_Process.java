@@ -49,8 +49,73 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
     public void run(String area) {
         
         //selectBPPDCategoryType();
-        selectArea(area);
+        //selectArea(area);
+        test(area);
         
+    }
+    
+    /**
+     * Select records where PPDCategoryType equals "B" and District = "LEEDS"
+     * @param area 
+     */
+    public void test(String area) {
+        File outdir;
+        File fin;
+        File fout;
+        PrintWriter pw = null;
+
+        outdir = new File(Env.Files.getOutputDataDir(Strings), "PricePaid");
+        System.out.println("outdir " + outdir);
+        fin = new File(outdir, "pp-complete-PPDCategoryType-B-District-LEEDS.csv");
+        if (!fin.exists()) {
+            System.out.println("Input file " + fin + " does not exist.");
+        } else {
+            outdir.mkdirs();
+            fout = new File(outdir, "test.csv");
+            if (!fout.exists() || overwrite) {
+                BufferedReader br;
+                StreamTokenizer st;
+                br = Generic_StaticIO.getBufferedReader(fin);
+                st = new StreamTokenizer(br);
+                Generic_StaticIO.setStreamTokenizerSyntax7(st);
+                try {
+                    pw = new PrintWriter(fout);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(LR_LoadPricePaidData_Process.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                boolean read;
+                read = false;
+                String line;
+                LR_PricePaid_Record r;
+//                // read header
+//                Generic_ReadCSV.readLine(st, null);
+                int lineNumber;
+                lineNumber = 0;
+
+                while (!read) {
+                    line = Generic_ReadCSV.readLine(st, null);
+                    if (line == null) {
+                        read = true;
+                    } else {
+                        try {
+                            r = new LR_PricePaid_Record(Env, line);
+                            //if (r.District.equalsIgnoreCase("LEEDS")) {
+                                pw.println(line);
+                            //}
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            //e.printStackTrace(System.err);
+                            System.out.println("Line " + lineNumber + " is not a nomal line:" + line);
+                        } catch (Exception ex) {
+                            System.err.println("Line: " + line);
+                            Logger.getLogger(LR_LoadPricePaidData_Process.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+                pw.close();
+            } else {
+                System.out.println("Output file " + fout + " already exists and is not being overwritten.");
+            }
+        }
     }
     
     /**
