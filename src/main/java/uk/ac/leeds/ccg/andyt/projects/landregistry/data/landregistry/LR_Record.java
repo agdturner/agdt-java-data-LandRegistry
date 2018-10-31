@@ -19,6 +19,9 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
 import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
@@ -40,6 +43,11 @@ public abstract class LR_Record extends LR_Object {
     private String TitleNumber;
     private String Tenure;
     private String PropertyAddress;
+    private String PropertyAddressPAON;
+    private String PropertyAddressSAON;
+    private String PropertyAddressSTREET;
+    private String PropertyAddressLOCALITY;
+    private String PropertyAddressCITY;
     private String District;
     private String Region;
     private String Postcode;
@@ -278,6 +286,149 @@ public abstract class LR_Record extends LR_Object {
         LR_TypeID typeID;
         typeID = Env.PropertyAddressTypeID;
         setPropertyAddress(s);
+        /**
+         * Attempt to set PropertyAddressPAON, PropertyAddressSAON,
+         * PropertyAddressSTREET, PropertyAddressCITY. There are many special
+         * cases!
+         */
+        if (!s.isEmpty()) {
+            String[] split;
+            split = s.split(", ");
+            int len;
+            len = split.length;
+            if (len > 1) {
+                String s2;
+                // Strip out postcode if it is the only part of the last part.
+                if (split[len - 1].trim().startsWith("(")) {
+                    s2 = "";
+                    for (int i = 0; i < len - 2; i++) {
+                        s2 += split[i] + ", ";
+                    }
+                    s2 += split[len - 2];
+                    split = s2.split(", ");
+                    len = split.length;
+                } else {
+                    s2 = s;
+                }
+                if (len == 1) {
+                    String[] split2;
+                    split2 = s2.split(" ");
+                    int len2;
+                    len2 = split2.length;
+                    String pAON;
+                    String sAON;
+                    String street;
+
+                    if (Env.NumeralsHashSet.contains(split2[0].substring(0, 1))) {
+                        String s3;
+                        s3 = split2[1].trim();
+                        if (containsAddressNumberJoin(s3)) {
+                            if (Env.NumeralsHashSet.contains(split2[2].substring(0, 1))) {
+                                /**
+                                 * Get up to the last numeral and assign this as
+                                 * PAON and assign the rest as Street and deal
+                                 * with cases where the number is also followed
+                                 * by a letter such as in the case of e.g. "8
+                                 * and 8a Guilford Street".
+                                 */
+                                //Matcher m = Pattern.compile("\\d+[^ ]").matcher(s2);
+                                int i;
+                                i = findIndexOfLastNumber(s2);
+                                street = s2.substring(i);
+                                
+                                String[] sa;
+                                sa = rejoinLetter(s2, i, street);
+                                pAON = sa[0];
+                                street = sa[1];
+                                setPropertyAddressPAON(pAON);
+                                setPropertyAddressSTREET(street);
+                            } else {
+                                //city = setAddressComponentsCase1(pAON, split, split2, len);
+                                int debug = 1;
+                            }
+                        } else {
+                            //e.g. "130 London Road"
+                            setPropertyAddressPAON(split2[0]);
+                            String s4;
+                            s4 = "";
+                            for (int i = 1; i < split2.length - 1; i++) {
+                                s4 += split2[i] + " ";
+                            }
+                            s4 += split2[split2.length - 1];
+                            setPropertyAddressSTREET(s4);
+                        }
+                    } else {
+                        int i1, i2;
+                        i1 = findFirstIndexOfFirstNumber(s2);
+                        i2 = findIndexOfLastNumber(s2);
+                        pAON = s2.substring(0, i1).trim();
+                        sAON = s2.substring(i1, i2).trim();
+                        street = s2.substring(i2).trim();
+                        int debug = 1;
+                        
+                    }
+                } else if (len == 2) {
+
+                } else if (len == 3) {
+//                    
+//                    //setPropertyAddressSAON(s);
+//
+//                    String pAON;
+//                    pAON = split[0];
+//
+//                    // Need to deal with cases like Crompton Farm:
+//                    // In these cases how to distinguish a placename from a street name?
+////                if (pAON.equalsIgnoreCase("Compton Farm")) {
+////                    int debug = 1;
+////                }
+//                    String street;
+//                    String city;
+//                    /*
+//                 * If the first thing is a number then distinguish when there is more than this as a number
+//                     */
+//                    if (Env.NumeralsHashSet.contains(pAON.substring(0, 1))) {
+//
+//                        String[] split2;
+//                        split2 = pAON.split(" ");
+//                        int len2;
+//                        len2 = split2.length;
+//                        String s2;
+//                        s2 = split2[1].trim();
+//                        if (containsAddressNumberJoin(s2)) {
+//                            if (Env.NumeralsHashSet.contains(split2[2].substring(0, 1))) {
+//                                city = setAddressComponentsCase0(pAON, split, len);
+//                            } else {
+//                                city = setAddressComponentsCase1(pAON, split, split2, len);
+//                            }
+//                        } else {
+//                            city = setAddressComponentsCase1(pAON, split, split2, len);
+//                        }
+//
+//                    } else {
+//                        city = setAddressComponentsCase0(pAON, split, len);
+//                    }
+////            setPropertyAddressLOCALITY();
+//
+//                    if (!city.startsWith("(")) {
+//                        setPropertyAddressCITY(city);
+//                        System.out.println(PropertyAddressPAON + ", " + PropertyAddressSTREET + ", " + PropertyAddressCITY);
+//                        System.out.println(PropertyAddressPAON + ", " + PropertyAddressSTREET + ", " + PropertyAddressCITY);
+//                    } else {
+//                        System.out.println(PropertyAddressPAON + ", " + PropertyAddressSTREET + ", " + PropertyAddressCITY);
+//                        System.out.println(PropertyAddressPAON + ", " + PropertyAddressSTREET + ", " + PropertyAddressCITY);
+//                    }
+//                } else {
+//                    if (len == 2) {
+//                        if (split[0].equalsIgnoreCase("20 - 42 Shepherd Street")) {
+//                            int debug = 1;
+//                        }
+//                    }
+//                    int debug = 1;
+                }
+            } else {
+                int debug = 1;
+            }
+        }
         if (doUpdate) {
             LR_ValueID valueID;
             if (!s.isEmpty()) {
@@ -331,6 +482,89 @@ public abstract class LR_Record extends LR_Object {
             addressID = Env.TitleNumberIDToAddressIDLookup.get(TitleNumberID);
             ID = new LR_ID2(TitleNumberID, addressID);
         }
+    }
+
+    /**
+     * If s2 starts with a space then: return result[0] = s.substring(0, i);
+     * result[1] = s2.trim();. Otherwise join the first part of s2 (before the
+     * next space) to s and return this as result[0] and remove that part from
+     * s2 (along with the space) and return that as result[1].
+     *
+     * @param s
+     * @param i
+     * @param s2
+     * @return
+     */
+    private String[] rejoinLetter(String s, int i, String s2) {
+        String[] result;
+        result = new String[2];
+        String s1;
+        if (s2.startsWith(" ")) {
+            s1 = s.substring(0, i);
+            s2 = s2.trim();
+        } else {
+            String[] split3;
+            split3 = s2.split(" ");
+            s1 = s.substring(0, i) + split3[0];
+            String s4;
+            s4 = "";
+            for (int j = 1; j < split3.length - 1; j++) {
+                s4 += split3[j] + " ";
+            }
+            s4 += split3[split3.length - 1];
+            s2 = s4;
+        }
+        result[0] = s1;
+        result[1] = s2;
+        return result;
+    }
+
+    private int findIndexOfLastNumber(String s) {
+        Matcher m = Pattern.compile("\\d").matcher(s);
+        int i = 0;
+        while (m.find()) {
+            i = m.end();
+        }
+        return i;
+    }
+
+    private int findFirstIndexOfFirstNumber(String s) {
+        Matcher m = Pattern.compile("\\d").matcher(s);
+        int i = 0;
+        m.find();
+        i = m.start();
+        return i;
+    }
+    
+    private boolean containsAddressNumberJoin(String s) {
+        return s.equalsIgnoreCase("to") || s.equalsIgnoreCase("-") || s.equalsIgnoreCase("and");
+    }
+
+    private String setAddressComponentsCase0(String pAON, String[] split, int len) {
+        setPropertyAddressPAON(pAON);
+        String street;
+        street = split[1];
+        setPropertyAddressSTREET(street);
+        String city;
+        city = split[len - 1].split(" ")[0].trim();
+        return city;
+    }
+
+    private String setAddressComponentsCase1(String pAON, String[] split, String[] split2, int len) {
+        String pAON2;
+        pAON2 = split2[0];
+        setPropertyAddressPAON(pAON2);
+        String street;
+        street = pAON.substring(pAON2.length()).trim();
+        setPropertyAddressSTREET(street);
+        // If the last bit starts with a " (" then set city from second to last part.
+        String city;
+        if (split[len - 1].trim().startsWith("(")) {
+            city = split[len - 2];
+        } else {
+            city = split[len - 1].split(" ")[0].trim();
+        }
+        return city;
     }
 
     /**
@@ -417,11 +651,10 @@ public abstract class LR_Record extends LR_Object {
                 }
             } else {
                 if (v0 != null) {
-                    
+
 //                    if (typeID.equals(Env.PostcodeDistrictTypeID)) { // Debugging code to check the postcode.
 //                        Env.PostcodeHandler.isValidPostcodeForm(s);
 //                    }
-                    
                     return updateNullCollection(typeID, s, m, v0);
                 } else {
                     // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
@@ -460,7 +693,7 @@ public abstract class LR_Record extends LR_Object {
 //                    System.out.println("Not updated Null Collection for typeID "
 //                            + typeID.toString() + " ID " + ID.toString()
 //                            + " from " + v0.toString());
-                    
+
 //                    // Tested for datasets from 2017-11 to 2018-10 and the 
 //                    // following if statements do not catch anything.
 //                    if (typeID.equals(Env.PropertyAddressTypeID)) {
@@ -469,7 +702,6 @@ public abstract class LR_Record extends LR_Object {
 //                    if (typeID.equals(Env.TitleNumberTypeID)) {
 //                        int debug = 1;
 //                    }
-                    
                     return v0;
                 } else {
                     // Tested for datasets from 2017-11 to 2018-10 and this case did not occur!
@@ -1025,6 +1257,41 @@ public abstract class LR_Record extends LR_Object {
      */
     public final void setPropertyAddress(String s) {
         this.PropertyAddress = s;
+    }
+
+    /**
+     * @param s the PropertyAddressPAON to set
+     */
+    public final void setPropertyAddressPAON(String s) {
+        this.PropertyAddressPAON = s;
+    }
+
+    /**
+     * @param s the PropertyAddressSAON to set
+     */
+    public final void setPropertyAddressSAON(String s) {
+        this.PropertyAddressSAON = s;
+    }
+
+    /**
+     * @param s the PropertyAddressSTREET to set
+     */
+    public final void setPropertyAddressSTREET(String s) {
+        this.PropertyAddressSTREET = s;
+    }
+
+    /**
+     * @param s the PropertyAddressLOCALITY to set
+     */
+    public final void setPropertyAddressLOCALITY(String s) {
+        this.PropertyAddressLOCALITY = s;
+    }
+
+    /**
+     * @param s the PropertyAddressCITY to set
+     */
+    public final void setPropertyAddressCITY(String s) {
+        this.PropertyAddressCITY = s;
     }
 
     /**

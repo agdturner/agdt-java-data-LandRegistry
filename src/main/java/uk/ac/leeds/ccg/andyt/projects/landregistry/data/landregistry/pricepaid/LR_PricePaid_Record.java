@@ -81,7 +81,7 @@ public class LR_PricePaid_Record extends LR_Object implements Serializable {
      * PAON (Primary Addressable Object Name). Typically the house number or
      * name.
      */
-    String PAON;
+    public String PAON;
 
     /**
      * SAON (Secondary Addressable Object Name). Where a property has been
@@ -89,22 +89,22 @@ public class LR_PricePaid_Record extends LR_Object implements Serializable {
      * identify the building and a SAON will be specified that identifies the
      * separate unit/flat.
      */
-    String SAON;
+    public String SAON;
 
     /**
      * Street
      */
-    String Street;
+    public String Street;
 
     /**
      * Locality
      */
-    String Locality;
+    public String Locality;
 
     /**
      * Town/City
      */
-    String TownOrCity;
+    public String TownOrCity;
 
     /**
      * District
@@ -114,7 +114,7 @@ public class LR_PricePaid_Record extends LR_Object implements Serializable {
     /**
      * County
      */
-    String County;
+    public String County;
 
     /**
      * PPD Category Type: Indicates the type of Price Paid transaction. A =

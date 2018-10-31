@@ -65,19 +65,21 @@ public class LR_Main_Process extends LR_Object {
     boolean doTransitionsAreas = false;
     boolean doTransitionsAll = false;
     boolean doLoadPricePaidData = false;
+    boolean doJoinPricePaidDataAndOwnershipData = true;
 
     public void run() {
 
         // Main switches
 //        writeCollections = true;
-//        doSelect = true;
+        doSelect = true;
 //        doGeneralise = true;
 //        doGeneraliseAreas = true;
 //        doGeneraliseAll = true;
 //        doTransitions = true;
 //        doTransitionsAreas = true;
 //        doTransitionsAll = true;
-        doLoadPricePaidData = true;
+//        doLoadPricePaidData = true;
+//        doJoinPricePaidDataAndOwnershipData = true;
 
         ArrayList<String> areas;
         areas = new ArrayList<>();
@@ -97,8 +99,8 @@ public class LR_Main_Process extends LR_Object {
         // Select Leeds
         if (doSelect) {
             // Options
-//            overwrite = true;
-            overwrite = false;
+            overwrite = true;
+            //overwrite = false;
             // Run
             LR_Select_Process sp;
             sp = new LR_Select_Process(Env);
@@ -248,6 +250,22 @@ public class LR_Main_Process extends LR_Object {
                 p.run(area);
             }
         }
+        
+        // Join
+        if (doJoinPricePaidDataAndOwnershipData) {
+            // Options
+            overwrite = true;
+//            overwrite = false;
+            // Run
+            LR_JoinPricePaidDataAndOwnershipData_Process p;
+            p = new LR_JoinPricePaidDataAndOwnershipData_Process(Env, overwrite);
+            p.Files.setDataDirectory(Files.getDataDir());
+            ite = areas.iterator();
+            while (ite.hasNext()) {
+                area = ite.next();
+                p.run(area);
+            }
+        }
 
         // Write out cache if it does not exist.
         File f;
@@ -255,6 +273,7 @@ public class LR_Main_Process extends LR_Object {
         if (!f.exists()) {
             Generic_StaticIO.writeObject(Env, f, "Env");
         }
+        
     }
 
     /**

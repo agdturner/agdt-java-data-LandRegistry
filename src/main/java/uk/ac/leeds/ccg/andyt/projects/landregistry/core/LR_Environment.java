@@ -8,6 +8,7 @@ import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
 import uk.ac.leeds.ccg.andyt.generic.data.Generic_UKPostcode_Handler;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
 /**
@@ -22,6 +23,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public transient LR_Strings Strings;
     public transient LR_Files Files;
     public transient Generic_UKPostcode_Handler PostcodeHandler;
+    
+    public transient final HashSet<String> NumeralsHashSet;
+        
 
     public transient static final String EOL = System.getProperty("line.separator");
 
@@ -161,6 +165,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         Files = new LR_Files(Strings, Strings.getS_data());
         ge = new Generic_Environment(Files, Strings);
         PostcodeHandler = new Generic_UKPostcode_Handler();
+        NumeralsHashSet = Generic_StaticString.getNumeralsHashSet();
         File f;
         f = Files.getEnvDataFile();
         if (f.exists()) {
