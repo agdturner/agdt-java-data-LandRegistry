@@ -335,7 +335,7 @@ public abstract class LR_Record extends LR_Object {
                                 int i;
                                 i = findIndexOfLastNumber(s2);
                                 street = s2.substring(i);
-                                
+
                                 String[] sa;
                                 sa = rejoinLetter(s2, i, street);
                                 pAON = sa[0];
@@ -358,14 +358,23 @@ public abstract class LR_Record extends LR_Object {
                             setPropertyAddressSTREET(s4);
                         }
                     } else {
+                        //Separate the address into 3 sections based on the positions of the numberes
                         int i1, i2;
+                        String[] sa;
                         i1 = findFirstIndexOfFirstNumber(s2);
                         i2 = findIndexOfLastNumber(s2);
                         pAON = s2.substring(0, i1).trim();
-                        sAON = s2.substring(i1, i2).trim();
                         street = s2.substring(i2).trim();
+                        if (!street.isEmpty()) {
+                            sa = rejoinLetter(s2.substring(i1), i2, street);
+                            sAON = sa[0];
+                            street = sa[1];
+                            setPropertyAddressSAON(sAON);
+                            setPropertyAddressSTREET(street);
+                        }
+                        setPropertyAddressPAON(pAON);
                         int debug = 1;
-                        
+
                     }
                 } else if (len == 2) {
 
@@ -519,23 +528,40 @@ public abstract class LR_Record extends LR_Object {
         return result;
     }
 
+    /**
+     * If s does not contain a number returns the length of s.
+     *
+     * @param s
+     * @return
+     */
     private int findIndexOfLastNumber(String s) {
         Matcher m = Pattern.compile("\\d").matcher(s);
-        int i = 0;
+        int i = s.length();
         while (m.find()) {
             i = m.end();
         }
         return i;
     }
 
+    /**
+     * If s does not contain a number returns the length of s.
+     *
+     * @param s
+     * @return
+     */
     private int findFirstIndexOfFirstNumber(String s) {
         Matcher m = Pattern.compile("\\d").matcher(s);
         int i = 0;
-        m.find();
-        i = m.start();
+        boolean success;
+        success = m.find();
+        if (success) {
+            i = m.start();
+        } else {
+            i = s.length();
+        }
         return i;
     }
-    
+
     private boolean containsAddressNumberJoin(String s) {
         return s.equalsIgnoreCase("to") || s.equalsIgnoreCase("-") || s.equalsIgnoreCase("and");
     }
