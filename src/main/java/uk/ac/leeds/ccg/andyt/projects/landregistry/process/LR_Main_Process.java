@@ -366,6 +366,10 @@ public class LR_Main_Process extends LR_Object {
         String[] filenames;
         String[] split;
         dir = new File(Files.getInputDataDir(CCODorOCOD), s_FULL_or_COU);
+        if (dir.mkdirs()){
+            System.err.println("Warning: Input data is not in place. Assume "
+                    + "processing with other data...");
+        }
         filenames = dir.list();
         for (String filename : filenames) {
             if (filename.contains(s_FULL_or_COU)) {
