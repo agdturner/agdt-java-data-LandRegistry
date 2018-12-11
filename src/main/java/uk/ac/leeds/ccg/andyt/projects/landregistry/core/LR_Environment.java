@@ -5,10 +5,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
-import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
-import uk.ac.leeds.ccg.andyt.generic.data.Generic_UKPostcode_Handler;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
+import uk.ac.leeds.ccg.andyt.data.interval.Generic_Interval_long1;
+import uk.ac.leeds.ccg.andyt.data.postcode.Generic_UKPostcode_Handler;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
+import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
 /**
@@ -162,16 +162,16 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 
     public LR_Environment() {
         Strings = new LR_Strings();
-        Files = new LR_Files(Strings, Strings.getS_data());
+        Files = new LR_Files(Strings, Strings.s_data);
         ge = new Generic_Environment(Files, Strings);
         PostcodeHandler = new Generic_UKPostcode_Handler();
-        NumeralsHashSet = Generic_StaticString.getNumeralsHashSet();
+        NumeralsHashSet = Generic_String.getNumeralsHashSet();
         File f;
         f = Files.getEnvDataFile();
         if (f.exists()) {
             System.out.println("Loading cache...");
             LR_Environment cache;
-            cache = (LR_Environment) Generic_StaticIO.readObject(f);
+            cache = (LR_Environment) Generic_IO.readObject(f);
             System.out.println("Loaded cache.");
             // Collections
             this.AddressIDToTitleNumberIDsLookup = cache.AddressIDToTitleNumberIDsLookup;
@@ -304,7 +304,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 //            UpdatedPricePaidLookup = true;
         } else {
             System.out.println("Loading " + f);
-            PricePaidLookup = (HashMap<LR_ValueID, Generic_Interval_long1>) Generic_StaticIO.readObject(f);
+            PricePaidLookup = (HashMap<LR_ValueID, Generic_Interval_long1>) Generic_IO.readObject(f);
             MaxPricePaidClass = 1000000000000L;
             System.out.println("Loaded " + f);
 //            UpdatedPricePaidLookup = false;

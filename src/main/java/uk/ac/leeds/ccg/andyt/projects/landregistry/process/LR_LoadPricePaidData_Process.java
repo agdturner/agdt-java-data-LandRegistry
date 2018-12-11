@@ -22,9 +22,9 @@ import java.io.PrintWriter;
 import java.io.StreamTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
+import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.pricepaid.LR_PricePaid_Record;
 
@@ -75,9 +75,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
             if (!fout.exists() || overwrite) {
                 BufferedReader br;
                 StreamTokenizer st;
-                br = Generic_StaticIO.getBufferedReader(fin);
+                br = Generic_IO.getBufferedReader(fin);
                 st = new StreamTokenizer(br);
-                Generic_StaticIO.setStreamTokenizerSyntax7(st);
+                Generic_IO.setStreamTokenizerSyntax7(st);
                 try {
                     pw = new PrintWriter(fout);
                 } catch (FileNotFoundException ex) {
@@ -142,9 +142,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
             if (!fout.exists() || overwrite) {
                 BufferedReader br;
                 StreamTokenizer st;
-                br = Generic_StaticIO.getBufferedReader(fin);
+                br = Generic_IO.getBufferedReader(fin);
                 st = new StreamTokenizer(br);
-                Generic_StaticIO.setStreamTokenizerSyntax7(st);
+                Generic_IO.setStreamTokenizerSyntax7(st);
                 try {
                     pw = new PrintWriter(fout);
                 } catch (FileNotFoundException ex) {
@@ -208,9 +208,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
             if (!fout.exists() || overwrite) {
                 BufferedReader br;
                 StreamTokenizer st;
-                br = Generic_StaticIO.getBufferedReader(fin);
+                br = Generic_IO.getBufferedReader(fin);
                 st = new StreamTokenizer(br);
-                Generic_StaticIO.setStreamTokenizerSyntax7(st);
+                Generic_IO.setStreamTokenizerSyntax7(st);
                 try {
                     pw = new PrintWriter(fout);
                 } catch (FileNotFoundException ex) {

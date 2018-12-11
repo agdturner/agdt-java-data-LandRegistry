@@ -8,7 +8,7 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.TreeMap;
-import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
+import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;

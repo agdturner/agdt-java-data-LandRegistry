@@ -31,12 +31,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
-import uk.ac.leeds.ccg.andyt.generic.math.statistics.Generic_Statistics;
-import uk.ac.leeds.ccg.andyt.generic.utilities.Generic_Collections;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
+import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
+import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
+import uk.ac.leeds.ccg.andyt.math.stats.Generic_Statistics;
+import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
@@ -201,9 +201,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     if (overwrite || !outdir.exists()) {
                         BufferedReader br;
                         StreamTokenizer st;
-                        br = Generic_StaticIO.getBufferedReader(fin);
+                        br = Generic_IO.getBufferedReader(fin);
                         st = new StreamTokenizer(br);
-                        Generic_StaticIO.setStreamTokenizerSyntax7(st);
+                        Generic_IO.setStreamTokenizerSyntax7(st);
                         boolean read;
                         read = false;
                         String line;
@@ -1073,7 +1073,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 cname = split[1];
                 split = split[2].split(",");
             }
-            TransparencyMap.put(Generic_StaticString.getUpperCase(cname),
+            TransparencyMap.put(Generic_String.getUpperCase(cname),
                     Integer.valueOf(split[2]));
         }
     }

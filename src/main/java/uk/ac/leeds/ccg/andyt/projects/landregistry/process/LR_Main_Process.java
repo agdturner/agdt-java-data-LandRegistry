@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
@@ -118,7 +118,7 @@ public class LR_Main_Process extends LR_Object {
             File f;
             f = Files.getEnvDataFile();
             if (!f.exists()) {
-                Generic_StaticIO.writeObject(Env, f, "Env");
+                Generic_IO.writeObject(Env, f, "Env");
             }
         }
 
@@ -271,7 +271,7 @@ public class LR_Main_Process extends LR_Object {
         File f;
         f = Files.getEnvDataFile();
         if (!f.exists()) {
-            Generic_StaticIO.writeObject(Env, f, "Env");
+            Generic_IO.writeObject(Env, f, "Env");
         }
         
     }

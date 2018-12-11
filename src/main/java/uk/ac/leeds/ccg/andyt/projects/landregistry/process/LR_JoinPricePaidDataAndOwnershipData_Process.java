@@ -15,7 +15,7 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
-import com.sun.org.apache.xerces.internal.impl.dv.xs.YearMonthDV;
+//import com.sun.org.apache.xerces.internal.impl.dv.xs.YearMonthDV;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_StaticIO;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
+import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_FULL_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.pricepaid.LR_PricePaid_Record;
@@ -85,9 +85,9 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
 
             BufferedReader br;
             StreamTokenizer st;
-            br = Generic_StaticIO.getBufferedReader(fin);
+            br = Generic_IO.getBufferedReader(fin);
             st = new StreamTokenizer(br);
-            Generic_StaticIO.setStreamTokenizerSyntax7(st);
+            Generic_IO.setStreamTokenizerSyntax7(st);
             boolean read;
             read = false;
             String line;
@@ -134,9 +134,9 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
             if (!fout.exists() || overwrite) {
                 BufferedReader br;
                 StreamTokenizer st;
-                br = Generic_StaticIO.getBufferedReader(fin);
+                br = Generic_IO.getBufferedReader(fin);
                 st = new StreamTokenizer(br);
-                Generic_StaticIO.setStreamTokenizerSyntax7(st);
+                Generic_IO.setStreamTokenizerSyntax7(st);
                 try {
                     pw = new PrintWriter(fout);
                 } catch (FileNotFoundException ex) {

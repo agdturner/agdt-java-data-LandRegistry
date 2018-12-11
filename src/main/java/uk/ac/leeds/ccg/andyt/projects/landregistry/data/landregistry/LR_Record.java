@@ -22,9 +22,9 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
-import uk.ac.leeds.ccg.andyt.generic.data.Generic_Interval_long1;
-import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
-import uk.ac.leeds.ccg.andyt.generic.utilities.time.Generic_YearMonth;
+import uk.ac.leeds.ccg.andyt.data.interval.Generic_Interval_long1;
+import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
+import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
@@ -138,7 +138,7 @@ public abstract class LR_Record extends LR_Object {
     public static LR_Record create(boolean isCCOD, boolean doFull,
             LR_Environment env, Generic_YearMonth YM, String line,
             boolean doUpdate) throws Exception {
-        if (Generic_StaticString.getCount(line, ",") > 10) {
+        if (Generic_String.getCount(line, ",") > 10) {
             if (isCCOD) {
                 if (doFull) {
                     return new LR_CC_FULL_Record(env, YM, line, doUpdate);
@@ -1324,7 +1324,7 @@ public abstract class LR_Record extends LR_Object {
      * from data pulled from existing collections.
      */
     public final void initPostcodeAndPostcodeDistrict(String s, boolean doUpdate) {
-        s = Generic_StaticString.getUpperCase(s);
+        s = Generic_String.getUpperCase(s);
         setPostcode(s);
         LR_TypeID typeID;
         typeID = Env.PostcodeDistrictTypeID;

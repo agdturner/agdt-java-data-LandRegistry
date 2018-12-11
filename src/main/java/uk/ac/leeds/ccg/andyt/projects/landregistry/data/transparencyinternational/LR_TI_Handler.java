@@ -9,8 +9,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_ReadCSV;
-import uk.ac.leeds.ccg.andyt.generic.lang.Generic_StaticString;
+import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 
 /**
  *
@@ -38,7 +38,7 @@ public class LR_TI_Handler {
         while(ite.hasNext()) {
             line = ite.next();
             r = new LR_TI_Record(line);
-            result.put(Generic_StaticString.getUpperCase(r.getCountry()),
+            result.put(Generic_String.getUpperCase(r.getCountry()),
                     r.getCPIScore2017());
         }
         return result;

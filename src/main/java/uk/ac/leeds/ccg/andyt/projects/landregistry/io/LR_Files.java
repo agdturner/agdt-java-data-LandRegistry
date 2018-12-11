@@ -45,7 +45,7 @@ public class LR_Files extends Generic_Files {
 
     public File getInputDataDir() {
         if (InputDataDir == null) {
-            InputDataDir = new File(getDataDir(), Strings.getS_input());
+            InputDataDir = new File(getDataDir(), Strings.s_input);
         }
         return InputDataDir;
     }
