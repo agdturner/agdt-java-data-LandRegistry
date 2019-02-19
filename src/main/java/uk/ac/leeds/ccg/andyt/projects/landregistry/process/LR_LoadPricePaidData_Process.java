@@ -24,7 +24,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
-import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.pricepaid.LR_PricePaid_Record;
 
@@ -34,9 +33,6 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.pricepaid.L
 public class LR_LoadPricePaidData_Process extends LR_Main_Process {
 
     boolean overwrite;
-
-    protected LR_LoadPricePaidData_Process() {
-    }
 
     public LR_LoadPricePaidData_Process(LR_Environment env, boolean overwrite) {
         super(env);
@@ -63,8 +59,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
         File fin;
         File fout;
         PrintWriter pw = null;
-
-        outdir = new File(Env.Files.getOutputDataDir(Strings), "PricePaid");
+        outdir = new File(env.files.getOutputDataDir(), "PricePaid");
         System.out.println("outdir " + outdir);
         fin = new File(outdir, "pp-complete-PPDCategoryType-B-District-LEEDS.csv");
         if (!fin.exists()) {
@@ -98,7 +93,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                         read = true;
                     } else {
                         try {
-                            r = new LR_PricePaid_Record(Env, line);
+                            r = new LR_PricePaid_Record(env, line);
                             //if (r.District.equalsIgnoreCase("LEEDS")) {
                                 pw.println(line);
                             //}
@@ -129,9 +124,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
         File fout;
         PrintWriter pw = null;
 
-        indir = new File(Env.Files.getInputDataDir(), "PricePaid");
+        indir = new File(env.files.getInputDataDir(), "PricePaid");
         System.out.println("indir " + indir);
-        outdir = new File(Env.Files.getOutputDataDir(Strings), "PricePaid");
+        outdir = new File(env.files.getOutputDataDir(), "PricePaid");
         System.out.println("outdir " + outdir);
         fin = new File(outdir, "pp-complete-PPDCategoryType-B.csv");
         if (!fin.exists()) {
@@ -165,7 +160,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                         read = true;
                     } else {
                         try {
-                            r = new LR_PricePaid_Record(Env, line);
+                            r = new LR_PricePaid_Record(env, line);
                             if (r.District.equalsIgnoreCase("LEEDS")) {
                                 pw.println(line);
                             }
@@ -195,9 +190,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
         File fout;
         PrintWriter pw = null;
 
-        indir = new File(Env.Files.getInputDataDir(), "PricePaid");
+        indir = new File(env.files.getInputDataDir(), "PricePaid");
         System.out.println("indir " + indir);
-        outdir = new File(Env.Files.getOutputDataDir(Strings), "PricePaid");
+        outdir = new File(env.files.getOutputDataDir(), "PricePaid");
         System.out.println("outdir " + outdir);
         fin = new File(indir, "pp-complete.csv");
         if (!fin.exists()) {
@@ -231,7 +226,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                         read = true;
                     } else {
                         try {
-                            r = new LR_PricePaid_Record(Env, line);
+                            r = new LR_PricePaid_Record(env, line);
                             if (r.PPDCategoryType.equalsIgnoreCase("B")) {
                                 pw.println(line);
                             }

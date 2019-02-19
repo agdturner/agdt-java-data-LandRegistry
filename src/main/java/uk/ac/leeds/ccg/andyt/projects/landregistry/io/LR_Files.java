@@ -25,29 +25,20 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
  */
 public class LR_Files extends Generic_Files {
 
-    protected transient LR_Strings Strings;
-
     protected LR_Files(){}
-    
-//    public LR_Files(LR_Strings Strings) {
-//        this.Strings = Strings;
-//    }
 
     /**
      *
-     * @param Strings
-     * @param dataDirName
+     * @param s
+     * @param dataDir
      */
-    public LR_Files(LR_Strings Strings, String dataDirName) {
-        super(dataDirName);
-        this.Strings = Strings;
+    public LR_Files(LR_Strings s, File dataDir) {
+        super(s, dataDir);
     }
-
-    public File getInputDataDir() {
-        if (InputDataDir == null) {
-            InputDataDir = new File(getDataDir(), Strings.s_input);
-        }
-        return InputDataDir;
+    
+    @Override
+    public LR_Strings getStrings() {
+        return (LR_Strings) strings;
     }
     
     public File getInputDataDir(String s) {
@@ -57,20 +48,20 @@ public class LR_Files extends Generic_Files {
     public File getTIDataFile() {
         File result;
         File dir;
-        dir = new File(getInputDataDir(Strings), "TransparencyInternational");
+        dir = new File(getInputDataDir(), "TransparencyInternational");
         result = new File(dir, "Selection.csv");
         return result;
     }
     
     public File getGeneratedDataFile(String name, String type) {
         File dir;
-        dir = getGeneratedDataDir(Strings);
+        dir = getGeneratedDataDir();
         File f;
-        f = new File(dir, name + "_" + type + "." + Strings.S_dat);
+        f = new File(dir, name + "_" + type + "." + getStrings().S_dat);
         return f;
     }
     
     public File getEnvDataFile() {
-        return new File(getGeneratedDataDir(Strings), "Env.dat");
+        return new File(getGeneratedDataDir(), "Env.dat");
     }
 }

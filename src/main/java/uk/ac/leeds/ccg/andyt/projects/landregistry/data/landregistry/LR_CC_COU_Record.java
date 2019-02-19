@@ -28,9 +28,6 @@ public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable 
     private String ChangeIndicator;
     private String ChangeDate;
 
-    protected LR_CC_COU_Record() {
-    }
-
     public LR_CC_COU_Record(LR_Environment env, Generic_YearMonth YM, 
             String line, boolean doUpdate) throws Exception {
         super(env, YM, line, doUpdate);

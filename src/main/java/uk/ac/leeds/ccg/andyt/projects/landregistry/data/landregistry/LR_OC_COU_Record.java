@@ -28,7 +28,8 @@ public class LR_OC_COU_Record extends LR_OC_FULL_Record implements Serializable 
     private String ChangeIndicator;
     private String ChangeDate;
     
-    protected LR_OC_COU_Record() {
+    protected LR_OC_COU_Record(LR_Environment env) {
+        super(env);
     }
 
     public LR_OC_COU_Record(LR_Environment env, Generic_YearMonth YM, 

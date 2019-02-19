@@ -37,9 +37,6 @@ public class LR_Select_Process extends LR_Main_Process {
 
     boolean overwrite;
 
-    protected LR_Select_Process() {
-    }
-
     public LR_Select_Process(LR_Environment env) {
         super(env);
     }
@@ -53,9 +50,9 @@ public class LR_Select_Process extends LR_Main_Process {
     public void run(String area, boolean doFull, boolean overwrite) {
         this.overwrite = overwrite;
         File inputDataDir;
-        inputDataDir = Files.getInputDataDir(Strings);
+        inputDataDir = Files.getInputDataDir();
         File outputDataDir;
-        outputDataDir = Files.getOutputDataDir(Strings);
+        outputDataDir = Files.getOutputDataDir();
 
         ArrayList<String> names0;
         //ArrayList<String> names1;
@@ -88,19 +85,19 @@ public class LR_Select_Process extends LR_Main_Process {
                 name += ite2.next();
                 indir = new File(inputDataDir, name0);
                 if (doFull) {
-                    indir = new File(indir, Env.Strings.S_FULL);
+                    indir = new File(indir, env.strings.S_FULL);
                 } else {
-                    indir = new File(indir, Env.Strings.S_COU);
+                    indir = new File(indir, env.strings.S_COU);
                 }
                 indir = new File(indir, name);
                 System.out.println("indir " + indir);
-                outdir = new File(outputDataDir, Env.Strings.S_Subsets);
+                outdir = new File(outputDataDir, env.strings.S_Subsets);
                 outdir = new File(outdir, area);
                 outdir = new File(outdir, name0);
                 if (doFull) {
-                    outdir = new File(outdir, Env.Strings.S_FULL);
+                    outdir = new File(outdir, env.strings.S_FULL);
                 } else {
-                    outdir = new File(outdir, Env.Strings.S_COU);
+                    outdir = new File(outdir, env.strings.S_COU);
                 }
                 outdir = new File(outdir, name);
                 System.out.println("outdir " + outdir);
@@ -139,12 +136,12 @@ public class LR_Select_Process extends LR_Main_Process {
                                 read = true;
                             } else {
                                 try {
-                                    r = LR_Record.create(isCCOD, doFull, Env, YM, line, true);
+                                    r = LR_Record.create(isCCOD, doFull, env, YM, line, true);
                                     if (r != null) {
                                         if (r.getDistrict().equalsIgnoreCase(area)) {
                                             //System.out.println(r.toCSV());
                                             //pw.println(r.toCSV());
-                                            pw.print(r.toCSV() + Env.EOL);
+                                            pw.print(r.toCSV() + env.EOL);
                                         }
                                     }
                                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -165,7 +162,7 @@ public class LR_Select_Process extends LR_Main_Process {
         }
 //        // Write out lookups if necessary
 //        if (writeCollections) {
-//            Env.writeCollections();
+//            env.writeCollections();
 //        }
     }
 

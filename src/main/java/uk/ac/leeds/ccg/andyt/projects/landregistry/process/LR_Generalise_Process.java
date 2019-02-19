@@ -52,11 +52,7 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
  */
 public class LR_Generalise_Process extends LR_Main_Process {
 
-    protected LR_Generalise_Process() {
-        super();
-    }
-
-    public LR_Generalise_Process(LR_Environment env) {
+   public LR_Generalise_Process(LR_Environment env) {
         super(env);
     }
 
@@ -104,8 +100,6 @@ public class LR_Generalise_Process extends LR_Main_Process {
             File inputDataDir, boolean doCCOD,
             boolean doOCOD, boolean doFull, boolean overwrite) {
         System.out.println("run(String,boolean,HashMap,HashMap,File,boolean,boolean,boolean,boolean)");
-        File outputDataDir;
-        outputDataDir = Files.getOutputDataDir(Strings);
         ArrayList<String> names0;
         //ArrayList<String> names1;
         ArrayList<String> setNames;
@@ -126,6 +120,8 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
         File indir;
         File outdir;
+        File outputDataDir;
+        outputDataDir = env.files.getOutputDataDir();
         File fin;
         File fout;
         ArrayList<String> lines;
@@ -140,7 +136,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         LR_TypeID typeID;
 
 //        HashMap<LR_ID2, LR_ValueID> nullPricePaid;
-//        nullPricePaid = Env.NullTitleNumberIDCollections.get(Env.PricePaidTypeID);
+//        nullPricePaid = env.NullTitleNumberIDCollections.get(env.PricePaidTypeID);
         Iterator<String> ite0;
         Iterator<String> ite2;
         ite0 = names0.iterator();
@@ -226,68 +222,68 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             // Init NonNullCounts
                             NonNullCounts = new HashMap<>();
                             type = Strings.S_CountryIncorporated1;
-                            typeID = Env.CountryIncorporatedTypeID;
+                            typeID = env.CountryIncorporatedTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
                             type = Strings.S_PostcodeDistrict;
-                            typeID = Env.PostcodeDistrictTypeID;
+                            typeID = env.PostcodeDistrictTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
                             type = Strings.S_PricePaid;
-                            typeID = Env.PricePaidTypeID;
+                            typeID = env.PricePaidTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
-//                            type = Strings.S_ProprietorName;
-//                            typeID = Env.ProprietorNameTypeID;
+//                            type = strings.S_ProprietorName;
+//                            typeID = env.ProprietorNameTypeID;
 //                            addNonNullCounts(type, typeID, outdir, nonNullPWs);
                             type = Strings.S_ProprietorshipCategory1;
-                            typeID = Env.ProprietorshipCategoryTypeID;
+                            typeID = env.ProprietorshipCategoryTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
                             type = Strings.S_Tenure;
-                            typeID = Env.TenureTypeID;
+                            typeID = env.TenureTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
 
                             // Init NonNullPricePaid
                             // Init PricePaid
                             NonNullPricePaid = new HashMap<>();
 //                            type = "";
-//                            typeID = Env.PricePaidTypeID;
+//                            typeID = env.PricePaidTypeID;
 //                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs);
                             // Init S_Tenure PricePaid
                             type = Strings.S_Tenure;
-                            typeID = Env.TenureTypeID;
+                            typeID = env.TenureTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init S_CountryIncorporated1 PricePaid
                             type = Strings.S_CountryIncorporated1;
-                            typeID = Env.CountryIncorporatedTypeID;
+                            typeID = env.CountryIncorporatedTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init S_ProprietorshipCategory1 PricePaid
                             type = Strings.S_ProprietorshipCategory1;
-                            typeID = Env.ProprietorshipCategoryTypeID;
+                            typeID = env.ProprietorshipCategoryTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init Region PricePaid
                             type = Strings.S_Region;
-                            typeID = Env.RegionTypeID;
+                            typeID = env.RegionTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init County PricePaid
                             type = Strings.S_County;
-                            typeID = Env.CountyTypeID;
+                            typeID = env.CountyTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init District PricePaid
                             type = Strings.S_District;
-                            typeID = Env.DistrictTypeID;
+                            typeID = env.DistrictTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init ProprietorName1 PricePaid
                             type = Strings.S_ProprietorName1;
-                            typeID = Env.ProprietorNameTypeID;
+                            typeID = env.ProprietorNameTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init CompanyRegistrationNo1 PricePaid
                             type = Strings.S_CompanyRegistrationNo1;
-                            typeID = Env.CompanyRegistrationNoTypeID;
+                            typeID = env.CompanyRegistrationNoTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
 
                             // Init NullCounts 
                             fout = new File(outdir, "GeneralCounts.csv");
                             pw = new PrintWriter(fout);
                             NullCounts = new HashMap<>();
-                            iteTypes = Env.NullTypes.iterator();
+                            iteTypes = env.NullTypes.iterator();
                             while (iteTypes.hasNext()) {
                                 typeID = iteTypes.next();
                                 NullCounts.put(typeID, 0);
@@ -300,7 +296,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                     read = true;
                                 } else {
                                     try {
-                                        r = LR_Record.create(isCCOD, doFull, Env, YM, line, false);
+                                        r = LR_Record.create(isCCOD, doFull, env, YM, line, false);
                                         if (r != null) {
                                             addToNonNullCounts(r, nonNullPWs.keySet());
                                             //addToNonNullPricePaid(nullPricePaid, r, nonNullPricePaidPWs.keySet());
@@ -335,7 +331,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             pw.println();
                             // Output NullCounts
                             pw.println("Counts of Null values");
-                            iteTypes = Env.NullTypes.iterator();
+                            iteTypes = env.NullTypes.iterator();
                             int n;
                             while (iteTypes.hasNext()) {
                                 typeID = iteTypes.next();
@@ -346,7 +342,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             pw.println();
                             // Output NullCounts
                             pw.println("Percentages of Null values");
-                            iteTypes = Env.NullTypes.iterator();
+                            iteTypes = env.NullTypes.iterator();
                             double n2;
                             double percentage;
                             while (iteTypes.hasNext()) {
@@ -431,15 +427,15 @@ public class LR_Generalise_Process extends LR_Main_Process {
         TreeMap<LR_ValueID, LR_PricePaidData> m;
         m = new TreeMap<>();
         Iterator<LR_ValueID> ite;
-        ite = Env.ValueIDs.get(typeID).iterator();
+        ite = env.ValueIDs.get(typeID).iterator();
 
 //        if (!ite.hasNext()) {
-//            System.out.println("Env.ValueIDs.get(typeID).iterator() is empty! type " + type + " typeID" + typeID);
+//            System.out.println("env.ValueIDs.get(typeID).iterator() is empty! type " + type + " typeID" + typeID);
 //        }
         LR_ValueID valueID;
         while (ite.hasNext()) {
             valueID = ite.next();
-            m.put(valueID, new LR_PricePaidData(Env));
+            m.put(valueID, new LR_PricePaidData(env));
         }
         NonNullPricePaid.put(typeID, m);
     }
@@ -457,50 +453,50 @@ public class LR_Generalise_Process extends LR_Main_Process {
             iteTypes = s.iterator();
             while (iteTypes.hasNext()) {
                 typeID = iteTypes.next();
-                if (typeID.equals(Env.TenureTypeID)) {
+                if (typeID.equals(env.TenureTypeID)) {
                     id = r.getTenureID();
                     Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
-                } else if (typeID.equals(Env.CompanyRegistrationNoTypeID)) {
+                } else if (typeID.equals(env.CompanyRegistrationNoTypeID)) {
                     id = r.getCompanyRegistrationNo1ID();
                     if (id != null) {
                             Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.ProprietorshipCategoryTypeID)) {
+                } else if (typeID.equals(env.ProprietorshipCategoryTypeID)) {
                     id = r.getProprietorshipCategory1ID();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.ProprietorNameTypeID)) {
+                } else if (typeID.equals(env.ProprietorNameTypeID)) {
                     id = r.getProprietorName1ID();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.CountryIncorporatedTypeID)) {
+                } else if (typeID.equals(env.CountryIncorporatedTypeID)) {
                     id = r.getCountryIncorporated1ID();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.PostcodeDistrictTypeID)) {
+                } else if (typeID.equals(env.PostcodeDistrictTypeID)) {
                     id = r.getPostcodeDistrictID();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.PricePaidTypeID)) {
+                } else if (typeID.equals(env.PricePaidTypeID)) {
                     id = r.getPricePaidClass();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.RegionTypeID)) {
+                } else if (typeID.equals(env.RegionTypeID)) {
                     id = r.getRegionID();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.CountyTypeID)) {
+                } else if (typeID.equals(env.CountyTypeID)) {
                     id = r.getCountyID();
                     if (id != null) {
                         Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
                     }
-                } else if (typeID.equals(Env.DistrictTypeID)) {
+                } else if (typeID.equals(env.DistrictTypeID)) {
                     id = r.getDistrictID();
                     if (id != null) {
                             Generic_Collections.addToMap(NonNullCounts.get(typeID), id, 1);
@@ -524,7 +520,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 if (typeID == null) {
                     System.err.println("typeID is null");
                 } else {
-                    if (typeID.equals(Env.TenureTypeID)) {
+                    if (typeID.equals(env.TenureTypeID)) {
                         valueID = r.getTenureID();
                         TreeMap<LR_ValueID, LR_PricePaidData> m;
                         m = NonNullPricePaid.get(typeID);
@@ -538,14 +534,14 @@ public class LR_Generalise_Process extends LR_Main_Process {
                         ppd = m.get(valueID);
 //                        // This is supposed to be already done!
 //                        if (ppd == null) {
-//                            ppd = new LR_PricePaidData(Env);
+//                            ppd = new LR_PricePaidData(env);
 //                            m.put(valueID, ppd);
 //                            int debug = 1;
 //                        }
                         ppd.add(r);
                         //System.out.println("Tenure " + r.getTenure());
                         //NonNullPricePaid.get(typeID).get(valueID).add(r);
-                    } else if (typeID.equals(Env.CountryIncorporatedTypeID)) {
+                    } else if (typeID.equals(env.CountryIncorporatedTypeID)) {
                         if (!r.getCountryIncorporated1().trim().isEmpty()) {
                             valueID = r.getCountryIncorporated1ID();
                             TreeMap<LR_ValueID, LR_PricePaidData> m;
@@ -561,15 +557,15 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             // For adding United_Kingdom. (@TODO find a better way to do this.)
                             // This is supposed to be already done! 
                             if (ppd == null) {
-                                ppd = new LR_PricePaidData(Env);
+                                ppd = new LR_PricePaidData(env);
                                 m.put(valueID, ppd);
                                 int debug = 1;
                             }
                             ppd.add(r);
                             //System.out.println("CountryIncorporated1 " + r.getCountryIncorporated1());
-                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {
+                            //if (!env.NullCollections.get(typeID).containsKey(r.getID())) {
                         }
-                    } else if (typeID.equals(Env.ProprietorshipCategoryTypeID)) {
+                    } else if (typeID.equals(env.ProprietorshipCategoryTypeID)) {
                         if (!r.getProprietorshipCategory1().trim().isEmpty()) {
                             valueID = r.getProprietorshipCategory1ID();
                             TreeMap<LR_ValueID, LR_PricePaidData> m;
@@ -584,15 +580,15 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             ppd = m.get(valueID);
 //                            // This is supposed to be already done!
 //                            if (ppd == null) {
-//                                ppd = new LR_PricePaidData(Env);
+//                                ppd = new LR_PricePaidData(env);
 //                                m.put(valueID, ppd);
 //                                int debug = 1;
 //                            }
                             ppd.add(r);
                             //System.out.println("ProprietorshipCategory1 " + r.getProprietorshipCategory1());
-                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                            //if (!env.NullCollections.get(typeID).containsKey(r.getID())) {                            
                         }
-                    } else if (typeID.equals(Env.ProprietorNameTypeID)) {
+                    } else if (typeID.equals(env.ProprietorNameTypeID)) {
                         if (!r.getProprietorName1().trim().isEmpty()) {
                             valueID = r.getProprietorName1ID();
                             TreeMap<LR_ValueID, LR_PricePaidData> m;
@@ -607,15 +603,15 @@ public class LR_Generalise_Process extends LR_Main_Process {
                             ppd = m.get(valueID);
 //                            // This is supposed to be already done!
 //                            if (ppd == null) {
-//                                ppd = new LR_PricePaidData(Env);
+//                                ppd = new LR_PricePaidData(env);
 //                                m.put(valueID, ppd);
 //                                int debug = 1;
 //                            }
                             ppd.add(r);
                             //System.out.println("ProprietorName1 " + r.getProprietorName1());
-                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                            //if (!env.NullCollections.get(typeID).containsKey(r.getID())) {                            
                         }
-                    } else if (typeID.equals(Env.CompanyRegistrationNoTypeID)) {
+                    } else if (typeID.equals(env.CompanyRegistrationNoTypeID)) {
                         if (!r.getCompanyRegistrationNo1().trim().isEmpty()) {
                             valueID = r.getCompanyRegistrationNo1ID();
                             if (valueID != null) {
@@ -631,16 +627,16 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 ppd = m.get(valueID);
                             // This is supposed to be already done!
                             if (ppd == null) {
-                                ppd = new LR_PricePaidData(Env);
+                                ppd = new LR_PricePaidData(env);
                                 m.put(valueID, ppd);
                                 int debug = 1;
                             }
                                 ppd.add(r);
                             }
                             //System.out.println("CompanyRegistrationNo1 " + r.getCompanyRegistrationNo1());
-                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                            //if (!env.NullCollections.get(typeID).containsKey(r.getID())) {                            
                         }
-                    } else if (typeID.equals(Env.RegionTypeID)) {
+                    } else if (typeID.equals(env.RegionTypeID)) {
                         if (!r.getRegion().trim().isEmpty()) {
                             valueID = r.getRegionID();
                             if (valueID != null) {
@@ -656,16 +652,16 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 ppd = m.get(valueID);
 //                            // This is supposed to be already done!
 //                            if (ppd == null) {
-//                                ppd = new LR_PricePaidData(Env);
+//                                ppd = new LR_PricePaidData(env);
 //                                m.put(valueID, ppd);
 //                                int debug = 1;
 //                            }
                                 ppd.add(r);
                             }
                             //System.out.println("Region " + r.getRegion());
-                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                            //if (!env.NullCollections.get(typeID).containsKey(r.getID())) {                            
                         }
-                    } else if (typeID.equals(Env.CountyTypeID)) {
+                    } else if (typeID.equals(env.CountyTypeID)) {
                         if (!r.getCounty().trim().isEmpty()) {
                             valueID = r.getCountyID();
                             if (valueID != null) {
@@ -681,16 +677,16 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 ppd = m.get(valueID);
 //                            // This is supposed to be already done!
 //                            if (ppd == null) {
-//                                ppd = new LR_PricePaidData(Env);
+//                                ppd = new LR_PricePaidData(env);
 //                                m.put(valueID, ppd);
 //                                int debug = 1;
 //                            }
                                 ppd.add(r);
                             }
                             //System.out.println("County " + r.getCounty());
-                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                            //if (!env.NullCollections.get(typeID).containsKey(r.getID())) {                            
                         }
-                    } else if (typeID.equals(Env.DistrictTypeID)) {
+                    } else if (typeID.equals(env.DistrictTypeID)) {
                         if (!r.getDistrict().trim().isEmpty()) {
                             valueID = r.getDistrictID();
                             if (valueID != null) {
@@ -706,14 +702,14 @@ public class LR_Generalise_Process extends LR_Main_Process {
                                 ppd = m.get(valueID);
 //                            // This is supposed to be already done!
 //                            if (ppd == null) {
-//                                ppd = new LR_PricePaidData(Env);
+//                                ppd = new LR_PricePaidData(env);
 //                                m.put(valueID, ppd);
 //                                int debug = 1;
 //                            }
                                 ppd.add(r);
                             }
                             //System.out.println("District " + r.getDistrict());
-                            //if (!Env.NullCollections.get(typeID).containsKey(r.getID())) {                            
+                            //if (!env.NullCollections.get(typeID).containsKey(r.getID())) {                            
                         }
                     } else {
                         System.err.println("typeID is not recognised");
@@ -730,9 +726,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
         HashMap<LR_ID2, LR_ValueID> m;
         while (iteTypes.hasNext()) {
             typeID = iteTypes.next();
-            m = Env.NullTitleNumberIDCollections.get(typeID);
+            m = env.NullTitleNumberIDCollections.get(typeID);
             if (m != null) {
-                if (Env.NullTitleNumberIDCollections.get(typeID).containsKey(r.getID())) {
+                if (env.NullTitleNumberIDCollections.get(typeID).containsKey(r.getID())) {
                     NullCounts.put(typeID, NullCounts.get(typeID) + 1);
                 }
             } else {
@@ -757,7 +753,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 System.out.println("!NonNullCounts.containsKey(typeID)");
             } else {
                 printGeneralisation(pws.get(typeID), NonNullPricePaid.get(typeID),
-                        Env.ValueIDs.get(typeID), NonNullCounts.get(typeID),
+                        env.ValueIDs.get(typeID), NonNullCounts.get(typeID),
                         mins.get(typeID));
             }
         }
@@ -819,7 +815,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     while (ite2.hasNext()) {
                         ppValueID = ite2.next();
                         count = ppCounts.get(ppValueID);
-                        value = Env.PricePaidLookup.get(ppValueID).toString();
+                        value = env.PricePaidLookup.get(ppValueID).toString();
                         pw.println("\"" + value + "\"," + count);
                     }
                     printSummaryStatistics(ppd.getPricePaid(), pw);
@@ -848,7 +844,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //                    while (ite.hasNext()) {
 //                        ppValueID = ite.next();
 //                        count = ppCounts.get(ppValueID);
-//                        value = Env.PricePaidLookup.get(ppValueID).toString();
+//                        value = env.PricePaidLookup.get(ppValueID).toString();
 //                        pw.println("\"" + value + "\"," + count);
 //                    }
 //                    printSummaryStatistics(ppd.getPricePaid(), pw);
@@ -930,7 +926,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
             typeID = iteTypes.next();
             min = mins.get(typeID);
             printGeneralisation(pws, typeID, NonNullCounts.get(typeID),
-                    Env.ValueIDs.get(typeID), min);
+                    env.ValueIDs.get(typeID), min);
         }
     }
 
@@ -956,7 +952,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         allCount = 0;
         Iterator<LR_ValueID> ite;
         pw.println("Value, Count");
-        if (typeID.equals(Env.PricePaidTypeID)) {
+        if (typeID.equals(env.PricePaidTypeID)) {
             ite = counts.keySet().iterator();
             while (ite.hasNext()) {
                 valueID = ite.next();
@@ -968,7 +964,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 if (valueIDs == null) {
                     pw.println("\"" + valueID + "\"," + count);
                 } else {
-                    pw.println("\"" + Env.PricePaidLookup.get(valueID).toString() + "\"," + count);
+                    pw.println("\"" + env.PricePaidLookup.get(valueID).toString() + "\"," + count);
                 }
             }
         } else {

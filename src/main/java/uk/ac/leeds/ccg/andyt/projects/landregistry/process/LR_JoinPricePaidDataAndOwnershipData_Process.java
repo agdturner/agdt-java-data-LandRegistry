@@ -41,9 +41,6 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
 
     boolean overwrite;
 
-    protected LR_JoinPricePaidDataAndOwnershipData_Process() {
-    }
-
     public LR_JoinPricePaidDataAndOwnershipData_Process(LR_Environment env, boolean overwrite) {
         super(env);
         this.overwrite = overwrite;
@@ -77,7 +74,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
         LR_OC_FULL_Record or;
 
         Generic_YearMonth ym;
-        ym = new Generic_YearMonth(Env.ge, YearMonth.of(2011, Month.NOVEMBER));
+        ym = new Generic_YearMonth(env.ge, YearMonth.of(2011, Month.NOVEMBER));
 
         if (!fin.exists()) {
             System.out.println("Input file " + fin + " does not exist.");
@@ -101,7 +98,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
                     read = true;
                 } else {
                     try {
-                        or = new LR_OC_FULL_Record(Env, ym, line, false);
+                        or = new LR_OC_FULL_Record(env, ym, line, false);
                         OCODList.add(or);
                         //}
                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -123,7 +120,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
         File fout;
         PrintWriter pw = null;
 
-        outdir = new File(Env.Files.getOutputDataDir(Strings), "PricePaid");
+        outdir = new File(env.files.getOutputDataDir(), "PricePaid");
         System.out.println("outdir " + outdir);
         fin = new File(outdir, "pp-complete-PPDCategoryType-B-District-LEEDS.csv");
         if (!fin.exists()) {
@@ -162,7 +159,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
                         read = true;
                     } else {
                         try {
-                            r = new LR_PricePaid_Record(Env, line);
+                            r = new LR_PricePaid_Record(env, line);
                             ite = OCODList.iterator();
 
                             String[] split;

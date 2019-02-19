@@ -19,6 +19,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
@@ -37,22 +39,20 @@ public class LR_Main_Process extends LR_Object {
     public LR_Strings Strings;
     public LR_Files Files;
 
-    protected LR_Main_Process() {
-        super();
-        Strings = Env.Strings;
-        Files = Env.Files;
-    }
-
     public LR_Main_Process(LR_Environment env) {
         super(env);
-        Strings = Env.Strings;
-        Files = Env.Files;
+        Strings = this.env.strings;
+        Files = this.env.files;
     }
 
     public static void main(String[] args) {
+               LR_Strings Strings = new LR_Strings();
+        File dataDir = Generic_Files.getDefaultDataDir();
+        LR_Files files = new LR_Files(Strings, dataDir);
+        Generic_Environment ge = new Generic_Environment();
+        LR_Environment env = new LR_Environment(ge, files);
         LR_Main_Process p;
-        p = new LR_Main_Process(new LR_Environment());
-        p.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+        p = new LR_Main_Process(env);
         p.run();
     }
 
@@ -103,7 +103,7 @@ public class LR_Main_Process extends LR_Object {
             //overwrite = false;
             // Run
             LR_Select_Process sp;
-            sp = new LR_Select_Process(Env);
+            sp = new LR_Select_Process(env);
             sp.Files.setDataDirectory(Files.getDataDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
@@ -118,7 +118,7 @@ public class LR_Main_Process extends LR_Object {
             File f;
             f = Files.getEnvDataFile();
             if (!f.exists()) {
-                Generic_IO.writeObject(Env, f, "Env");
+                Generic_IO.writeObject(env, f, "Env");
             }
         }
 
@@ -152,9 +152,9 @@ public class LR_Main_Process extends LR_Object {
                 doAll = false;
                 doCCOD = true;
                 doOCOD = true;
-                inputDataDir = Files.getOutputDataDir(Strings);
+                inputDataDir = Files.getOutputDataDir();
                 LR_Generalise_Process gp;
-                gp = new LR_Generalise_Process(Env);
+                gp = new LR_Generalise_Process(env);
                 gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 minsCC = getMinsCC(5);
                 minsOC = getMinsOC(1);
@@ -175,9 +175,9 @@ public class LR_Main_Process extends LR_Object {
                 doAll = true;
                 doCCOD = true;
                 doOCOD = true;
-                inputDataDir = Files.getInputDataDir(Strings);
+                inputDataDir = Files.getInputDataDir();
                 LR_Generalise_Process gp;
-                gp = new LR_Generalise_Process(Env);
+                gp = new LR_Generalise_Process(env);
                 gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 minsCC = getMinsCC(10);
                 minsOC = getMinsOC(5);
@@ -204,9 +204,9 @@ public class LR_Main_Process extends LR_Object {
                 // Run
                 minCC = 2;
                 minOC = 2;
-                inputDataDir = Files.getOutputDataDir(Strings);
+                inputDataDir = Files.getOutputDataDir();
                 LR_Transitions_Process tp;
-                tp = new LR_Transitions_Process(Env);
+                tp = new LR_Transitions_Process(env);
                 tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 ite = areas.iterator();
                 while (ite.hasNext()) {
@@ -223,16 +223,16 @@ public class LR_Main_Process extends LR_Object {
                 // Run
                 minCC = 2;
                 minOC = 2;
-                inputDataDir = Files.getOutputDataDir(Strings);
+                inputDataDir = Files.getOutputDataDir();
                 LR_Transitions_Process tp;
-                tp = new LR_Transitions_Process(Env);
+                tp = new LR_Transitions_Process(env);
                 tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 tp.run(area, doAll, inputDataDir, minCC, minOC, overwrite);
             }
         }
         //        if (writeCollections) {
         //            // If any collections have changed then write them out again.
-        //            Env.writeCollections();
+        //            env.writeCollections();
         //        }
 
         // Select Leeds
@@ -242,7 +242,7 @@ public class LR_Main_Process extends LR_Object {
 //            overwrite = false;
             // Run
             LR_LoadPricePaidData_Process p;
-            p = new LR_LoadPricePaidData_Process(Env, overwrite);
+            p = new LR_LoadPricePaidData_Process(env, overwrite);
             p.Files.setDataDirectory(Files.getDataDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
@@ -258,7 +258,7 @@ public class LR_Main_Process extends LR_Object {
 //            overwrite = false;
             // Run
             LR_JoinPricePaidDataAndOwnershipData_Process p;
-            p = new LR_JoinPricePaidDataAndOwnershipData_Process(Env, overwrite);
+            p = new LR_JoinPricePaidDataAndOwnershipData_Process(env, overwrite);
             p.Files.setDataDirectory(Files.getDataDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
@@ -271,7 +271,7 @@ public class LR_Main_Process extends LR_Object {
         File f;
         f = Files.getEnvDataFile();
         if (!f.exists()) {
-            Generic_IO.writeObject(Env, f, "Env");
+            Generic_IO.writeObject(env, f, "Env");
         }
         
     }
@@ -285,13 +285,13 @@ public class LR_Main_Process extends LR_Object {
         HashMap<LR_ID, Integer> result;
         result = new HashMap<>();
         Iterator<LR_TypeID> ite;
-        ite = Env.NonNullTypes.iterator();
+        ite = env.NonNullTypes.iterator();
         LR_ID typeID;
         while (ite.hasNext()) {
             typeID = ite.next();
-            if (typeID.equals(Env.PostcodeDistrictTypeID)) {
+            if (typeID.equals(env.PostcodeDistrictTypeID)) {
                 result.put(typeID, 0);
-            } else if (typeID.equals(Env.PricePaidTypeID)) {
+            } else if (typeID.equals(env.PricePaidTypeID)) {
                 result.put(typeID, 0);
             } else {
                 result.put(typeID, defaultMin);
@@ -309,13 +309,13 @@ public class LR_Main_Process extends LR_Object {
         HashMap<LR_ID, Integer> result;
         result = new HashMap<>();
         Iterator<LR_TypeID> ite;
-        ite = Env.NonNullTypes.iterator();
+        ite = env.NonNullTypes.iterator();
         LR_ID typeID;
         while (ite.hasNext()) {
             typeID = ite.next();
-            if (typeID.equals(Env.PostcodeDistrictTypeID)) {
+            if (typeID.equals(env.PostcodeDistrictTypeID)) {
                 result.put(typeID, 0);
-            } else if (typeID.equals(Env.PricePaidTypeID)) {
+            } else if (typeID.equals(env.PricePaidTypeID)) {
                 result.put(typeID, 0);
             } else {
                 result.put(typeID, defaultMin);
@@ -327,9 +327,9 @@ public class LR_Main_Process extends LR_Object {
     protected String getName00(boolean doFull, String name0) {
         String result = "";
         if (doFull) {
-            result += name0 + "_" + Env.Strings.S_FULL + "_";
+            result += name0 + "_" + env.strings.S_FULL + "_";
         } else {
-            result += name0 + "_" + Env.Strings.S_COU + "_";
+            result += name0 + "_" + env.strings.S_COU + "_";
         }
         return result;
     }
@@ -345,9 +345,9 @@ public class LR_Main_Process extends LR_Object {
      */
     protected ArrayList<String> getSetNames(boolean doFull, String CCODorOCOD) {
         if (doFull) {
-            return getSetNames(Env.Strings.S_FULL, CCODorOCOD);
+            return getSetNames(env.strings.S_FULL, CCODorOCOD);
         } else {
-            return getSetNames(Env.Strings.S_COU, CCODorOCOD);
+            return getSetNames(env.strings.S_COU, CCODorOCOD);
         }
     }
 
@@ -373,7 +373,7 @@ public class LR_Main_Process extends LR_Object {
         filenames = dir.list();
         for (String filename : filenames) {
             if (filename.contains(s_FULL_or_COU)) {
-                if (!filename.contains(Env.Strings.S_zip)) {
+                if (!filename.contains(env.strings.S_zip)) {
                     split = filename.split("_" + s_FULL_or_COU + "_");
                     names2.add(split[1]);
                 }

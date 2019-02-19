@@ -88,10 +88,6 @@ public class LR_Transitions_Process extends LR_Main_Process {
     public boolean UpdatedTitleNumberCompanyRegistrationNoLookups;
     public boolean UpdatedProprietorNameIDCompanyRegistrationNoLookups;
 
-    protected LR_Transitions_Process() {
-        super();
-    }
-
     public LR_Transitions_Process(LR_Environment env) {
         super(env);
     }
@@ -117,7 +113,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         printDiff = false;
 
         File outputDataDir;
-        outputDataDir = Files.getOutputDataDir(Strings);
+        outputDataDir = Files.getOutputDataDir();
 
         ArrayList<String> names0;
         //ArrayList<String> names1;
@@ -127,8 +123,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
         String name00;
         names0 = new ArrayList<>();
         //names1 = new ArrayList<>();
-        names0.add(Env.Strings.S_CCOD);
-        names0.add(Env.Strings.S_OCOD);
+        names0.add(env.strings.S_CCOD);
+        names0.add(env.strings.S_OCOD);
         boolean isCCOD;
         //names1.add("COU");
         //names1.add("FULL");
@@ -190,7 +186,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         LR_OC_FULL_Record fullocr;
 
         Generic_YearMonth ym;
-        ym = new Generic_YearMonth(Env.ge, "2017-11");
+        ym = new Generic_YearMonth(env.ge, "2017-11");
 
         // Initialise key lookups
         titleNumberIDToCompanyRegistrationNoIDs = new HashMap<>();
@@ -225,7 +221,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         LR_ID2 ID;
         for (int line = 1; line < lines.size(); line++) {
             try {
-                fullccr = new LR_CC_FULL_Record(Env, ym, lines.get(line), upDateIDs);
+                fullccr = new LR_CC_FULL_Record(env, ym, lines.get(line), upDateIDs);
                 fullCCR.put(fullccr.getID(), fullccr);
                 ID = fullccr.getID();
                 // update IDToProprietorNameIDs
@@ -271,7 +267,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         lines = Generic_ReadCSV.read(fin, null, 7);
         for (int line = 1; line < lines.size(); line++) {
             try {
-                fullocr = new LR_OC_FULL_Record(Env, ym, lines.get(line), upDateIDs);
+                fullocr = new LR_OC_FULL_Record(env, ym, lines.get(line), upDateIDs);
                 fullOCR.put(fullocr.getID(), fullocr);
                 ID = fullocr.getID();
                 companyRegistrationNo1ID = fullocr.getCompanyRegistrationNo1ID();
@@ -357,7 +353,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 name = name00;
                 String time;
                 time = ites1.next();
-                ym = new Generic_YearMonth(Env.ge, time.replaceAll("_", "-"));
+                ym = new Generic_YearMonth(env.ge, time.replaceAll("_", "-"));
                 name += time;
                 if (isCCOD) {
                     addedCCRTime = new HashMap<>();
@@ -389,10 +385,10 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 for (int line = 1; line < lines.size(); line++) {
                     try {
                         if (isCCOD) {
-                            // ccr = new LR_CC_COU_Record(Env, ym, lines.get(ID));
+                            // ccr = new LR_CC_COU_Record(env, ym, lines.get(ID));
                             // add(addedCCRTime, deletedCCRTime, ccr);
                         } else {
-                            //  ocr = new LR_OC_COU_Record(Env, ym, lines.get(ID));
+                            //  ocr = new LR_OC_COU_Record(env, ym, lines.get(ID));
                             // add(addedOCRTime, deletedOCRTime, ocr);
                         }
                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -943,19 +939,19 @@ public class LR_Transitions_Process extends LR_Main_Process {
             LR_ValueID proprietorName1ID, LR_ValueID proprietorName2ID,
             LR_ValueID proprietorName3ID, LR_ValueID proprietorName4ID) {
         if (proprietorName4ID != null) {
-            Generic_Collections.addToLisIfDifferentFromLast(IDToProprietorNameIDs,
+            Generic_Collections.addToListIfDifferentFromLast(IDToProprietorNameIDs,
                     ID, proprietorName4ID);
         }
         if (proprietorName3ID != null) {
-            Generic_Collections.addToLisIfDifferentFromLast(IDToProprietorNameIDs,
+            Generic_Collections.addToListIfDifferentFromLast(IDToProprietorNameIDs,
                     ID, proprietorName3ID);
         }
         if (proprietorName4ID != null) {
-            Generic_Collections.addToLisIfDifferentFromLast(IDToProprietorNameIDs,
+            Generic_Collections.addToListIfDifferentFromLast(IDToProprietorNameIDs,
                     ID, proprietorName2ID);
         }
         if (proprietorName1ID != null) {
-            Generic_Collections.addToLisIfDifferentFromLast(IDToProprietorNameIDs,
+            Generic_Collections.addToListIfDifferentFromLast(IDToProprietorNameIDs,
                     ID, proprietorName1ID);
         }
     }
@@ -1115,7 +1111,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         if (value == null) {
             result = 1;
         } else {
-            Generic_Collections.addToLisIfDifferentFromLast(m, key, value);
+            Generic_Collections.addToListIfDifferentFromLast(m, key, value);
             result = 0;
         }
         return result;

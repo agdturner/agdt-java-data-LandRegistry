@@ -147,9 +147,6 @@ public class LR_PricePaid_Record extends LR_Object implements Serializable {
      */
     String RecordStatus;
     
-    protected LR_PricePaid_Record() {
-    }
-
     /**
      *
      * @param env
@@ -157,7 +154,7 @@ public class LR_PricePaid_Record extends LR_Object implements Serializable {
      * @throws Exception
      */
     public LR_PricePaid_Record(LR_Environment env, String line) throws Exception {
-        this.Env = env;
+        super(env);
         String[] split;
         split = line.split("\",\"");
         //System.out.println(line);

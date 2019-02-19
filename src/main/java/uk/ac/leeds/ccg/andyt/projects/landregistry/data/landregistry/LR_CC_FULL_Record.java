@@ -25,9 +25,10 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
  */
 public class LR_CC_FULL_Record extends LR_Record implements Serializable {
 
-    protected LR_CC_FULL_Record() {
+    public LR_CC_FULL_Record(LR_Environment env){
+        super(env);
     }
-
+    
     /**
      *
      * @param env
@@ -38,7 +39,7 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
      */
     public LR_CC_FULL_Record(LR_Environment env, Generic_YearMonth YM,
             String line, boolean doUpdate) throws Exception {
-        this.Env = env;
+        super(env);
         this.YM = YM;
         String[] ls;
         ls = getSplitAndTrim(line);
