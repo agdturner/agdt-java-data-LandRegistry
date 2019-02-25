@@ -26,78 +26,69 @@ public class LR_Strings extends Generic_Strings {
     /*
      * General names.
      */
-    public final String S_dat = "dat";
-    public final String S_FULL = "FULL";
-    public final String S_COU = "COU";
-    public final String S_CCOD = "CCOD";
-    public final String S_OCOD = "OCOD";
-    public final String S_Generalised = "Generalised";
-    public final String S_ID = "ID";
-    public final String S_Null = "Null";
-    public final String S_NumberID = "NumberID";
-    public final String S_Subsets = "Subsets";
-    public final String S_Transitions = "Transitions";
-    public final String S_zip = "zip";
-    public final String S_United_Kingdom = "United Kingdom";
-
-    /*
-     * DataTypes
-     */
-    public final String S_HashSet = "HashSet";
-    public final String S_HashMap = "HashMap";
-    public final String S_TreeMap = "TreeMap";
-    public final String S_ArrayList = "ArrayList";
+    public static final String s_FULL = "FULL";
+    public static final String s_COU = "COU";
+    public static final String s_CCOD = "CCOD";
+    public static final String s_OCOD = "OCOD";
+    public static final String s_Generalised = "Generalised";
+    public static final String s_ID = "ID";
+    public static final String s_Null = "Null";
+    public static final String s_NumberID = "NumberID";
+    public static final String s_Subsets = "Subsets";
+    public static final String s_Transitions = "Transitions";
+    public static final String s_zip = "zip";
+    public static final String s_United_Kingdom = "United Kingdom";
 
     /*
      * Values.
      */
-    public final String S_Freehold = "Freehold";
-    public final String S_Leasehold = "Leasehold";
+    public static final String s_Freehold = "Freehold";
+    public static final String s_Leasehold = "Leasehold";
 
     /*
      * Variables.
      */
-    public final String S_CompanyRegistrationNo = "CompanyRegistrationNo";
-    public final String S_CompanyRegistrationNo1 = S_CompanyRegistrationNo + "1";
-    public final String S_CompanyRegistrationNo2 = S_CompanyRegistrationNo + "2";
-    public final String S_CompanyRegistrationNo3 = S_CompanyRegistrationNo + "3";
-    public final String S_CompanyRegistrationNo4 = S_CompanyRegistrationNo + "4";
-    public final String S_CountryIncorporated = "CountryIncorporated";
-    public final String S_CountryIncorporated1 = S_CountryIncorporated + "1";
-    public final String S_County = "County";
-    public final String S_District = "District";
-    public final String S_Postcode = "Postcode";
-    public final String S_PostcodeDistrict = "PostcodeDistrict";
-    public final String S_PricePaid = "PricePaid";
-    public final String S_PropertyAddress = "PropertyAddress";
-    public final String S_ProprietorName = "ProprietorName";
-    public final String S_ProprietorName1 = S_ProprietorName + "1";
-    public final String S_ProprietorName2 = S_ProprietorName + "2";
-    public final String S_ProprietorName3 = S_ProprietorName + "3";
-    public final String S_ProprietorName4 = S_ProprietorName + "4";
-    public final String S_ProprietorshipCategory = "ProprietorshipCategory";
-    public final String S_ProprietorshipCategory1 = S_ProprietorshipCategory + "1";
-    public final String S_ProprietorshipCategory2 = S_ProprietorshipCategory + "2";
-    public final String S_ProprietorshipCategory3 = S_ProprietorshipCategory + "3";
-    public final String S_ProprietorshipCategory4 = S_ProprietorshipCategory + "4";
-    public final String S_Region = "Region";
-    public final String S_Tenure = "Tenure";
-    public final String S_TitleNumber = "TitleNumber";
-    public final String S_Values = "Values";
+    public static final String s_CompanyRegistrationNo = "CompanyRegistrationNo";
+    public static final String s_CompanyRegistrationNo1 = s_CompanyRegistrationNo + "1";
+    public static final String s_CompanyRegistrationNo2 = s_CompanyRegistrationNo + "2";
+    public static final String s_CompanyRegistrationNo3 = s_CompanyRegistrationNo + "3";
+    public static final String s_CompanyRegistrationNo4 = s_CompanyRegistrationNo + "4";
+    public static final String s_CountryIncorporated = "CountryIncorporated";
+    public static final String s_CountryIncorporated1 = s_CountryIncorporated + "1";
+    public static final String s_County = "County";
+    public static final String s_District = "District";
+    public static final String s_Postcode = "Postcode";
+    public static final String s_PostcodeDistrict = "PostcodeDistrict";
+    public static final String s_PricePaid = "PricePaid";
+    public static final String s_PropertyAddress = "PropertyAddress";
+    public static final String s_ProprietorName = "ProprietorName";
+    public static final String s_ProprietorName1 = s_ProprietorName + "1";
+    public static final String s_ProprietorName2 = s_ProprietorName + "2";
+    public static final String s_ProprietorName3 = s_ProprietorName + "3";
+    public static final String s_ProprietorName4 = s_ProprietorName + "4";
+    public static final String s_ProprietorshipCategory = "ProprietorshipCategory";
+    public static final String s_ProprietorshipCategory1 = s_ProprietorshipCategory + "1";
+    public static final String s_ProprietorshipCategory2 = s_ProprietorshipCategory + "2";
+    public static final String s_ProprietorshipCategory3 = s_ProprietorshipCategory + "3";
+    public static final String s_ProprietorshipCategory4 = s_ProprietorshipCategory + "4";
+    public static final String s_Region = "Region";
+    public static final String s_Tenure = "Tenure";
+    public static final String s_TitleNumber = "TitleNumber";
+    public static final String s_Values = "Values";
 
     /**
      * Collection names
      */
-    public final String S_NonNullTypes = "NonNullTypes";
-    public final String S_NullTypes = "NullTypes";
-    public final String S_AddressIDToTitleNumberIDs = "AddressIDToTitleNumberIDs";
-    public final String S_TitleNumberIDToAddressID = "TitleNumberIDToAddressID";
-    public final String S_PricePaidLookup = "PricePaidLookup";
-    public final String S_IDs = "IDs";
-    public final String S_IDToType = "IDToType";
-    public final String S_TypeToTypeID = "TypeToTypeID";
-    public final String S_StringToValueID = "StringToValueID";
-    public final String S_ValueID = "ValueID";
+    public static final String s_NonNullTypes = "NonNullTypes";
+    public static final String s_NullTypes = "NullTypes";
+    public static final String s_AddressIDToTitleNumberIDs = "AddressIDToTitleNumberIDs";
+    public static final String s_TitleNumberIDToAddressID = "TitleNumberIDToAddressID";
+    public static final String s_PricePaidLookup = "PricePaidLookup";
+    public static final String s_IDs = "IDs";
+    public static final String s_IDToType = "IDToType";
+    public static final String s_TypeToTypeID = "TypeToTypeID";
+    public static final String s_StringToValueID = "StringToValueID";
+    public static final String s_ValueID = "ValueID";
 
     public LR_Strings() {
         super();

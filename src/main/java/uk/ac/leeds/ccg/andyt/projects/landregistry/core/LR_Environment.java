@@ -5,8 +5,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
-import uk.ac.leeds.ccg.andyt.data.interval.Generic_Interval_long1;
-import uk.ac.leeds.ccg.andyt.data.postcode.Generic_UKPostcode_Handler;
+import uk.ac.leeds.ccg.andyt.data.interval.Data_IntervalLong1;
+import uk.ac.leeds.ccg.andyt.data.postcode.Data_UKPostcodeHandler;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
@@ -20,9 +20,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 
     public transient Generic_Environment ge;
 
-    public final transient LR_Strings strings;
     public final transient LR_Files files;
-    public transient Generic_UKPostcode_Handler PostcodeHandler;
+    public transient Data_UKPostcodeHandler PostcodeHandler;
     
     public transient final HashSet<String> NumeralsHashSet;
         
@@ -95,7 +94,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     /**
      * For looking up the upper and lower bounds for PricePaid data classes
      */
-    public HashMap<LR_ValueID, Generic_Interval_long1> PricePaidLookup;
+    public HashMap<LR_ValueID, Data_IntervalLong1> PricePaidLookup;
 
     long MinPricePaidClass;
     long MaxPricePaidClass;
@@ -163,8 +162,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public LR_Environment(Generic_Environment ge, LR_Files files) {
         this.ge = ge;
         this.files = files;
-        this.strings = files.getStrings();
-        PostcodeHandler = new Generic_UKPostcode_Handler();
+        PostcodeHandler = new Data_UKPostcodeHandler();
         NumeralsHashSet = Generic_String.getNumeralsHashSet();
         File f;
         f = this.files.getEnvDataFile();
@@ -220,18 +218,18 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             Values = new HashMap<>();
             ValueIDs = new HashMap<>();
             // TypeIDs
-            CompanyRegistrationNoTypeID = getTypeID(strings.S_CompanyRegistrationNo);
-            CountryIncorporatedTypeID = getTypeID(strings.S_CountryIncorporated);
-            PostcodeDistrictTypeID = getTypeID(strings.S_PostcodeDistrict);
-            DistrictTypeID = getTypeID(strings.S_District);
-            CountyTypeID = getTypeID(strings.S_County);
-            RegionTypeID = getTypeID(strings.S_Region);
-            PricePaidTypeID = getTypeID(strings.S_PricePaid);
-            PropertyAddressTypeID = getTypeID(strings.S_PropertyAddress);
-            ProprietorNameTypeID = getTypeID(strings.S_ProprietorName);
-            ProprietorshipCategoryTypeID = getTypeID(strings.S_ProprietorshipCategory);
-            TenureTypeID = getTypeID(strings.S_Tenure);
-            TitleNumberTypeID = getTypeID(strings.S_TitleNumber);
+            CompanyRegistrationNoTypeID = getTypeID(LR_Strings.s_CompanyRegistrationNo);
+            CountryIncorporatedTypeID = getTypeID(LR_Strings.s_CountryIncorporated);
+            PostcodeDistrictTypeID = getTypeID(LR_Strings.s_PostcodeDistrict);
+            DistrictTypeID = getTypeID(LR_Strings.s_District);
+            CountyTypeID = getTypeID(LR_Strings.s_County);
+            RegionTypeID = getTypeID(LR_Strings.s_Region);
+            PricePaidTypeID = getTypeID(LR_Strings.s_PricePaid);
+            PropertyAddressTypeID = getTypeID(LR_Strings.s_PropertyAddress);
+            ProprietorNameTypeID = getTypeID(LR_Strings.s_ProprietorName);
+            ProprietorshipCategoryTypeID = getTypeID(LR_Strings.s_ProprietorshipCategory);
+            TenureTypeID = getTypeID(LR_Strings.s_Tenure);
+            TitleNumberTypeID = getTypeID(LR_Strings.s_TitleNumber);
             initPricePaidLookup();
             initCollections();
         }
@@ -242,8 +240,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      */
     public final void initPricePaidLookup() {
         File f;
-        f = files.getGeneratedDataFile(strings.S_PricePaidLookup,
-                strings.S_HashMap);
+        f = files.getGeneratedDataFile(LR_Strings.s_PricePaidLookup,
+                LR_Strings.s_HashMap);
         MinPricePaidClass = -10000000L;
         if (!f.exists()) {
             PricePaidLookup = new HashMap<>();
@@ -304,7 +302,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 //            UpdatedPricePaidLookup = true;
         } else {
             System.out.println("Loading " + f);
-            PricePaidLookup = (HashMap<LR_ValueID, Generic_Interval_long1>) Generic_IO.readObject(f);
+            PricePaidLookup = (HashMap<LR_ValueID, Data_IntervalLong1>) Generic_IO.readObject(f);
             MaxPricePaidClass = 1000000000000L;
             System.out.println("Loaded " + f);
 //            UpdatedPricePaidLookup = false;
@@ -312,8 +310,8 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     }
 
     private void addPricePaidInterval(long l, long u) {
-        Generic_Interval_long1 i;
-        i = new Generic_Interval_long1(l, u);
+        Data_IntervalLong1 i;
+        i = new Data_IntervalLong1(l, u);
         int s;
         s = PricePaidLookup.size();
         PricePaidLookup.put(new LR_ValueID(s, Integer.toString(s)), i);
@@ -371,46 +369,46 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         /**
          * Add NonNullTypes
          */
-        addNonNullType(strings.S_TitleNumber);
-        addNonNullType(strings.S_PropertyAddress);
-        addNonNullType(strings.S_Tenure);
-        addNonNullType(strings.S_PricePaid);
-        addNonNullType(strings.S_CompanyRegistrationNo);
-        addNonNullType(strings.S_ProprietorName);
-        addNonNullType(strings.S_ProprietorshipCategory);
-        //addNonNullType(strings.S_CountryIncorporated); // done in next line: addCountryIDToNonNull(strings.S_United_Kingdom);
-        addCountryIDToNonNull(strings.S_United_Kingdom);
-        addNonNullType(strings.S_PostcodeDistrict);
-        addNonNullType(strings.S_District);
-        addNonNullType(strings.S_County);
-        addNonNullType(strings.S_Region);
+        addNonNullType(LR_Strings.s_TitleNumber);
+        addNonNullType(LR_Strings.s_PropertyAddress);
+        addNonNullType(LR_Strings.s_Tenure);
+        addNonNullType(LR_Strings.s_PricePaid);
+        addNonNullType(LR_Strings.s_CompanyRegistrationNo);
+        addNonNullType(LR_Strings.s_ProprietorName);
+        addNonNullType(LR_Strings.s_ProprietorshipCategory);
+        //addNonNullType(LR_Strings.s_CountryIncorporated); // done in next line: addCountryIDToNonNull(LR_Strings.s_United_Kingdom);
+        addCountryIDToNonNull(LR_Strings.s_United_Kingdom);
+        addNonNullType(LR_Strings.s_PostcodeDistrict);
+        addNonNullType(LR_Strings.s_District);
+        addNonNullType(LR_Strings.s_County);
+        addNonNullType(LR_Strings.s_Region);
         /**
          * Add NonNullPricePaidTypes
          */
-        addNonNullPricePaidType(strings.S_Tenure);
-        addNonNullPricePaidType(strings.S_CompanyRegistrationNo);
-        addNonNullPricePaidType(strings.S_ProprietorshipCategory);
-        addNonNullPricePaidType(strings.S_CountryIncorporated);
-        addNonNullPricePaidType(strings.S_District);
-        addNonNullPricePaidType(strings.S_County);
-        addNonNullPricePaidType(strings.S_Region);
+        addNonNullPricePaidType(LR_Strings.s_Tenure);
+        addNonNullPricePaidType(LR_Strings.s_CompanyRegistrationNo);
+        addNonNullPricePaidType(LR_Strings.s_ProprietorshipCategory);
+        addNonNullPricePaidType(LR_Strings.s_CountryIncorporated);
+        addNonNullPricePaidType(LR_Strings.s_District);
+        addNonNullPricePaidType(LR_Strings.s_County);
+        addNonNullPricePaidType(LR_Strings.s_Region);
         /**
          * Add NullTypes
          */
-        addNullType(strings.S_PropertyAddress);
-        addNullType(strings.S_PricePaid);
-        addNullType(strings.S_CompanyRegistrationNo);
-        addNullType(strings.S_ProprietorName);
-        addNullType(strings.S_ProprietorshipCategory);
-        addNullType(strings.S_CountryIncorporated);
-        addNullType(strings.S_PostcodeDistrict);
-        addNullType(strings.S_District);
-        addNullType(strings.S_County);
-        addNullType(strings.S_Region);
+        addNullType(LR_Strings.s_PropertyAddress);
+        addNullType(LR_Strings.s_PricePaid);
+        addNullType(LR_Strings.s_CompanyRegistrationNo);
+        addNullType(LR_Strings.s_ProprietorName);
+        addNullType(LR_Strings.s_ProprietorshipCategory);
+        addNullType(LR_Strings.s_CountryIncorporated);
+        addNullType(LR_Strings.s_PostcodeDistrict);
+        addNullType(LR_Strings.s_District);
+        addNullType(LR_Strings.s_County);
+        addNullType(LR_Strings.s_Region);
 
         addValueType(TenureTypeID);
-        addValue(TenureTypeID, strings.S_Freehold);
-        addValue(TenureTypeID, strings.S_Leasehold);
+        addValue(TenureTypeID, LR_Strings.s_Freehold);
+        addValue(TenureTypeID, LR_Strings.s_Leasehold);
 
         addValueType(ProprietorshipCategoryTypeID);
         addValueType(ProprietorNameTypeID);
@@ -467,7 +465,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      */
     private void addCountryIDToNonNull(String country) {
         String type;
-        type = strings.S_CountryIncorporated;
+        type = LR_Strings.s_CountryIncorporated;
         addNonNullType(type);
         LR_TypeID typeID;
         typeID = TypeToTypeID.get(type);

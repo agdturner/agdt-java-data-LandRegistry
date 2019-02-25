@@ -25,20 +25,13 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
  */
 public class LR_Files extends Generic_Files {
 
-    protected LR_Files(){}
+    protected LR_Files(){super();}
 
     /**
-     *
-     * @param s
      * @param dataDir
      */
-    public LR_Files(LR_Strings s, File dataDir) {
-        super(s, dataDir);
-    }
-    
-    @Override
-    public LR_Strings getStrings() {
-        return (LR_Strings) strings;
+    public LR_Files(File dataDir) {
+        super(dataDir);
     }
     
     public File getInputDataDir(String s) {
@@ -57,7 +50,7 @@ public class LR_Files extends Generic_Files {
         File dir;
         dir = getGeneratedDataDir();
         File f;
-        f = new File(dir, name + "_" + type + "." + getStrings().S_dat);
+        f = new File(dir, name + "_" + type + "." + LR_Strings.s_dat);
         return f;
     }
     

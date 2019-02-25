@@ -36,19 +36,16 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 public class LR_Main_Process extends LR_Object {
 
     // For convenience
-    public LR_Strings Strings;
     public LR_Files Files;
 
     public LR_Main_Process(LR_Environment env) {
         super(env);
-        Strings = this.env.strings;
         Files = this.env.files;
     }
 
     public static void main(String[] args) {
-               LR_Strings Strings = new LR_Strings();
         File dataDir = Generic_Files.getDefaultDataDir();
-        LR_Files files = new LR_Files(Strings, dataDir);
+        LR_Files files = new LR_Files(dataDir);
         Generic_Environment ge = new Generic_Environment();
         LR_Environment env = new LR_Environment(ge, files);
         LR_Main_Process p;
@@ -327,9 +324,9 @@ public class LR_Main_Process extends LR_Object {
     protected String getName00(boolean doFull, String name0) {
         String result = "";
         if (doFull) {
-            result += name0 + "_" + env.strings.S_FULL + "_";
+            result += name0 + "_" + LR_Strings.s_FULL + "_";
         } else {
-            result += name0 + "_" + env.strings.S_COU + "_";
+            result += name0 + "_" + LR_Strings.s_COU + "_";
         }
         return result;
     }
@@ -345,9 +342,9 @@ public class LR_Main_Process extends LR_Object {
      */
     protected ArrayList<String> getSetNames(boolean doFull, String CCODorOCOD) {
         if (doFull) {
-            return getSetNames(env.strings.S_FULL, CCODorOCOD);
+            return getSetNames(LR_Strings.s_FULL, CCODorOCOD);
         } else {
-            return getSetNames(env.strings.S_COU, CCODorOCOD);
+            return getSetNames(LR_Strings.s_COU, CCODorOCOD);
         }
     }
 
@@ -373,7 +370,7 @@ public class LR_Main_Process extends LR_Object {
         filenames = dir.list();
         for (String filename : filenames) {
             if (filename.contains(s_FULL_or_COU)) {
-                if (!filename.contains(env.strings.S_zip)) {
+                if (!filename.contains(LR_Strings.s_zip)) {
                     split = filename.split("_" + s_FULL_or_COU + "_");
                     names2.add(split[1]);
                 }

@@ -27,12 +27,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_FULL_Record;
@@ -123,8 +124,8 @@ public class LR_Transitions_Process extends LR_Main_Process {
         String name00;
         names0 = new ArrayList<>();
         //names1 = new ArrayList<>();
-        names0.add(env.strings.S_CCOD);
-        names0.add(env.strings.S_OCOD);
+        names0.add(LR_Strings.s_CCOD);
+        names0.add(LR_Strings.s_OCOD);
         boolean isCCOD;
         //names1.add("COU");
         //names1.add("FULL");
@@ -164,10 +165,10 @@ public class LR_Transitions_Process extends LR_Main_Process {
 
         // Initialise Transitions Generalisation output
         PrintWriter pw = null;
-        outdir = new File(outputDataDir, Strings.S_Transitions);
+        outdir = new File(outputDataDir, LR_Strings.s_Transitions);
         if (!doAll) {
-            outdir = new File(outputDataDir, Strings.S_Transitions);
-            outdir = new File(outdir, Strings.S_Subsets);
+            outdir = new File(outputDataDir, LR_Strings.s_Transitions);
+            outdir = new File(outdir, LR_Strings.s_Subsets);
             outdir = new File(outdir, area);
         }
         System.out.println("outdir " + outdir);
@@ -210,14 +211,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
 
         // init fullCCR
         fullCCR = new HashMap<>();
-        indir = new File(outputDataDir, Strings.S_Subsets);
+        indir = new File(outputDataDir, LR_Strings.s_Subsets);
         indir = new File(indir, area);
         indir = new File(indir, "CCOD");
-        indir = new File(indir, Strings.S_FULL);
+        indir = new File(indir, LR_Strings.s_FULL);
         name = "CCOD_FULL_2017_11";
         indir = new File(indir, name);
         fin = new File(indir, name + ".csv");
-        lines = Generic_ReadCSV.read(fin, null, 7);
+        lines = Data_ReadCSV.read(fin, null, 7);
         LR_ID2 ID;
         for (int line = 1; line < lines.size(); line++) {
             try {
@@ -257,14 +258,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
 
         // init fullOCR
         fullOCR = new HashMap<>();
-        indir = new File(outputDataDir, Strings.S_Subsets);
+        indir = new File(outputDataDir, LR_Strings.s_Subsets);
         indir = new File(indir, area);
         indir = new File(indir, "OCOD");
-        indir = new File(indir, Strings.S_FULL);
+        indir = new File(indir, LR_Strings.s_FULL);
         name = "OCOD_FULL_2017_11";
         indir = new File(indir, name);
         fin = new File(indir, name + ".csv");
-        lines = Generic_ReadCSV.read(fin, null, 7);
+        lines = Data_ReadCSV.read(fin, null, 7);
         for (int line = 1; line < lines.size(); line++) {
             try {
                 fullocr = new LR_OC_FULL_Record(env, ym, lines.get(line), upDateIDs);
@@ -369,7 +370,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 if (doAll) {
                     indir = inputDataDir;
                 } else {
-                    indir = new File(outputDataDir, Strings.S_Subsets);
+                    indir = new File(outputDataDir, LR_Strings.s_Subsets);
                     indir = new File(indir, area);
                 }
                 indir = new File(indir, name0);
@@ -380,7 +381,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 if (!fin.exists()) {
                     System.out.println("File " + fin + " does not exist.");
                 }
-                lines = Generic_ReadCSV.read(fin, null, 7);
+                lines = Data_ReadCSV.read(fin, null, 7);
                 //LR_Record r;
                 for (int line = 1; line < lines.size(); line++) {
                     try {
@@ -1325,35 +1326,35 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getTitleNumber();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setTitleNumber(s1);
-            titleNumberChange = doDiff(Strings.S_TitleNumber, s0, s1, printDiff, titleNumberChange);
+            titleNumberChange = doDiff(LR_Strings.s_TitleNumber, s0, s1, printDiff, titleNumberChange);
             changeCount++;
         }
         s0 = f.getCompanyRegistrationNo1();
         s1 = c.getCompanyRegistrationNo1();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setCompanyRegistrationNo1(s1);
-            ownershipChange = doDiff(Strings.S_CompanyRegistrationNo1, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_CompanyRegistrationNo1, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getCompanyRegistrationNo2();
         s1 = c.getCompanyRegistrationNo2();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setCompanyRegistrationNo2(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_CompanyRegistrationNo2, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_CompanyRegistrationNo2, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getCompanyRegistrationNo3();
         s1 = c.getCompanyRegistrationNo3();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setCompanyRegistrationNo3(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_CompanyRegistrationNo3, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_CompanyRegistrationNo3, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getCompanyRegistrationNo4();
         s1 = c.getCompanyRegistrationNo4();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setCompanyRegistrationNo4(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_CompanyRegistrationNo4, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_CompanyRegistrationNo4, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         Long l0;
@@ -1385,7 +1386,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getTenure();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setTenure(s1);
-            tenureChange = doDiff(Strings.S_Tenure, s0, s1, printDiff, tenureChange);
+            tenureChange = doDiff(LR_Strings.s_Tenure, s0, s1, printDiff, tenureChange);
             changeCount++;
         }
         // MultipleAddressIndicator
@@ -1400,14 +1401,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getPostcode();
         if (!s0.equalsIgnoreCase(s1)) {
             //f.initPostcodeAndPostcodeDistrict(s1);
-            doDiff(Strings.S_Postcode, s0, s1, printDiff, true);
+            doDiff(LR_Strings.s_Postcode, s0, s1, printDiff, true);
             changeCount++;
         }
         s0 = f.getPropertyAddress();
         s1 = c.getPropertyAddress();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setPropertyAddress(s1);
-            doDiff(Strings.S_PropertyAddress, s0, s1, printDiff, true);
+            doDiff(LR_Strings.s_PropertyAddress, s0, s1, printDiff, true);
             changeCount++;
         }
         // ProprietorNames
@@ -1415,7 +1416,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorName1();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName1(s1);
-            ownershipChange = doDiff(Strings.S_ProprietorName1, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_ProprietorName1, s0, s1, printDiff, ownershipChange);
             changeCount++;
 
         }
@@ -1423,21 +1424,21 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorName2();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName2(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorName2, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_ProprietorName2, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorName3();
         s1 = c.getProprietorName3();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName3(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorName3, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_ProprietorName3, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorName4();
         s1 = c.getProprietorName4();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorName4(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorName4, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_ProprietorName4, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         //ProprietorshipCategory
@@ -1445,28 +1446,28 @@ public class LR_Transitions_Process extends LR_Main_Process {
         s1 = c.getProprietorshipCategory1();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory1(s1);
-            ownershipChange = doDiff(Strings.S_ProprietorshipCategory1, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_ProprietorshipCategory1, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorshipCategory2();
         s1 = c.getProprietorshipCategory2();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory2(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorshipCategory2, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_ProprietorshipCategory2, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorshipCategory3();
         s1 = c.getProprietorshipCategory3();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory3(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorshipCategory3, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_ProprietorshipCategory3, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         s0 = f.getProprietorshipCategory4();
         s1 = c.getProprietorshipCategory4();
         if (!s0.equalsIgnoreCase(s1)) {
             f.setProprietorshipCategory4(s1, updateIDs);
-            ownershipChange = doDiff(Strings.S_ProprietorshipCategory4, s0, s1, printDiff, ownershipChange);
+            ownershipChange = doDiff(LR_Strings.s_ProprietorshipCategory4, s0, s1, printDiff, ownershipChange);
             changeCount++;
         }
         result[0] = changeCount;

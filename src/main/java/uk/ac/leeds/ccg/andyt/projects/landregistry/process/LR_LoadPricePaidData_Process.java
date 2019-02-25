@@ -22,7 +22,7 @@ import java.io.PrintWriter;
 import java.io.StreamTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.pricepaid.LR_PricePaid_Record;
@@ -83,12 +83,12 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                 String line;
                 LR_PricePaid_Record r;
 //                // read header
-//                Generic_ReadCSV.readLine(st, null);
+//                Data_ReadCSV.readLine(st, null);
                 int lineNumber;
                 lineNumber = 0;
 
                 while (!read) {
-                    line = Generic_ReadCSV.readLine(st, null);
+                    line = Data_ReadCSV.readLine(st, null);
                     if (line == null) {
                         read = true;
                     } else {
@@ -150,12 +150,12 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                 String line;
                 LR_PricePaid_Record r;
 //                // read header
-//                Generic_ReadCSV.readLine(st, null);
+//                Data_ReadCSV.readLine(st, null);
                 int lineNumber;
                 lineNumber = 0;
 
                 while (!read) {
-                    line = Generic_ReadCSV.readLine(st, null);
+                    line = Data_ReadCSV.readLine(st, null);
                     if (line == null) {
                         read = true;
                     } else {
@@ -216,12 +216,12 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                 String line;
                 LR_PricePaid_Record r;
 //                // read header
-//                Generic_ReadCSV.readLine(st, null);
+//                Data_ReadCSV.readLine(st, null);
                 int lineNumber;
                 lineNumber = 0;
 
                 while (!read) {
-                    line = Generic_ReadCSV.readLine(st, null);
+                    line = Data_ReadCSV.readLine(st, null);
                     if (line == null) {
                         read = true;
                     } else {

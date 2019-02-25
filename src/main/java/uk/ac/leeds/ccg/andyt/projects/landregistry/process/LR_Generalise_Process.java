@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 import uk.ac.leeds.ccg.andyt.stats.Generic_Statistics;
@@ -40,6 +40,7 @@ import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_TypeID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_PricePaidData;
@@ -108,10 +109,10 @@ public class LR_Generalise_Process extends LR_Main_Process {
         String name00;
         names0 = new ArrayList<>();
         if (doCCOD) {
-            names0.add(Strings.S_CCOD);
+            names0.add(LR_Strings.s_CCOD);
         }
         if (doOCOD) {
-            names0.add(Strings.S_OCOD);
+            names0.add(LR_Strings.s_OCOD);
         }
         boolean isCCOD;
 
@@ -142,7 +143,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         ite0 = names0.iterator();
         while (ite0.hasNext()) {
             name0 = ite0.next();
-            isCCOD = name0.equalsIgnoreCase(Strings.S_CCOD);
+            isCCOD = name0.equalsIgnoreCase(LR_Strings.s_CCOD);
             name00 = getName00(doFull, name0);
             setNames = getSetNames(doFull, name0);
             ite2 = setNames.iterator();
@@ -151,44 +152,44 @@ public class LR_Generalise_Process extends LR_Main_Process {
                 name += ite2.next();
                 indir = new File(inputDataDir, name0);
                 if (doFull) {
-                    indir = new File(indir, Strings.S_FULL);
+                    indir = new File(indir, LR_Strings.s_FULL);
                     indir = new File(indir, name);
                     if (doAll) {
-                        outdir = new File(outputDataDir, Strings.S_Generalised);
-                        outdir = new File(outdir, Strings.S_FULL);
+                        outdir = new File(outputDataDir, LR_Strings.s_Generalised);
+                        outdir = new File(outdir, LR_Strings.s_FULL);
                     } else {
-                        indir = new File(outputDataDir, Strings.S_Subsets);
+                        indir = new File(outputDataDir, LR_Strings.s_Subsets);
                         indir = new File(indir, area);
                         indir = new File(indir, name0);
-                        indir = new File(indir, Strings.S_FULL);
+                        indir = new File(indir, LR_Strings.s_FULL);
                         indir = new File(indir, name);
-                        outdir = new File(outputDataDir, Strings.S_Generalised);
-                        outdir = new File(outdir, Strings.S_Subsets);
+                        outdir = new File(outputDataDir, LR_Strings.s_Generalised);
+                        outdir = new File(outdir, LR_Strings.s_Subsets);
                         outdir = new File(outdir, area);
-                        outdir = new File(outdir, Strings.S_FULL);
+                        outdir = new File(outdir, LR_Strings.s_FULL);
                     }
                 } else {
-                    indir = new File(indir, Strings.S_COU);
+                    indir = new File(indir, LR_Strings.s_COU);
                     indir = new File(indir, name);
                     if (doAll) {
-                        outdir = new File(outputDataDir, Strings.S_Generalised);
-                        outdir = new File(outdir, Strings.S_COU);
+                        outdir = new File(outputDataDir, LR_Strings.s_Generalised);
+                        outdir = new File(outdir, LR_Strings.s_COU);
                     } else {
-                        indir = new File(outputDataDir, Strings.S_Subsets);
+                        indir = new File(outputDataDir, LR_Strings.s_Subsets);
                         indir = new File(indir, area);
                         indir = new File(indir, name0);
-                        indir = new File(indir, Strings.S_COU);
+                        indir = new File(indir, LR_Strings.s_COU);
                         indir = new File(indir, name);
-                        outdir = new File(outputDataDir, Strings.S_Generalised);
-                        outdir = new File(outdir, Strings.S_Subsets);
+                        outdir = new File(outputDataDir, LR_Strings.s_Generalised);
+                        outdir = new File(outdir, LR_Strings.s_Subsets);
                         outdir = new File(outdir, area);
-                        outdir = new File(outdir, Strings.S_COU);
+                        outdir = new File(outdir, LR_Strings.s_COU);
                     }
                 }
                 System.out.println("indir " + indir);
                 outdir = new File(outdir, name0);
                 outdir = new File(outdir, name);
-                outdir = new File(outdir, Strings.S_Generalised);
+                outdir = new File(outdir, LR_Strings.s_Generalised);
                 System.out.println("outdir " + outdir);
                 fin = new File(indir, name + ".csv");
                 if (!fin.exists()) {
@@ -205,7 +206,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
                         String line;
                         LR_Record r;
                         // read header
-                        Generic_ReadCSV.readLine(st, null);
+                        Data_ReadCSV.readLine(st, null);
                         int lineNumber;
                         lineNumber = 0;
                         int N;
@@ -221,22 +222,22 @@ public class LR_Generalise_Process extends LR_Main_Process {
                              */
                             // Init NonNullCounts
                             NonNullCounts = new HashMap<>();
-                            type = Strings.S_CountryIncorporated1;
+                            type = LR_Strings.s_CountryIncorporated1;
                             typeID = env.CountryIncorporatedTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
-                            type = Strings.S_PostcodeDistrict;
+                            type = LR_Strings.s_PostcodeDistrict;
                             typeID = env.PostcodeDistrictTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
-                            type = Strings.S_PricePaid;
+                            type = LR_Strings.s_PricePaid;
                             typeID = env.PricePaidTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
 //                            type = strings.S_ProprietorName;
 //                            typeID = env.ProprietorNameTypeID;
 //                            addNonNullCounts(type, typeID, outdir, nonNullPWs);
-                            type = Strings.S_ProprietorshipCategory1;
+                            type = LR_Strings.s_ProprietorshipCategory1;
                             typeID = env.ProprietorshipCategoryTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
-                            type = Strings.S_Tenure;
+                            type = LR_Strings.s_Tenure;
                             typeID = env.TenureTypeID;
                             addNonNullCounts(type, typeID, outdir, nonNullPWs);
 
@@ -247,35 +248,35 @@ public class LR_Generalise_Process extends LR_Main_Process {
 //                            typeID = env.PricePaidTypeID;
 //                            addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs);
                             // Init S_Tenure PricePaid
-                            type = Strings.S_Tenure;
+                            type = LR_Strings.s_Tenure;
                             typeID = env.TenureTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init S_CountryIncorporated1 PricePaid
-                            type = Strings.S_CountryIncorporated1;
+                            type = LR_Strings.s_CountryIncorporated1;
                             typeID = env.CountryIncorporatedTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init S_ProprietorshipCategory1 PricePaid
-                            type = Strings.S_ProprietorshipCategory1;
+                            type = LR_Strings.s_ProprietorshipCategory1;
                             typeID = env.ProprietorshipCategoryTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init Region PricePaid
-                            type = Strings.S_Region;
+                            type = LR_Strings.s_Region;
                             typeID = env.RegionTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init County PricePaid
-                            type = Strings.S_County;
+                            type = LR_Strings.s_County;
                             typeID = env.CountyTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init District PricePaid
-                            type = Strings.S_District;
+                            type = LR_Strings.s_District;
                             typeID = env.DistrictTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init ProprietorName1 PricePaid
-                            type = Strings.S_ProprietorName1;
+                            type = LR_Strings.s_ProprietorName1;
                             typeID = env.ProprietorNameTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
                             // Init CompanyRegistrationNo1 PricePaid
-                            type = Strings.S_CompanyRegistrationNo1;
+                            type = LR_Strings.s_CompanyRegistrationNo1;
                             typeID = env.CompanyRegistrationNoTypeID;
                             addNonNullPricePaidType(type, typeID, outdir, nonNullPricePaidPWs, nonNullPWs);
 
@@ -291,7 +292,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
                             while (!read) {
                                 lineNumber ++;
-                                line = Generic_ReadCSV.readLine(st, null);
+                                line = Data_ReadCSV.readLine(st, null);
                                 if (line == null) {
                                     read = true;
                                 } else {
@@ -418,7 +419,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
             addNonNullCounts(type, typeID, outdir, nonNullPWs);
         }
         File f;
-        f = new File(outdir, type + Strings.S_PricePaid + ".csv");
+        f = new File(outdir, type + LR_Strings.s_PricePaid + ".csv");
         try {
             pws.put(typeID, new PrintWriter(f));
         } catch (FileNotFoundException ex) {
@@ -1050,7 +1051,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         File f;
         f = Files.getTIDataFile();
         ArrayList<String> lines;
-        lines = Generic_ReadCSV.read(f, null, 7);
+        lines = Data_ReadCSV.read(f, null, 7);
         Iterator<String> ite;
         ite = lines.iterator();
         String l;

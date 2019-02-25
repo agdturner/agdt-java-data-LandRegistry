@@ -21,12 +21,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import uk.ac.leeds.ccg.andyt.data.interval.Generic_Interval_long1;
+import uk.ac.leeds.ccg.andyt.data.interval.Data_IntervalLong1;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_TypeID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
 
@@ -264,8 +265,8 @@ public abstract class LR_Record extends LR_Object {
      * @throws Exception
      */
     public final void initTenure(String s, boolean doUpdate) throws Exception {
-        if (!(s.equalsIgnoreCase(env.strings.S_Leasehold)
-                || s.equalsIgnoreCase(env.strings.S_Freehold))) {
+        if (!(s.equalsIgnoreCase(LR_Strings.s_Leasehold)
+                || s.equalsIgnoreCase(LR_Strings.s_Freehold))) {
             throw new Exception("Unexpected Tenure: \"" + s + "\"");
         }
         setTenure(s);
@@ -645,7 +646,7 @@ public abstract class LR_Record extends LR_Object {
         Iterator<LR_ValueID> ite;
         ite = env.PricePaidLookup.keySet().iterator();
         LR_ValueID k;
-        Generic_Interval_long1 i;
+        Data_IntervalLong1 i;
         while (ite.hasNext()) {
             k = ite.next();
             i = env.PricePaidLookup.get(k);
@@ -1274,7 +1275,7 @@ public abstract class LR_Record extends LR_Object {
      * @return the CountryIncorporated1
      */
     public String getCountryIncorporated1() {
-        return env.strings.S_United_Kingdom;
+        return LR_Strings.s_United_Kingdom;
     }
 
     /**

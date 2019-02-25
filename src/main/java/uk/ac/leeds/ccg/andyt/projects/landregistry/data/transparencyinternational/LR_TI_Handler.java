@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 
 /**
@@ -28,7 +28,7 @@ public class LR_TI_Handler {
         if (!f.exists()) {
             System.out.println("File " + f + " does not exist.");
         }
-        lines = Generic_ReadCSV.read(f, null, 7);
+        lines = Data_ReadCSV.read(f, null, 7);
         Iterator<String> ite;
         ite = lines.iterator();
         String line;

@@ -24,10 +24,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Generic_ReadCSV;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
 
 /**
@@ -61,8 +62,8 @@ public class LR_Select_Process extends LR_Main_Process {
         String name0;
         String name00;
         names0 = new ArrayList<>();
-        names0.add(Strings.S_CCOD);
-        names0.add(Strings.S_OCOD);
+        names0.add(LR_Strings.s_CCOD);
+        names0.add(LR_Strings.s_OCOD);
         boolean isCCOD;
 
         File indir;
@@ -76,7 +77,7 @@ public class LR_Select_Process extends LR_Main_Process {
         ite0 = names0.iterator();
         while (ite0.hasNext()) {
             name0 = ite0.next();
-            isCCOD = name0.equalsIgnoreCase(Strings.S_CCOD);
+            isCCOD = name0.equalsIgnoreCase(LR_Strings.s_CCOD);
             name00 = getName00(doFull, name0);
             setNames = getSetNames(doFull, name0);
             ite2 = setNames.iterator();
@@ -85,19 +86,19 @@ public class LR_Select_Process extends LR_Main_Process {
                 name += ite2.next();
                 indir = new File(inputDataDir, name0);
                 if (doFull) {
-                    indir = new File(indir, env.strings.S_FULL);
+                    indir = new File(indir, LR_Strings.s_FULL);
                 } else {
-                    indir = new File(indir, env.strings.S_COU);
+                    indir = new File(indir, LR_Strings.s_COU);
                 }
                 indir = new File(indir, name);
                 System.out.println("indir " + indir);
-                outdir = new File(outputDataDir, env.strings.S_Subsets);
+                outdir = new File(outputDataDir, LR_Strings.s_Subsets);
                 outdir = new File(outdir, area);
                 outdir = new File(outdir, name0);
                 if (doFull) {
-                    outdir = new File(outdir, env.strings.S_FULL);
+                    outdir = new File(outdir, LR_Strings.s_FULL);
                 } else {
-                    outdir = new File(outdir, env.strings.S_COU);
+                    outdir = new File(outdir, LR_Strings.s_COU);
                 }
                 outdir = new File(outdir, name);
                 System.out.println("outdir " + outdir);
@@ -124,14 +125,14 @@ public class LR_Select_Process extends LR_Main_Process {
                         String line;
                         LR_Record r;
                         // read header
-                        Generic_ReadCSV.readLine(st, null);
+                        Data_ReadCSV.readLine(st, null);
                         int ID;
                         ID = 1;
 
                         Generic_YearMonth YM = null;
 
                         while (!read) {
-                            line = Generic_ReadCSV.readLine(st, null);
+                            line = Data_ReadCSV.readLine(st, null);
                             if (line == null) {
                                 read = true;
                             } else {
