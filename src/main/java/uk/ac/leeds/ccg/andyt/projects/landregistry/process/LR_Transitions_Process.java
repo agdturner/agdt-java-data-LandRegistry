@@ -114,7 +114,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         printDiff = false;
 
         File outputDataDir;
-        outputDataDir = Files.getOutputDataDir();
+        outputDataDir = files.getOutputDataDir();
 
         ArrayList<String> names0;
         //ArrayList<String> names1;

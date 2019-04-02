@@ -15,13 +15,13 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
 
-import uk.ac.leeds.ccg.andyt.generic.core.Generic_Strings;
+import uk.ac.leeds.ccg.andyt.data.core.Data_Strings;
 
 /**
  *
  * @author geoagdt
  */
-public class LR_Strings extends Generic_Strings {
+public class LR_Strings extends Data_Strings {
 
     /*
      * General names.
@@ -32,9 +32,9 @@ public class LR_Strings extends Generic_Strings {
     public static final String s_OCOD = "OCOD";
     public static final String s_Generalised = "Generalised";
     public static final String s_ID = "ID";
+    public static final String s_LandRegistry = "LandRegistry";
     public static final String s_Null = "Null";
     public static final String s_NumberID = "NumberID";
-    public static final String s_Subsets = "Subsets";
     public static final String s_Transitions = "Transitions";
     public static final String s_zip = "zip";
     public static final String s_United_Kingdom = "United Kingdom";

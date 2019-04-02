@@ -51,9 +51,9 @@ public class LR_Select_Process extends LR_Main_Process {
     public void run(String area, boolean doFull, boolean overwrite) {
         this.overwrite = overwrite;
         File inputDataDir;
-        inputDataDir = Files.getInputDataDir();
+        inputDataDir = files.getInputDataDir();
         File outputDataDir;
-        outputDataDir = Files.getOutputDataDir();
+        outputDataDir = files.getOutputDataDir();
 
         ArrayList<String> names0;
         //ArrayList<String> names1;

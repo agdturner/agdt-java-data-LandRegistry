@@ -68,7 +68,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
         ArrayList<LR_OC_FULL_Record> OCODList;
         OCODList = new ArrayList<>();
         File indir;
-        indir = new File(Files.getDataDir(), "/output/Subsets/LEEDS/OCOD/FULL/OCOD_FULL_2017_11/");
+        indir = new File(files.getDataDir(), "/output/Subsets/LEEDS/OCOD/FULL/OCOD_FULL_2017_11/");
         fin = new File(indir, "OCOD_FULL_2017_11.csv");
 
         LR_OC_FULL_Record or;

@@ -21,6 +21,12 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     public transient Generic_Environment ge;
 
     public final transient LR_Files files;
+    
+    /**
+     * Stores the {@link ge} log ID for the log set up for WaAS.
+     */
+    public final int logID;
+    
     public transient Data_UKPostcodeHandler PostcodeHandler;
     
     public transient final HashSet<String> NumeralsHashSet;
@@ -161,11 +167,12 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 
     public LR_Environment(Generic_Environment ge, LR_Files files) {
         this.ge = ge;
+        logID = ge.initLog(LR_Strings.s_LandRegistry);
         this.files = files;
+        
         PostcodeHandler = new Data_UKPostcodeHandler();
         NumeralsHashSet = Generic_String.getNumeralsHashSet();
-        File f;
-        f = this.files.getEnvDataFile();
+        File f = this.files.getEnvDataFile();
         if (f.exists()) {
             System.out.println("Loading cache...");
             LR_Environment cache;
@@ -481,4 +488,32 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         }
     }
 
+    /**
+     * For convenience.
+     * {@link Generic_Environment#logStartTag(java.lang.String, int)}
+     *
+     * @param s The tag name.
+     */
+    public final void logStartTag(String s) {
+        ge.logStartTag(s, logID);
+    }
+
+    /**
+     * For convenience. {@link Generic_Environment#log(java.lang.String, int)}
+     *
+     * @param s The message to be logged.
+     */
+    public void log(String s) {
+        ge.log(s, logID);
+    }
+
+    /**
+     * For convenience.
+     * {@link Generic_Environment#logEndTag(java.lang.String, int)}
+     *
+     * @param s The tag name.
+     */
+    public final void logEndTag(String s) {
+        ge.logEndTag(s, logID);
+    }
 }

@@ -36,20 +36,18 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 public class LR_Main_Process extends LR_Object {
 
     // For convenience
-    public LR_Files Files;
+    public LR_Files files;
 
     public LR_Main_Process(LR_Environment env) {
         super(env);
-        Files = this.env.files;
+        files = this.env.files;
     }
 
     public static void main(String[] args) {
-        File dataDir = Generic_Files.getDefaultDataDir();
-        LR_Files files = new LR_Files(dataDir);
+        LR_Files files = new LR_Files(LR_Files.getDefaultDataDir());
         Generic_Environment ge = new Generic_Environment();
         LR_Environment env = new LR_Environment(ge, files);
-        LR_Main_Process p;
-        p = new LR_Main_Process(env);
+        LR_Main_Process p = new LR_Main_Process(env);
         p.run();
     }
 
@@ -101,7 +99,7 @@ public class LR_Main_Process extends LR_Object {
             // Run
             LR_Select_Process sp;
             sp = new LR_Select_Process(env);
-            sp.Files.setDataDirectory(Files.getDataDir());
+            sp.files.setDataDirectory(files.getDataDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
                 area = ite.next();
@@ -113,7 +111,7 @@ public class LR_Main_Process extends LR_Object {
 
             // Write out cache if it does not exist.
             File f;
-            f = Files.getEnvDataFile();
+            f = files.getEnvDataFile();
             if (!f.exists()) {
                 Generic_IO.writeObject(env, f, "Env");
             }
@@ -149,10 +147,10 @@ public class LR_Main_Process extends LR_Object {
                 doAll = false;
                 doCCOD = true;
                 doOCOD = true;
-                inputDataDir = Files.getOutputDataDir();
+                inputDataDir = files.getOutputDataDir();
                 LR_Generalise_Process gp;
                 gp = new LR_Generalise_Process(env);
-                gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                gp.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 minsCC = getMinsCC(5);
                 minsOC = getMinsOC(1);
                 ite = areas.iterator();
@@ -172,10 +170,10 @@ public class LR_Main_Process extends LR_Object {
                 doAll = true;
                 doCCOD = true;
                 doOCOD = true;
-                inputDataDir = Files.getInputDataDir();
+                inputDataDir = files.getInputDataDir();
                 LR_Generalise_Process gp;
                 gp = new LR_Generalise_Process(env);
-                gp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                gp.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 minsCC = getMinsCC(10);
                 minsOC = getMinsOC(5);
                 ite = areas.iterator();
@@ -201,10 +199,10 @@ public class LR_Main_Process extends LR_Object {
                 // Run
                 minCC = 2;
                 minOC = 2;
-                inputDataDir = Files.getOutputDataDir();
+                inputDataDir = files.getOutputDataDir();
                 LR_Transitions_Process tp;
                 tp = new LR_Transitions_Process(env);
-                tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                tp.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 ite = areas.iterator();
                 while (ite.hasNext()) {
                     area = ite.next();
@@ -220,10 +218,10 @@ public class LR_Main_Process extends LR_Object {
                 // Run
                 minCC = 2;
                 minOC = 2;
-                inputDataDir = Files.getOutputDataDir();
+                inputDataDir = files.getOutputDataDir();
                 LR_Transitions_Process tp;
                 tp = new LR_Transitions_Process(env);
-                tp.Files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                tp.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
                 tp.run(area, doAll, inputDataDir, minCC, minOC, overwrite);
             }
         }
@@ -240,7 +238,7 @@ public class LR_Main_Process extends LR_Object {
             // Run
             LR_LoadPricePaidData_Process p;
             p = new LR_LoadPricePaidData_Process(env, overwrite);
-            p.Files.setDataDirectory(Files.getDataDir());
+            p.files.setDataDirectory(files.getDataDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
                 area = ite.next();
@@ -256,7 +254,7 @@ public class LR_Main_Process extends LR_Object {
             // Run
             LR_JoinPricePaidDataAndOwnershipData_Process p;
             p = new LR_JoinPricePaidDataAndOwnershipData_Process(env, overwrite);
-            p.Files.setDataDirectory(Files.getDataDir());
+            p.files.setDataDirectory(files.getDataDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
                 area = ite.next();
@@ -266,7 +264,7 @@ public class LR_Main_Process extends LR_Object {
 
         // Write out cache if it does not exist.
         File f;
-        f = Files.getEnvDataFile();
+        f = files.getEnvDataFile();
         if (!f.exists()) {
             Generic_IO.writeObject(env, f, "Env");
         }
@@ -362,7 +360,7 @@ public class LR_Main_Process extends LR_Object {
         File dir;
         String[] filenames;
         String[] split;
-        dir = new File(Files.getInputDataDir(CCODorOCOD), s_FULL_or_COU);
+        dir = new File(files.getInputDataDir(CCODorOCOD), s_FULL_or_COU);
         if (dir.mkdirs()){
             System.err.println("Warning: Input data is not in place. Assume "
                     + "processing with other data...");

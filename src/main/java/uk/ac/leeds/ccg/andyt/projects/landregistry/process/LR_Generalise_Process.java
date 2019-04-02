@@ -1049,7 +1049,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
     protected void loadTransparencyMap() {
         TransparencyMap = new HashMap<>();
         File f;
-        f = Files.getTIDataFile();
+        f = files.getTIDataFile();
         ArrayList<String> lines;
         lines = Data_ReadCSV.read(f, null, 7);
         Iterator<String> ite;
