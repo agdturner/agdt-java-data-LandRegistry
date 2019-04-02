@@ -16,22 +16,20 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.io;
 
 import java.io.File;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_Files;
+import uk.ac.leeds.ccg.andyt.data.io.Data_Files;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 
 /**
  *
  * @author geoagdt
  */
-public class LR_Files extends Generic_Files {
-
-    protected LR_Files(){super();}
+public class LR_Files extends Data_Files {
 
     /**
-     * @param dataDir
+     * @param dir
      */
-    public LR_Files(File dataDir) {
-        super(dataDir);
+    public LR_Files(File dir) {
+        super(dir);
     }
     
     public File getInputDataDir(String s) {
@@ -39,22 +37,13 @@ public class LR_Files extends Generic_Files {
     }
     
     public File getTIDataFile() {
-        File result;
-        File dir;
-        dir = new File(getInputDataDir(), "TransparencyInternational");
-        result = new File(dir, "Selection.csv");
-        return result;
+        File r = new File(getInputDataDir(), "TransparencyInternational");
+        r = new File(r, "Selection.csv");
+        return r;
     }
     
     public File getGeneratedDataFile(String name, String type) {
-        File dir;
-        dir = getGeneratedDataDir();
-        File f;
-        f = new File(dir, name + "_" + type + "." + LR_Strings.s_dat);
-        return f;
-    }
-    
-    public File getEnvDataFile() {
-        return new File(getGeneratedDataDir(), "Env.dat");
+        return new File(getGeneratedDataDir(), 
+                name + LR_Strings.symbol_underscore + type + DOT_DAT);
     }
 }
