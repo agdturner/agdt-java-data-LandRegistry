@@ -1,16 +1,13 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
 
-import java.io.Serializable;
 import uk.ac.leeds.ccg.andyt.generic.memory.Generic_OutOfMemoryErrorHandler;
-import uk.ac.leeds.ccg.andyt.generic.memory.Generic_OutOfMemoryErrorHandlerInterface;
 
 /**
  *
  * @author Andy Turner
  */
-public abstract class LR_OutOfMemoryErrorHandler
-        extends Generic_OutOfMemoryErrorHandler
-        implements Serializable, Generic_OutOfMemoryErrorHandlerInterface {
+public abstract class LR_OutOfMemoryErrorHandler 
+        extends Generic_OutOfMemoryErrorHandler {
 
     //static final long serialVersionUID = 1L;
     public static long Memory_Threshold = 10000000;

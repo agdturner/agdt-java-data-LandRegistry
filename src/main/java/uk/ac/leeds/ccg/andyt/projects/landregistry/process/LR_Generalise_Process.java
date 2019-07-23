@@ -32,7 +32,6 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 import uk.ac.leeds.ccg.andyt.stats.Generic_Statistics;
 import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
@@ -198,9 +197,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     if (overwrite || !outdir.exists()) {
                         BufferedReader br;
                         StreamTokenizer st;
-                        br = Generic_IO.getBufferedReader(fin);
+                        br = env.ge.io.getBufferedReader(fin);
                         st = new StreamTokenizer(br);
-                        Generic_IO.setStreamTokenizerSyntax7(st);
+                        env.ge.io.setStreamTokenizerSyntax7(st);
                         boolean read;
                         read = false;
                         String line;

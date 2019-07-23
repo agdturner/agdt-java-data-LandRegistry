@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
@@ -111,9 +110,9 @@ public class LR_Select_Process extends LR_Main_Process {
                     if (!fout.exists() || overwrite) {
                         BufferedReader br;
                         StreamTokenizer st;
-                        br = Generic_IO.getBufferedReader(fin);
+                        br = env.ge.io.getBufferedReader(fin);
                         st = new StreamTokenizer(br);
-                        Generic_IO.setStreamTokenizerSyntax7(st);
+                        env.ge.io.setStreamTokenizerSyntax7(st);
                         try {
                             pw = new PrintWriter(fout);
                         } catch (FileNotFoundException ex) {

@@ -7,7 +7,6 @@ import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.data.interval.Data_IntervalLong1;
 import uk.ac.leeds.ccg.andyt.data.postcode.Data_UKPostcodeHandler;
-import uk.ac.leeds.ccg.andyt.generic.io.Generic_IO;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
@@ -169,15 +168,14 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         this.ge = ge;
         logID = ge.initLog(LR_Strings.s_LandRegistry);
         this.files = files;
-        
         PostcodeHandler = new Data_UKPostcodeHandler();
         NumeralsHashSet = Generic_String.getNumeralsHashSet();
         File f = this.files.getEnvDataFile();
         if (f.exists()) {
-            System.out.println("Loading cache...");
-            LR_Environment cache;
-            cache = (LR_Environment) Generic_IO.readObject(f);
-            System.out.println("Loaded cache.");
+            String m = "load cache";
+            logStartTag(m);
+            LR_Environment cache = (LR_Environment) ge.io.readObject(f);
+            logEndTag(m);
             // Collections
             this.AddressIDToTitleNumberIDsLookup = cache.AddressIDToTitleNumberIDsLookup;
             this.IDs = cache.IDs;
@@ -246,8 +244,9 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * For loading the PricePaidLookup from a particular file.
      */
     public final void initPricePaidLookup() {
-        File f;
-        f = files.getGeneratedDataFile(LR_Strings.s_PricePaidLookup,
+        String m = "initPricePaidLookup";
+        logStartTag(m);
+        File f = files.getGeneratedDataFile(LR_Strings.s_PricePaidLookup,
                 LR_Strings.s_HashMap);
         MinPricePaidClass = -10000000L;
         if (!f.exists()) {
@@ -308,19 +307,17 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
             MaxPricePaidClass = u;
 //            UpdatedPricePaidLookup = true;
         } else {
-            System.out.println("Loading " + f);
-            PricePaidLookup = (HashMap<LR_ValueID, Data_IntervalLong1>) Generic_IO.readObject(f);
+            log("Loading " + f);
+            PricePaidLookup = (HashMap<LR_ValueID, Data_IntervalLong1>) ge.io.readObject(f);
             MaxPricePaidClass = 1000000000000L;
-            System.out.println("Loaded " + f);
 //            UpdatedPricePaidLookup = false;
         }
+                logEndTag(m);
     }
 
     private void addPricePaidInterval(long l, long u) {
-        Data_IntervalLong1 i;
-        i = new Data_IntervalLong1(l, u);
-        int s;
-        s = PricePaidLookup.size();
+        Data_IntervalLong1 i = new Data_IntervalLong1(l, u);
+        int s  = PricePaidLookup.size();
         PricePaidLookup.put(new LR_ValueID(s, Integer.toString(s)), i);
     }
 
@@ -334,38 +331,35 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * @param type
      */
     protected void addNonNullType(String type) {
-        LR_TypeID typeID;
-        typeID = getTypeID(type);
-        NonNullTypes.add(typeID);
-        ValueReverseLookups.put(typeID, new HashMap<>());
-//        TypeIDToValuesLookups.put(typeID, new HashSet<>());
-        addValueType(typeID);
+        LR_TypeID id = getTypeID(type);
+        NonNullTypes.add(id);
+        ValueReverseLookups.put(id, new HashMap<>());
+//        TypeIDToValuesLookups.put(id, new HashSet<>());
+        addValueType(id);
     }
 
     protected void addNonNullPricePaidType(String type) {
-        LR_TypeID typeID;
-        typeID = getTypeID(type);
-        NonNullPricePaidTypes.add(typeID);
+        LR_TypeID id = getTypeID(type);
+        NonNullPricePaidTypes.add(id);
     }
 
     protected LR_ID addNullType(String type) {
-        LR_TypeID typeID;
-        typeID = getTypeID(type);
-        NullTypes.add(typeID);
-        NullTitleNumberIDCollections.put(typeID, new HashMap<>());
-        return typeID;
+        LR_TypeID id = getTypeID(type);
+        NullTypes.add(id);
+        NullTitleNumberIDCollections.put(id, new HashMap<>());
+        return id;
     }
 
     protected final LR_TypeID getTypeID(String type) {
-        LR_TypeID typeID;
+        LR_TypeID id;
         if (TypeToTypeID.containsKey(type)) {
-            typeID = TypeToTypeID.get(type);
+            id = TypeToTypeID.get(type);
         } else {
-            typeID = new LR_TypeID(TypeToTypeID.size(), type);
-            TypeToTypeID.put(type, typeID);
-            TypeIDs.add(typeID);
+            id = new LR_TypeID(TypeToTypeID.size(), type);
+            TypeToTypeID.put(type, id);
+            TypeIDs.add(id);
         }
-        return typeID;
+        return id;
     }
 
     /**
@@ -430,11 +424,11 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     /**
      * Adds a value type map to ValueLookups and ValueReverseLookups
      *
-     * @param typeID The LR_ID of the value type to be added.
+     * @param id The LR_TypeID of the value type to be added.
      */
-    protected void addValueType(LR_TypeID typeID) {
-        Values.put(typeID, new HashSet<>());
-        ValueIDs.put(typeID, new HashSet<>());
+    protected void addValueType(LR_TypeID id) {
+        Values.put(id, new HashSet<>());
+        ValueIDs.put(id, new HashSet<>());
     }
 
     /**
@@ -442,27 +436,25 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * ValueReverseLookups.get(valueType).This does not first test if s is
      * already a key in ValueLookups.get(valueType).
      *
-     * @param typeID
+     * @param id
      * @param s
      * @return
      */
-    public LR_ValueID addValue(LR_TypeID typeID, String s) {
-        LR_ValueID result;
-        HashMap<String, LR_ValueID> valueReverseLookup;
-        valueReverseLookup = ValueReverseLookups.get(typeID);
-        if (valueReverseLookup.containsKey(s)) {
-            result = valueReverseLookup.get(s);
+    public LR_ValueID addValue(LR_TypeID id, String s) {
+        LR_ValueID r;
+        HashMap<String, LR_ValueID> vrl = ValueReverseLookups.get(id);
+        if (vrl.containsKey(s)) {
+            r = vrl.get(s);
         } else {
-            int i = valueReverseLookup.size();
-            result = new LR_ValueID(i, s);
-            valueReverseLookup.put(s, result);
-            HashSet<String> values;
-            values = Values.get(typeID);
+            int i = vrl.size();
+            r = new LR_ValueID(i, s);
+            vrl.put(s, r);
+            HashSet<String> values = Values.get(id);
             if (values.add(s)) {
-                ValueIDs.get(typeID).add(result);
+                ValueIDs.get(id).add(r);
             }
         }
-        return result;
+        return r;
     }
 
     /**
@@ -471,20 +463,17 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * @param country
      */
     private void addCountryIDToNonNull(String country) {
-        String type;
-        type = LR_Strings.s_CountryIncorporated;
+        String type = LR_Strings.s_CountryIncorporated;
         addNonNullType(type);
-        LR_TypeID typeID;
-        typeID = TypeToTypeID.get(type);
+        LR_TypeID tid = TypeToTypeID.get(type);
         HashMap<String, LR_ValueID> m;
-        m = ValueReverseLookups.get(typeID);
+        m = ValueReverseLookups.get(tid);
         if (!m.containsKey(type)) {
-            LR_ValueID valueID;
-            valueID = new LR_ValueID(m.size(), country);
-            m.put(country, valueID);
-//            TypeIDToValuesLookups.get(typeID).add(valueID);
-            ValueIDs.get(typeID).add(valueID);
-            Values.get(typeID).add(country);
+            LR_ValueID vid = new LR_ValueID(m.size(), country);
+            m.put(country, vid);
+//            TypeIDToValuesLookups.get(tid).add(vid);
+            ValueIDs.get(tid).add(vid);
+            Values.get(tid).add(country);
         }
     }
 
