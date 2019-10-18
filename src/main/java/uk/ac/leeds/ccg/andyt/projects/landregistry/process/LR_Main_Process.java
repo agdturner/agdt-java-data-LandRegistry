@@ -16,10 +16,14 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
+import uk.ac.leeds.ccg.andyt.generic.io.Generic_Defaults;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
@@ -42,11 +46,15 @@ public class LR_Main_Process extends LR_Object {
     }
 
     public static void main(String[] args) {
-        LR_Files files = new LR_Files(LR_Files.getDefaultDataDir());
-        Generic_Environment ge = new Generic_Environment();
-        LR_Environment env = new LR_Environment(ge, files);
-        LR_Main_Process p = new LR_Main_Process(env);
-        p.run();
+        try {
+            LR_Files files = new LR_Files(Generic_Defaults.getDefaultDir());
+            Generic_Environment ge = new Generic_Environment();
+            LR_Environment env = new LR_Environment(ge, files);
+            LR_Main_Process p = new LR_Main_Process(env);
+            p.run();
+        } catch (IOException ex) {
+            ex.printStackTrace(System.err);
+        }
     }
 
     // Main switch declaration
@@ -97,7 +105,7 @@ public class LR_Main_Process extends LR_Object {
             // Run
             LR_Select_Process sp;
             sp = new LR_Select_Process(env);
-            sp.files.setDataDirectory(files.getDataDir());
+            sp.files.setDir(files.getDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
                 area = ite.next();
@@ -145,10 +153,10 @@ public class LR_Main_Process extends LR_Object {
                 doAll = false;
                 doCCOD = true;
                 doOCOD = true;
-                inputDataDir = files.getOutputDataDir();
+                inputDataDir = files.getOutputDir();
                 LR_Generalise_Process gp;
                 gp = new LR_Generalise_Process(env);
-                gp.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                gp.files.setDir(new File(System.getProperty("user.dir"), "data"));
                 minsCC = getMinsCC(5);
                 minsOC = getMinsOC(1);
                 ite = areas.iterator();
@@ -168,10 +176,10 @@ public class LR_Main_Process extends LR_Object {
                 doAll = true;
                 doCCOD = true;
                 doOCOD = true;
-                inputDataDir = files.getInputDataDir();
+                inputDataDir = files.getInputDir();
                 LR_Generalise_Process gp;
                 gp = new LR_Generalise_Process(env);
-                gp.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                gp.files.setDir(new File(System.getProperty("user.dir"), "data"));
                 minsCC = getMinsCC(10);
                 minsOC = getMinsOC(5);
                 ite = areas.iterator();
@@ -197,10 +205,10 @@ public class LR_Main_Process extends LR_Object {
                 // Run
                 minCC = 2;
                 minOC = 2;
-                inputDataDir = files.getOutputDataDir();
+                inputDataDir = files.getOutputDir();
                 LR_Transitions_Process tp;
                 tp = new LR_Transitions_Process(env);
-                tp.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                tp.files.setDir(new File(System.getProperty("user.dir"), "data"));
                 ite = areas.iterator();
                 while (ite.hasNext()) {
                     area = ite.next();
@@ -216,10 +224,10 @@ public class LR_Main_Process extends LR_Object {
                 // Run
                 minCC = 2;
                 minOC = 2;
-                inputDataDir = files.getOutputDataDir();
+                inputDataDir = files.getOutputDir();
                 LR_Transitions_Process tp;
                 tp = new LR_Transitions_Process(env);
-                tp.files.setDataDirectory(new File(System.getProperty("user.dir"), "data"));
+                tp.files.setDir(new File(System.getProperty("user.dir"), "data"));
                 tp.run(area, doAll, inputDataDir, minCC, minOC, overwrite);
             }
         }
@@ -236,7 +244,7 @@ public class LR_Main_Process extends LR_Object {
             // Run
             LR_LoadPricePaidData_Process p;
             p = new LR_LoadPricePaidData_Process(env, overwrite);
-            p.files.setDataDirectory(files.getDataDir());
+            p.files.setDir(files.getDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
                 area = ite.next();
@@ -252,7 +260,7 @@ public class LR_Main_Process extends LR_Object {
             // Run
             LR_JoinPricePaidDataAndOwnershipData_Process p;
             p = new LR_JoinPricePaidDataAndOwnershipData_Process(env, overwrite);
-            p.files.setDataDirectory(files.getDataDir());
+            p.files.setDir(files.getDir());
             ite = areas.iterator();
             while (ite.hasNext()) {
                 area = ite.next();

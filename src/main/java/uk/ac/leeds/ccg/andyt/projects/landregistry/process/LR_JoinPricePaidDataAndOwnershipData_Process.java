@@ -67,7 +67,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
         ArrayList<LR_OC_FULL_Record> OCODList;
         OCODList = new ArrayList<>();
         File indir;
-        indir = new File(files.getDataDir(), "/output/Subsets/LEEDS/OCOD/FULL/OCOD_FULL_2017_11/");
+        indir = new File(files.getDir(), "/output/Subsets/LEEDS/OCOD/FULL/OCOD_FULL_2017_11/");
         fin = new File(indir, "OCOD_FULL_2017_11.csv");
 
         LR_OC_FULL_Record or;
@@ -119,7 +119,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
         File fout;
         PrintWriter pw = null;
 
-        outdir = new File(env.files.getOutputDataDir(), "PricePaid");
+        outdir = new File(env.files.getOutputDir(), "PricePaid");
         System.out.println("outdir " + outdir);
         fin = new File(outdir, "pp-complete-PPDCategoryType-B-District-LEEDS.csv");
         if (!fin.exists()) {

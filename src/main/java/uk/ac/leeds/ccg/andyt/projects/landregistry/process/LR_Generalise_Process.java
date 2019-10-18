@@ -121,7 +121,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
         File indir;
         File outdir;
         File outputDataDir;
-        outputDataDir = env.files.getOutputDataDir();
+        outputDataDir = env.files.getOutputDir();
         File fin;
         File fout;
         ArrayList<String> lines;

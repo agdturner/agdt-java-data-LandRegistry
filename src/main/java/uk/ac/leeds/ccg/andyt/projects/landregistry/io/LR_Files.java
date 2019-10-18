@@ -33,17 +33,17 @@ public class LR_Files extends Data_Files {
     }
     
     public File getInputDataDir(String s) {
-        return new File(getInputDataDir(), s);
+        return new File(getInputDir(), s);
     }
     
     public File getTIDataFile() {
-        File r = new File(getInputDataDir(), "TransparencyInternational");
+        File r = new File(getInputDir(), "TransparencyInternational");
         r = new File(r, "Selection.csv");
         return r;
     }
     
     public File getGeneratedDataFile(String name, String type) {
-        return new File(getGeneratedDataDir(), 
+        return new File(getGeneratedDir(), 
                 name + LR_Strings.symbol_underscore + type + DOT_DAT);
     }
 }

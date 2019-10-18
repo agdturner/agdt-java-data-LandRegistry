@@ -58,7 +58,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
         File fin;
         File fout;
         PrintWriter pw = null;
-        outdir = new File(env.files.getOutputDataDir(), "PricePaid");
+        outdir = new File(env.files.getOutputDir(), "PricePaid");
         System.out.println("outdir " + outdir);
         fin = new File(outdir, "pp-complete-PPDCategoryType-B-District-LEEDS.csv");
         if (!fin.exists()) {
@@ -123,9 +123,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
         File fout;
         PrintWriter pw = null;
 
-        indir = new File(env.files.getInputDataDir(), "PricePaid");
+        indir = new File(env.files.getInputDir(), "PricePaid");
         System.out.println("indir " + indir);
-        outdir = new File(env.files.getOutputDataDir(), "PricePaid");
+        outdir = new File(env.files.getOutputDir(), "PricePaid");
         System.out.println("outdir " + outdir);
         fin = new File(outdir, "pp-complete-PPDCategoryType-B.csv");
         if (!fin.exists()) {
@@ -189,9 +189,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
         File fout;
         PrintWriter pw = null;
 
-        indir = new File(env.files.getInputDataDir(), "PricePaid");
+        indir = new File(env.files.getInputDir(), "PricePaid");
         System.out.println("indir " + indir);
-        outdir = new File(env.files.getOutputDataDir(), "PricePaid");
+        outdir = new File(env.files.getOutputDir(), "PricePaid");
         System.out.println("outdir " + outdir);
         fin = new File(indir, "pp-complete.csv");
         if (!fin.exists()) {

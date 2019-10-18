@@ -1,6 +1,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -164,7 +165,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      */
     public final LR_TypeID CountryIncorporatedTypeID;
 
-    public LR_Environment(Generic_Environment ge, LR_Files files) {
+    public LR_Environment(Generic_Environment ge, LR_Files files) throws IOException {
         this.ge = ge;
         logID = ge.initLog(LR_Strings.s_LandRegistry);
         this.files = files;
