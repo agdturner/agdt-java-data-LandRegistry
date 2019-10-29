@@ -16,6 +16,7 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.io;
 
 import java.io.File;
+import java.io.IOException;
 import uk.ac.leeds.ccg.andyt.data.io.Data_Files;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
 
@@ -28,7 +29,7 @@ public class LR_Files extends Data_Files {
     /**
      * @param dir
      */
-    public LR_Files(File dir) {
+    public LR_Files(File dir) throws IOException {
         super(dir);
     }
     
