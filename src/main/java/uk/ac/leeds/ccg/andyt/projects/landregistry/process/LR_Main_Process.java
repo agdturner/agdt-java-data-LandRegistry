@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import uk.ac.leeds.ccg.andyt.data.core.Data_Environment;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadTXT;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_Defaults;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
@@ -39,17 +41,20 @@ public class LR_Main_Process extends LR_Object {
 
     // For convenience
     public LR_Files files;
+    protected final Data_ReadTXT reader;
 
     public LR_Main_Process(LR_Environment env) {
         super(env);
         files = this.env.files;
+        reader = new Data_ReadTXT(env.de);
     }
 
     public static void main(String[] args) {
         try {
             LR_Files files = new LR_Files(Generic_Defaults.getDefaultDir());
             Generic_Environment ge = new Generic_Environment();
-            LR_Environment env = new LR_Environment(ge, files);
+            Data_Environment de = new Data_Environment(ge);
+            LR_Environment env = new LR_Environment(de, files);
             LR_Main_Process p = new LR_Main_Process(env);
             p.run();
         } catch (IOException ex) {
@@ -68,7 +73,7 @@ public class LR_Main_Process extends LR_Object {
     boolean doLoadPricePaidData = false;
     boolean doJoinPricePaidDataAndOwnershipData = true;
 
-    public void run() {
+    public void run() throws IOException {
 
         // Main switches
 //        writeCollections = true;
@@ -119,7 +124,7 @@ public class LR_Main_Process extends LR_Object {
             File f;
             f = files.getEnvDataFile();
             if (!f.exists()) {
-                env.ge.io.writeObject(env, f, "Env");
+                env.env.io.writeObject(env, f, "Env");
             }
         }
 
@@ -272,7 +277,7 @@ public class LR_Main_Process extends LR_Object {
         File f;
         f = files.getEnvDataFile();
         if (!f.exists()) {
-            env.ge.io.writeObject(env, f, "Env");
+            env.env.io.writeObject(env, f, "Env");
         }
         
     }

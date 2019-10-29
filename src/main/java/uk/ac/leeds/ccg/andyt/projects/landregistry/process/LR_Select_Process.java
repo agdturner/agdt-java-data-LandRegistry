@@ -18,13 +18,13 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StreamTokenizer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
@@ -47,7 +47,7 @@ public class LR_Select_Process extends LR_Main_Process {
      * selects from the Change Only Update (COU) data.
      * @param overwrite
      */
-    public void run(String area, boolean doFull, boolean overwrite) {
+    public void run(String area, boolean doFull, boolean overwrite) throws IOException {
         this.overwrite = overwrite;
         File inputDataDir;
         inputDataDir = files.getInputDir();
@@ -110,9 +110,9 @@ public class LR_Select_Process extends LR_Main_Process {
                     if (!fout.exists() || overwrite) {
                         BufferedReader br;
                         StreamTokenizer st;
-                        br = env.ge.io.getBufferedReader(fin);
+                        br = env.env.io.getBufferedReader(fin);
                         st = new StreamTokenizer(br);
-                        env.ge.io.setStreamTokenizerSyntax7(st);
+                        env.env.io.setStreamTokenizerSyntax7(st);
                         try {
                             pw = new PrintWriter(fout);
                         } catch (FileNotFoundException ex) {
@@ -124,14 +124,14 @@ public class LR_Select_Process extends LR_Main_Process {
                         String line;
                         LR_Record r;
                         // read header
-                        Data_ReadCSV.readLine(st, null);
+                        reader.readLine(st, null);
                         int ID;
                         ID = 1;
 
                         Generic_YearMonth YM = null;
 
                         while (!read) {
-                            line = Data_ReadCSV.readLine(st, null);
+                            line = reader.readLine(st, null);
                             if (line == null) {
                                 read = true;
                             } else {

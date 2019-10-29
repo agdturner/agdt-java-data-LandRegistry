@@ -17,6 +17,7 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
@@ -108,7 +108,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
     HashMap<LR_ID2, LR_OC_FULL_Record> fullOCR;
 
     public void run(String area, boolean doAll, File inputDataDir,
-            int minCC, int minOC, boolean overwrite) {
+            int minCC, int minOC, boolean overwrite) throws IOException {
         boolean printDiff;
 //        printDiff = true;
         printDiff = false;
@@ -187,7 +187,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         LR_OC_FULL_Record fullocr;
 
         Generic_YearMonth ym;
-        ym = new Generic_YearMonth(env.ge, "2017-11");
+        ym = new Generic_YearMonth(env.env, "2017-11");
 
         // Initialise key lookups
         titleNumberIDToCompanyRegistrationNoIDs = new HashMap<>();
@@ -218,7 +218,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         name = "CCOD_FULL_2017_11";
         indir = new File(indir, name);
         fin = new File(indir, name + ".csv");
-        lines = Data_ReadCSV.read(fin, null, 7);
+        lines = reader.read(fin, null, 7);
         LR_ID2 ID;
         for (int line = 1; line < lines.size(); line++) {
             try {
@@ -265,7 +265,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         name = "OCOD_FULL_2017_11";
         indir = new File(indir, name);
         fin = new File(indir, name + ".csv");
-        lines = Data_ReadCSV.read(fin, null, 7);
+        lines = reader.read(fin, null, 7);
         for (int line = 1; line < lines.size(); line++) {
             try {
                 fullocr = new LR_OC_FULL_Record(env, ym, lines.get(line), upDateIDs);
@@ -354,7 +354,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 name = name00;
                 String time;
                 time = ites1.next();
-                ym = new Generic_YearMonth(env.ge, time.replaceAll("_", "-"));
+                ym = new Generic_YearMonth(env.env, time.replaceAll("_", "-"));
                 name += time;
                 if (isCCOD) {
                     addedCCRTime = new HashMap<>();
@@ -381,7 +381,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 if (!fin.exists()) {
                     System.out.println("File " + fin + " does not exist.");
                 }
-                lines = Data_ReadCSV.read(fin, null, 7);
+                lines = reader.read(fin, null, 7);
                 //LR_Record r;
                 for (int line = 1; line < lines.size(); line++) {
                     try {

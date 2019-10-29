@@ -18,11 +18,12 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StreamTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadTXT;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.pricepaid.LR_PricePaid_Record;
 
@@ -33,6 +34,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
 
     boolean overwrite;
 
+
     public LR_LoadPricePaidData_Process(LR_Environment env, boolean overwrite) {
         super(env);
         this.overwrite = overwrite;
@@ -40,8 +42,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
 
     /**
      * @param area
+     * @throws java.io.IOException
      */
-    public void run(String area) {
+    public void run(String area) throws IOException {
         
         //selectBPPDCategoryType();
         //selectArea(area);
@@ -52,31 +55,24 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
     /**
      * Select records where PPDCategoryType equals "B" and District = "LEEDS"
      * @param area 
+     * @throws java.io.IOException 
      */
-    public void test(String area) {
-        File outdir;
-        File fin;
-        File fout;
-        PrintWriter pw = null;
-        outdir = new File(env.files.getOutputDir(), "PricePaid");
+    public void test(String area) throws IOException {
+        File outdir = new File(env.files.getOutputDir(), "PricePaid");
         System.out.println("outdir " + outdir);
-        fin = new File(outdir, "pp-complete-PPDCategoryType-B-District-LEEDS.csv");
+        File fin = new File(outdir, "pp-complete-PPDCategoryType-B-District-LEEDS.csv");
         if (!fin.exists()) {
             System.out.println("Input file " + fin + " does not exist.");
         } else {
             outdir.mkdirs();
-            fout = new File(outdir, "test.csv");
+            File fout = new File(outdir, "test.csv");
             if (!fout.exists() || overwrite) {
                 BufferedReader br;
                 StreamTokenizer st;
-                br = env.ge.io.getBufferedReader(fin);
+                br = env.env.io.getBufferedReader(fin);
                 st = new StreamTokenizer(br);
-                env.ge.io.setStreamTokenizerSyntax7(st);
-                try {
-                    pw = new PrintWriter(fout);
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(LR_LoadPricePaidData_Process.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                env.env.io.setStreamTokenizerSyntax7(st);
+                PrintWriter pw = env.env.io.getPrintWriter(fout, false);
                 boolean read;
                 read = false;
                 String line;
@@ -87,7 +83,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                 lineNumber = 0;
 
                 while (!read) {
-                    line = Data_ReadCSV.readLine(st, null);
+                    line = reader.readLine(st, null);
                     if (line == null) {
                         read = true;
                     } else {
@@ -115,8 +111,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
     /**
      * Select records where PPDCategoryType equals "B" and District = "LEEDS"
      * @param area 
+     * @throws java.io.IOException 
      */
-    public void selectArea(String area) {
+    public void selectArea(String area) throws IOException {
         File indir;
         File outdir;
         File fin;
@@ -136,9 +133,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
             if (!fout.exists() || overwrite) {
                 BufferedReader br;
                 StreamTokenizer st;
-                br = env.ge.io.getBufferedReader(fin);
+                br = env.env.io.getBufferedReader(fin);
                 st = new StreamTokenizer(br);
-                env.ge.io.setStreamTokenizerSyntax7(st);
+                env.env.io.setStreamTokenizerSyntax7(st);
                 try {
                     pw = new PrintWriter(fout);
                 } catch (FileNotFoundException ex) {
@@ -154,7 +151,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                 lineNumber = 0;
 
                 while (!read) {
-                    line = Data_ReadCSV.readLine(st, null);
+                    line = reader.readLine(st, null);
                     if (line == null) {
                         read = true;
                     } else {
@@ -182,7 +179,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
     /**
      * Write out records where PPDCategoryType equals "B".
      */
-    public void selectBPPDCategoryType() {
+    public void selectBPPDCategoryType() throws IOException {
         File indir;
         File outdir;
         File fin;
@@ -202,9 +199,9 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
             if (!fout.exists() || overwrite) {
                 BufferedReader br;
                 StreamTokenizer st;
-                br = env.ge.io.getBufferedReader(fin);
+                br = env.env.io.getBufferedReader(fin);
                 st = new StreamTokenizer(br);
-                env.ge.io.setStreamTokenizerSyntax7(st);
+                env.env.io.setStreamTokenizerSyntax7(st);
                 try {
                     pw = new PrintWriter(fout);
                 } catch (FileNotFoundException ex) {
@@ -220,7 +217,7 @@ public class LR_LoadPricePaidData_Process extends LR_Main_Process {
                 lineNumber = 0;
 
                 while (!read) {
-                    line = Data_ReadCSV.readLine(st, null);
+                    line = reader.readLine(st, null);
                     if (line == null) {
                         read = true;
                     } else {

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import uk.ac.leeds.ccg.andyt.data.core.Data_Environment;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.data.interval.Data_IntervalLong1;
 import uk.ac.leeds.ccg.andyt.data.postcode.Data_UKPostcodeHandler;
@@ -18,12 +19,17 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 public class LR_Environment extends LR_OutOfMemoryErrorHandler
         implements Serializable {
 
-    public transient Generic_Environment ge;
+    public transient final Data_Environment de;
 
     public final transient LR_Files files;
     
     /**
-     * Stores the {@link ge} log ID for the log set up for WaAS.
+     * For convenience.
+     */
+    public transient final Generic_Environment env;
+
+    /**
+     * Stores the {@link ge#env} log ID for the log set up for WaAS.
      */
     public final int logID;
     
@@ -165,9 +171,10 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      */
     public final LR_TypeID CountryIncorporatedTypeID;
 
-    public LR_Environment(Generic_Environment ge, LR_Files files) throws IOException {
-        this.ge = ge;
-        logID = ge.initLog(LR_Strings.s_LandRegistry);
+    public LR_Environment(Data_Environment de, LR_Files files) throws IOException {
+        this.de = de;
+        this.env = de.env;
+        logID = env.initLog(LR_Strings.s_LandRegistry);
         this.files = files;
         PostcodeHandler = new Data_UKPostcodeHandler();
         NumeralsHashSet = Generic_String.getNumeralsHashSet();
@@ -175,7 +182,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         if (f.exists()) {
             String m = "load cache";
             logStartTag(m);
-            LR_Environment cache = (LR_Environment) ge.io.readObject(f);
+            LR_Environment cache = (LR_Environment) env.io.readObject(f);
             logEndTag(m);
             // Collections
             this.AddressIDToTitleNumberIDsLookup = cache.AddressIDToTitleNumberIDsLookup;
@@ -309,7 +316,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
 //            UpdatedPricePaidLookup = true;
         } else {
             log("Loading " + f);
-            PricePaidLookup = (HashMap<LR_ValueID, Data_IntervalLong1>) ge.io.readObject(f);
+            PricePaidLookup = (HashMap<LR_ValueID, Data_IntervalLong1>) env.io.readObject(f);
             MaxPricePaidClass = 1000000000000L;
 //            UpdatedPricePaidLookup = false;
         }
@@ -485,7 +492,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * @param s The tag name.
      */
     public final void logStartTag(String s) {
-        ge.logStartTag(s, logID);
+        env.logStartTag(s, logID);
     }
 
     /**
@@ -494,7 +501,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * @param s The message to be logged.
      */
     public void log(String s) {
-        ge.log(s, logID);
+        env.log(s, logID);
     }
 
     /**
@@ -504,6 +511,6 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * @param s The tag name.
      */
     public final void logEndTag(String s) {
-        ge.logEndTag(s, logID);
+        env.logEndTag(s, logID);
     }
 }

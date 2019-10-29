@@ -18,6 +18,7 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StreamTokenizer;
 import java.math.BigDecimal;
@@ -31,7 +32,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
 import uk.ac.leeds.ccg.andyt.generic.lang.Generic_String;
 import uk.ac.leeds.ccg.andyt.stats.Generic_Statistics;
 import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
@@ -94,11 +94,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
      * @param doOCOD
      * @param doFull
      * @param overwrite
+     * @throws java.io.IOException
      */
     public void run(String area, boolean doAll,
             HashMap<LR_ID, Integer> minsCC, HashMap<LR_ID, Integer> minsOC,
             File inputDataDir, boolean doCCOD,
-            boolean doOCOD, boolean doFull, boolean overwrite) {
+            boolean doOCOD, boolean doFull, boolean overwrite) throws IOException {
         System.out.println("run(String,boolean,HashMap,HashMap,File,boolean,boolean,boolean,boolean)");
         ArrayList<String> names0;
         //ArrayList<String> names1;
@@ -197,15 +198,15 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     if (overwrite || !outdir.exists()) {
                         BufferedReader br;
                         StreamTokenizer st;
-                        br = env.ge.io.getBufferedReader(fin);
+                        br = env.env.io.getBufferedReader(fin);
                         st = new StreamTokenizer(br);
-                        env.ge.io.setStreamTokenizerSyntax7(st);
+                        env.env.io.setStreamTokenizerSyntax7(st);
                         boolean read;
                         read = false;
                         String line;
                         LR_Record r;
                         // read header
-                        Data_ReadCSV.readLine(st, null);
+                        reader.readLine(st, null);
                         int lineNumber;
                         lineNumber = 0;
                         int N;
@@ -291,7 +292,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
                             while (!read) {
                                 lineNumber ++;
-                                line = Data_ReadCSV.readLine(st, null);
+                                line = reader.readLine(st, null);
                                 if (line == null) {
                                     read = true;
                                 } else {
@@ -1045,12 +1046,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
     /**
      * Loads TransparencyMap
      */
-    protected void loadTransparencyMap() {
+    protected void loadTransparencyMap() throws IOException {
         TransparencyMap = new HashMap<>();
         File f;
         f = files.getTIDataFile();
         ArrayList<String> lines;
-        lines = Data_ReadCSV.read(f, null, 7);
+        lines = reader.read(f, null, 7);
         Iterator<String> ite;
         ite = lines.iterator();
         String l;

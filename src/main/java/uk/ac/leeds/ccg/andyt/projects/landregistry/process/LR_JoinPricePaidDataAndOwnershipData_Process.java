@@ -19,6 +19,7 @@ package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StreamTokenizer;
 import java.time.Month;
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leeds.ccg.andyt.data.format.Data_ReadCSV;
+import uk.ac.leeds.ccg.andyt.data.format.Data_ReadTXT;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_FULL_Record;
@@ -47,25 +48,23 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
 
     /**
      * @param area
+     * @throws java.io.IOException
      */
-    public void run(String area) {
-
+    public void run(String area) throws IOException {
         join(area);
-
     }
 
     /**
      * Select records where PPDCategoryType equals "B" and District = "LEEDS"
      *
      * @param area
+     * @throws java.io.IOException
      */
-    public void join(String area) {
-
+    public void join(String area) throws IOException {
         File fin;
 
         // Load OCOD into a collection
-        ArrayList<LR_OC_FULL_Record> OCODList;
-        OCODList = new ArrayList<>();
+        ArrayList<LR_OC_FULL_Record> OCODList = new ArrayList<>();
         File indir;
         indir = new File(files.getDir(), "/output/Subsets/LEEDS/OCOD/FULL/OCOD_FULL_2017_11/");
         fin = new File(indir, "OCOD_FULL_2017_11.csv");
@@ -73,7 +72,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
         LR_OC_FULL_Record or;
 
         Generic_YearMonth ym;
-        ym = new Generic_YearMonth(env.ge, YearMonth.of(2011, Month.NOVEMBER));
+        ym = new Generic_YearMonth(env.env, YearMonth.of(2011, Month.NOVEMBER));
 
         if (!fin.exists()) {
             System.out.println("Input file " + fin + " does not exist.");
@@ -81,18 +80,18 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
 
             BufferedReader br;
             StreamTokenizer st;
-            br = env.ge.io.getBufferedReader(fin);
+            br = env.env.io.getBufferedReader(fin);
             st = new StreamTokenizer(br);
-            env.ge.io.setStreamTokenizerSyntax7(st);
+            env.env.io.setStreamTokenizerSyntax7(st);
             boolean read;
             read = false;
             String line;
             // read header
-            Data_ReadCSV.readLine(st, null);
+            reader.readLine(st, null);
             int lineNumber;
             lineNumber = 0;
             while (!read) {
-                line = Data_ReadCSV.readLine(st, null);
+                line = reader.readLine(st, null);
                 if (line == null) {
                     read = true;
                 } else {
@@ -130,9 +129,9 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
             if (!fout.exists() || overwrite) {
                 BufferedReader br;
                 StreamTokenizer st;
-                br = env.ge.io.getBufferedReader(fin);
+                br = env.env.io.getBufferedReader(fin);
                 st = new StreamTokenizer(br);
-                env.ge.io.setStreamTokenizerSyntax7(st);
+                env.env.io.setStreamTokenizerSyntax7(st);
                 try {
                     pw = new PrintWriter(fout);
                 } catch (FileNotFoundException ex) {
@@ -150,7 +149,7 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
                 int matches = 0;
 
                 while (!read) {
-                    line = Data_ReadCSV.readLine(st, null);
+                    line = reader.readLine(st, null);
 
                     //line = Data_ReadCSV.readLine(st, null); // debug
                     //line = Data_ReadCSV.readLine(st, null);
