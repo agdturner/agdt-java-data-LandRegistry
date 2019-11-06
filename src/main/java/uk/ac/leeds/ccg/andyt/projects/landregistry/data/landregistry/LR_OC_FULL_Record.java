@@ -15,17 +15,17 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
-import java.io.Serializable;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_TypeID;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_RecordID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_TypeID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID;
 
 /**
  *
  * @author Andy Turner
  */
-public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable {
+public class LR_OC_FULL_Record extends LR_CC_FULL_Record {
 
     protected LR_ValueID CountryIncorporated1ID;
     protected LR_ValueID CountryIncorporated2ID;
@@ -36,13 +36,14 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
     protected String CountryIncorporated3;
     protected String CountryIncorporated4;
 
-    protected LR_OC_FULL_Record(LR_Environment env) {
-        super(env);
+    protected LR_OC_FULL_Record(LR_Environment e, LR_RecordID i) {
+        super(e, i);
     }
-    
-    public LR_OC_FULL_Record(LR_Environment env, Generic_YearMonth YM,
-            String line, boolean doUpdate) throws Exception {
-        super(env);
+
+    public LR_OC_FULL_Record(LR_Environment e, LR_RecordID i,
+            Generic_YearMonth YM, String line, boolean doUpdate) 
+            throws Exception {
+        super(e, i);
         this.YM = YM;
         String[] ls;
         ls = getSplitAndTrim(line);
@@ -258,12 +259,12 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      * stored.
      *
      * @param s CountryIncorporated1
-     * @param doUpdate IFF true then collections are updated otherwise ID is set
-     * from data pulled from existing collections.
+     * @param doUpdate IFF true then collections are updated otherwise ID2 is set
+ from data pulled from existing collections.
      */
     public final void initCountryIncorporated1(String s, boolean doUpdate) {
         LR_TypeID typeID;
-        typeID = env.CountryIncorporatedTypeID;
+        typeID = le.CountryIncorporatedTypeID;
         setCountryIncorporated1(s);
         update(typeID, s, doUpdate);
     }
@@ -283,7 +284,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         this.CountryIncorporated2 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                env.addValue(env.CountryIncorporatedTypeID, s);
+                le.addValue(le.CountryIncorporatedTypeID, s);
             }
         }
     }
@@ -296,7 +297,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         this.CountryIncorporated3 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                env.addValue(env.CountryIncorporatedTypeID, s);
+                le.addValue(le.CountryIncorporatedTypeID, s);
             }
         }
     }
@@ -309,7 +310,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
         this.CountryIncorporated4 = s;
         if (doUpdate) {
             if (!s.isEmpty()) {
-                env.addValue(env.CountryIncorporatedTypeID, s);
+                le.addValue(le.CountryIncorporatedTypeID, s);
             }
         }
     }
@@ -319,7 +320,7 @@ public class LR_OC_FULL_Record extends LR_CC_FULL_Record implements Serializable
      */
     @Override
     public final LR_ValueID getCountryIncorporated1ID() {
-        return env.ValueReverseLookups.get(env.CountryIncorporatedTypeID).get(getCountryIncorporated1());
+        return le.ValueReverseLookups.get(le.CountryIncorporatedTypeID).get(getCountryIncorporated1());
     }
 
 }

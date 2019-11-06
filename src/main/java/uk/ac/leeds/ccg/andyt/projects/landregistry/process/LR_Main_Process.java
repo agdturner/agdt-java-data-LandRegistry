@@ -20,17 +20,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.data.core.Data_Environment;
 import uk.ac.leeds.ccg.andyt.data.format.Data_ReadTXT;
 import uk.ac.leeds.ccg.andyt.generic.core.Generic_Environment;
 import uk.ac.leeds.ccg.andyt.generic.io.Generic_Defaults;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID_TypeID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_TypeID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_TypeID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
 
 /**
@@ -136,12 +134,12 @@ public class LR_Main_Process extends LR_Object {
          * minsCC is the minimum count for a generalisation reported in the
          * corporate data.
          */
-        HashMap<LR_ID, Integer> minsCC;
+        HashMap<LR_TypeID, Integer> minsCC;
         /**
          * minsOC is the minimum count for a generalisation reported in the
          * overseas data.
          */
-        HashMap<LR_ID, Integer> minsOC;
+        HashMap<LR_TypeID, Integer> minsOC;
 
         if (doGeneralise) {
             /**
@@ -256,7 +254,7 @@ public class LR_Main_Process extends LR_Object {
                 p.run(area);
             }
         }
-        
+
         // Join
         if (doJoinPricePaidDataAndOwnershipData) {
             // Options
@@ -279,7 +277,7 @@ public class LR_Main_Process extends LR_Object {
         if (!f.exists()) {
             env.env.io.writeObject(env, f, "Env");
         }
-        
+
     }
 
     /**
@@ -287,23 +285,20 @@ public class LR_Main_Process extends LR_Object {
      * @param defaultMin
      * @return
      */
-    protected HashMap<LR_ID, Integer> getMinsCC(int defaultMin) {
-        HashMap<LR_ID, Integer> result;
-        result = new HashMap<>();
-        Iterator<LR_TypeID> ite;
-        ite = env.NonNullTypes.iterator();
-        LR_ID typeID;
+    protected HashMap<LR_TypeID, Integer> getMinsCC(int defaultMin) {
+        HashMap<LR_TypeID, Integer> r = new HashMap<>();
+        Iterator<LR_TypeID> ite = env.NonNullTypes.iterator();
         while (ite.hasNext()) {
-            typeID = ite.next();
+            LR_TypeID typeID = ite.next();
             if (typeID.equals(env.PostcodeDistrictTypeID)) {
-                result.put(typeID, 0);
+                r.put(typeID, 0);
             } else if (typeID.equals(env.PricePaidTypeID)) {
-                result.put(typeID, 0);
+                r.put(typeID, 0);
             } else {
-                result.put(typeID, defaultMin);
+                r.put(typeID, defaultMin);
             }
         }
-        return result;
+        return r;
     }
 
     /**
@@ -311,33 +306,30 @@ public class LR_Main_Process extends LR_Object {
      * @param defaultMin
      * @return
      */
-    protected HashMap<LR_ID, Integer> getMinsOC(int defaultMin) {
-        HashMap<LR_ID, Integer> result;
-        result = new HashMap<>();
-        Iterator<LR_TypeID> ite;
-        ite = env.NonNullTypes.iterator();
-        LR_ID typeID;
+    protected HashMap<LR_TypeID, Integer> getMinsOC(int defaultMin) {
+        HashMap<LR_TypeID, Integer> r = new HashMap<>();
+        Iterator<LR_TypeID> ite = env.NonNullTypes.iterator();
         while (ite.hasNext()) {
-            typeID = ite.next();
+            LR_TypeID typeID = ite.next();
             if (typeID.equals(env.PostcodeDistrictTypeID)) {
-                result.put(typeID, 0);
+                r.put(typeID, 0);
             } else if (typeID.equals(env.PricePaidTypeID)) {
-                result.put(typeID, 0);
+                r.put(typeID, 0);
             } else {
-                result.put(typeID, defaultMin);
+                r.put(typeID, defaultMin);
             }
         }
-        return result;
+        return r;
     }
 
     protected String getName00(boolean doFull, String name0) {
-        String result = "";
+        String r = "";
         if (doFull) {
-            result += name0 + "_" + LR_Strings.s_FULL + "_";
+            r += name0 + "_" + LR_Strings.s_FULL + "_";
         } else {
-            result += name0 + "_" + LR_Strings.s_COU + "_";
+            r += name0 + "_" + LR_Strings.s_COU + "_";
         }
-        return result;
+        return r;
     }
 
     /**
@@ -372,7 +364,7 @@ public class LR_Main_Process extends LR_Object {
         String[] filenames;
         String[] split;
         dir = new File(files.getInputDataDir(CCODorOCOD), s_FULL_or_COU);
-        if (dir.mkdirs()){
+        if (dir.mkdirs()) {
             System.err.println("Warning: Input data is not in place. Assume "
                     + "processing with other data...");
         }

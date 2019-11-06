@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
+package uk.ac.leeds.ccg.andyt.projects.landregistry.data.id;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -22,23 +22,20 @@ import java.util.Objects;
  *
  * @author Andy Turner
  */
-public class LR_ID2 implements Serializable {
+public class LR_ValueID_TypeID implements Serializable {
 
     private final LR_ValueID TitleNumberID;
     private final LR_ValueID PropertyAddressID;
 
-    public LR_ID2(LR_ValueID titleNumberID, LR_ValueID propertyAddressID) {
+    public LR_ValueID_TypeID(LR_ValueID titleNumberID, LR_ValueID propertyAddressID) {
         TitleNumberID = titleNumberID;
         PropertyAddressID = propertyAddressID;
     }
 
     @Override
     public String toString() {
-        String s;
-//        if (TitleNumberID == null) {
-//            s = "LR_ValueID()"
-//        }
-        return TitleNumberID.toString() + ", " + PropertyAddressID.toString();
+        return "LR_ID(" + TitleNumberID.toString()
+                + ", " + PropertyAddressID.toString() + ")";
     }
 
     /**
@@ -57,22 +54,24 @@ public class LR_ID2 implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof LR_ID2) {
-            LR_ID2 o2;
-            o2 = (LR_ID2) o;
-            if (o2.hashCode() == hashCode()) {
-                if (o2.TitleNumberID == null && TitleNumberID == null) {
-                    return equals(o2);
-                }
-                if (o2.TitleNumberID.equals(TitleNumberID)) {
-                    return equals(o2);
+        if (o != null) {
+            if (o instanceof LR_ValueID_TypeID) {
+                LR_ValueID_TypeID o2;
+                o2 = (LR_ValueID_TypeID) o;
+                if (o2.hashCode() == hashCode()) {
+                    if (o2.TitleNumberID == null && TitleNumberID == null) {
+                        return equals(o2);
+                    }
+                    if (o2.TitleNumberID.equals(TitleNumberID)) {
+                        return equals(o2);
+                    }
                 }
             }
         }
         return false;
     }
 
-    private boolean equals(LR_ID2 o) {
+    private boolean equals(LR_ValueID_TypeID o) {
         if (o.PropertyAddressID == null) {
             return PropertyAddressID == null;
         } else {

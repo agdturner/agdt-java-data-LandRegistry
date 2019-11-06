@@ -1,8 +1,10 @@
 package uk.ac.leeds.ccg.andyt.projects.landregistry.core;
 
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_TypeID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID_TypeID;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import uk.ac.leeds.ccg.andyt.data.core.Data_Environment;
@@ -16,8 +18,7 @@ import uk.ac.leeds.ccg.andyt.projects.landregistry.io.LR_Files;
  *
  * @author geoagdt
  */
-public class LR_Environment extends LR_OutOfMemoryErrorHandler
-        implements Serializable {
+public class LR_Environment extends LR_MemoryManager {
 
     public transient final Data_Environment de;
 
@@ -43,7 +44,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
     /**
      * A collection of all unique IDs ()current records.
      */
-    public final HashSet<LR_ID2> IDs;
+    public final HashSet<LR_ValueID_TypeID> IDs;
 
     /**
      * For storing NonNullTypes used for indexing IDToLookups, ToIDLookups and
@@ -76,7 +77,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      * Keys are typeID and values are Collections of lookups from the ID of a
      * record to the respective value ID of the value assigned for the typeID.
      */
-    public final HashMap<LR_TypeID, HashMap<LR_ID2, LR_ValueID>> NullTitleNumberIDCollections;
+    public final HashMap<LR_TypeID, HashMap<LR_ValueID_TypeID, LR_ValueID>> NullTitleNumberIDCollections;
 
     /**
      * Keys are Address IDs, Values are collections of TitleNumberIDs.
@@ -351,7 +352,7 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
         NonNullPricePaidTypes.add(id);
     }
 
-    protected LR_ID addNullType(String type) {
+    protected LR_TypeID addNullType(String type) {
         LR_TypeID id = getTypeID(type);
         NullTypes.add(id);
         NullTitleNumberIDCollections.put(id, new HashMap<>());
@@ -512,5 +513,20 @@ public class LR_Environment extends LR_OutOfMemoryErrorHandler
      */
     public final void logEndTag(String s) {
         env.logEndTag(s, logID);
+    }
+
+    @Override
+    public boolean cacheDataAny() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean cacheDataAny(boolean hoome) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean checkAndMaybeFreeMemory() throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

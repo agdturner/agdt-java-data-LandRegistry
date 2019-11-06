@@ -28,9 +28,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import uk.ac.leeds.ccg.andyt.data.Data_RecordID;
 import uk.ac.leeds.ccg.andyt.data.format.Data_ReadTXT;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_RecordID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_FULL_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.pricepaid.LR_PricePaid_Record;
 
@@ -77,31 +79,26 @@ public class LR_JoinPricePaidDataAndOwnershipData_Process extends LR_Main_Proces
         if (!fin.exists()) {
             System.out.println("Input file " + fin + " does not exist.");
         } else {
-
-            BufferedReader br;
-            StreamTokenizer st;
-            br = env.env.io.getBufferedReader(fin);
-            st = new StreamTokenizer(br);
+            BufferedReader br = env.env.io.getBufferedReader(fin);
+            StreamTokenizer st = new StreamTokenizer(br);
             env.env.io.setStreamTokenizerSyntax7(st);
-            boolean read;
-            read = false;
+            boolean read = false;
             String line;
             // read header
             reader.readLine(st, null);
-            int lineNumber;
-            lineNumber = 0;
+            int N = 0;
             while (!read) {
                 line = reader.readLine(st, null);
                 if (line == null) {
                     read = true;
                 } else {
                     try {
-                        or = new LR_OC_FULL_Record(env, ym, line, false);
+                        or = new LR_OC_FULL_Record(env, new LR_RecordID(N), ym, line, false);
+                        N ++;
                         OCODList.add(or);
-                        //}
                     } catch (ArrayIndexOutOfBoundsException e) {
                         //e.printStackTrace(System.err);
-                        System.out.println("Line " + lineNumber + " is not a nomal line:" + line);
+                        System.out.println("Line " + N + " is not a nomal line:" + line);
                     } catch (Exception ex) {
                         System.err.println("Line: " + line);
                         Logger.getLogger(LR_JoinPricePaidDataAndOwnershipData_Process.class.getName()).log(Level.SEVERE, null, ex);

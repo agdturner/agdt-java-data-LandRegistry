@@ -15,22 +15,23 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
-import java.io.Serializable;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_RecordID;
 
 /**
  *
  * @author geoagdt
  */
-public class LR_CC_COU_Record extends LR_CC_FULL_Record implements Serializable {
+public class LR_CC_COU_Record extends LR_CC_FULL_Record {
 
     private String ChangeIndicator;
     private String ChangeDate;
 
-    public LR_CC_COU_Record(LR_Environment env, Generic_YearMonth YM, 
-            String line, boolean doUpdate) throws Exception {
-        super(env, YM, line, doUpdate);
+    public LR_CC_COU_Record(LR_Environment e, LR_RecordID i,
+            Generic_YearMonth YM, String line, boolean doUpdate) 
+            throws Exception {
+        super(e, i, YM, line, doUpdate);
         init(line);
     }
 

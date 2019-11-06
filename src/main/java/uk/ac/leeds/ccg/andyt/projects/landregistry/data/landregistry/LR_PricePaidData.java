@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Object;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID;
 
 /**
  *

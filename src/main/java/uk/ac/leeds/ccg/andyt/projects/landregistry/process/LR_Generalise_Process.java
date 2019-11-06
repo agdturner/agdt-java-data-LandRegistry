@@ -37,11 +37,11 @@ import uk.ac.leeds.ccg.andyt.stats.Generic_Statistics;
 import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID_TypeID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_TypeID;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_RecordID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_TypeID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_PricePaidData;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
 
@@ -97,7 +97,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
      * @throws java.io.IOException
      */
     public void run(String area, boolean doAll,
-            HashMap<LR_ID, Integer> minsCC, HashMap<LR_ID, Integer> minsOC,
+            HashMap<LR_TypeID, Integer> minsCC, HashMap<LR_TypeID, Integer> minsOC,
             File inputDataDir, boolean doCCOD,
             boolean doOCOD, boolean doFull, boolean overwrite) throws IOException {
         System.out.println("run(String,boolean,HashMap,HashMap,File,boolean,boolean,boolean,boolean)");
@@ -196,21 +196,14 @@ public class LR_Generalise_Process extends LR_Main_Process {
                     System.out.println("File " + fin + " does not exist.");
                 } else {
                     if (overwrite || !outdir.exists()) {
-                        BufferedReader br;
-                        StreamTokenizer st;
-                        br = env.env.io.getBufferedReader(fin);
-                        st = new StreamTokenizer(br);
+                       BufferedReader br = env.env.io.getBufferedReader(fin);
+                        StreamTokenizer st = new StreamTokenizer(br);
                         env.env.io.setStreamTokenizerSyntax7(st);
-                        boolean read;
-                        read = false;
-                        String line;
-                        LR_Record r;
+                        boolean read = false;
                         // read header
                         reader.readLine(st, null);
-                        int lineNumber;
-                        lineNumber = 0;
-                        int N;
-                        N = 0;
+                        int lineNumber  = 0;
+                        long N = 0;
                         Generic_YearMonth YM = null;
                         // Initialise printwriters
                         nonNullPWs = new HashMap<>();
@@ -292,12 +285,12 @@ public class LR_Generalise_Process extends LR_Main_Process {
 
                             while (!read) {
                                 lineNumber ++;
-                                line = reader.readLine(st, null);
+                                String line = reader.readLine(st, null);
                                 if (line == null) {
                                     read = true;
                                 } else {
                                     try {
-                                        r = LR_Record.create(isCCOD, doFull, env, YM, line, false);
+                                        LR_Record r = LR_Record.create(new LR_RecordID(N), isCCOD, doFull, env, YM, line, false);
                                         if (r != null) {
                                             addToNonNullCounts(r, nonNullPWs.keySet());
                                             //addToNonNullPricePaid(nullPricePaid, r, nonNullPricePaidPWs.keySet());
@@ -721,10 +714,9 @@ public class LR_Generalise_Process extends LR_Main_Process {
     }
 
     protected void addToNullCounts(LR_Record r) {
-        Iterator<LR_TypeID> iteTypes;
+        Iterator<LR_TypeID> iteTypes = NullCounts.keySet().iterator();
         LR_TypeID typeID;
-        iteTypes = NullCounts.keySet().iterator();
-        HashMap<LR_ID2, LR_ValueID> m;
+        HashMap<LR_ValueID_TypeID, LR_ValueID> m;
         while (iteTypes.hasNext()) {
             typeID = iteTypes.next();
             m = env.NullTitleNumberIDCollections.get(typeID);
@@ -744,12 +736,10 @@ public class LR_Generalise_Process extends LR_Main_Process {
      * @param mins
      */
     protected void printNonNullPricePaidGeneralisation(
-            HashMap<LR_TypeID, PrintWriter> pws, HashMap<LR_ID, Integer> mins) {
-        Iterator<LR_TypeID> ite;
-        ite = pws.keySet().iterator();
-        LR_TypeID typeID;
+            HashMap<LR_TypeID, PrintWriter> pws, HashMap<LR_TypeID, Integer> mins) {
+        Iterator<LR_TypeID> ite = pws.keySet().iterator();
         while (ite.hasNext()) {
-            typeID = ite.next();
+            LR_TypeID typeID = ite.next();
             if (!NonNullCounts.containsKey(typeID)) {
                 System.out.println("!NonNullCounts.containsKey(typeID)");
             } else {
@@ -918,7 +908,7 @@ public class LR_Generalise_Process extends LR_Main_Process {
      * @param mins
      */
     protected void printNonNullGeneralisation(
-            HashMap<LR_TypeID, PrintWriter> pws, HashMap<LR_ID, Integer> mins) {
+            HashMap<LR_TypeID, PrintWriter> pws, HashMap<LR_TypeID, Integer> mins) {
         Iterator<LR_TypeID> iteTypes;
         iteTypes = pws.keySet().iterator();
         LR_TypeID typeID;

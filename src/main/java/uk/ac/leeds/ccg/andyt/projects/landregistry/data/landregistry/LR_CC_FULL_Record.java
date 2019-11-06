@@ -15,31 +15,33 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry;
 
-import java.io.Serializable;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_RecordID;
 
 /**
  *
  * @author geoagdt
  */
-public class LR_CC_FULL_Record extends LR_Record implements Serializable {
+public class LR_CC_FULL_Record extends LR_Record {
 
-    public LR_CC_FULL_Record(LR_Environment env){
-        super(env);
+    public LR_CC_FULL_Record(LR_Environment e, LR_RecordID i){
+        super(e, i);
     }
     
     /**
      *
-     * @param env
+     * @param e
+     * @param i
      * @param YM
      * @param line
      * @param doUpdate
      * @throws Exception
      */
-    public LR_CC_FULL_Record(LR_Environment env, Generic_YearMonth YM,
-            String line, boolean doUpdate) throws Exception {
-        super(env);
+    public LR_CC_FULL_Record(LR_Environment e, LR_RecordID i, 
+            Generic_YearMonth YM, String line, boolean doUpdate) 
+            throws Exception {
+        super(e, i);
         this.YM = YM;
         String[] ls;
         ls = getSplitAndTrim(line);
@@ -197,6 +199,11 @@ public class LR_CC_FULL_Record extends LR_Record implements Serializable {
                 + ",Proprietor4Address3"
                 + ",DateProprietorAdded"
                 + ",AdditionalProprietorIndicator";
+    }
+
+    @Override
+    public LR_RecordID getID() {
+        return (LR_RecordID) ID;
     }
 
 }

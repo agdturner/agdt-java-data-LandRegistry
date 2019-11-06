@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_RecordID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_Record;
 
 /**
@@ -108,10 +109,8 @@ public class LR_Select_Process extends LR_Main_Process {
                     outdir.mkdirs();
                     fout = new File(outdir, name + ".csv");
                     if (!fout.exists() || overwrite) {
-                        BufferedReader br;
-                        StreamTokenizer st;
-                        br = env.env.io.getBufferedReader(fin);
-                        st = new StreamTokenizer(br);
+                       BufferedReader br = env.env.io.getBufferedReader(fin);
+                      StreamTokenizer  st = new StreamTokenizer(br);
                         env.env.io.setStreamTokenizerSyntax7(st);
                         try {
                             pw = new PrintWriter(fout);
@@ -119,24 +118,21 @@ public class LR_Select_Process extends LR_Main_Process {
                             Logger.getLogger(LR_Select_Process.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         pw.println(LR_Record.header(isCCOD, doFull));
-                        boolean read;
-                        read = false;
-                        String line;
-                        LR_Record r;
+                        boolean read = false;
                         // read header
                         reader.readLine(st, null);
-                        int ID;
-                        ID = 1;
+                        int N = 0;
 
                         Generic_YearMonth YM = null;
 
                         while (!read) {
-                            line = reader.readLine(st, null);
+                            String line = reader.readLine(st, null);
                             if (line == null) {
                                 read = true;
                             } else {
                                 try {
-                                    r = LR_Record.create(isCCOD, doFull, env, YM, line, true);
+                                    LR_Record r = LR_Record.create(new LR_RecordID(N), isCCOD, doFull, env, YM, line, true);
+                                    N++;
                                     if (r != null) {
                                         if (r.getDistrict().equalsIgnoreCase(area)) {
                                             //System.out.println(r.toCSV());
@@ -146,7 +142,7 @@ public class LR_Select_Process extends LR_Main_Process {
                                     }
                                 } catch (ArrayIndexOutOfBoundsException e) {
                                     //e.printStackTrace(System.err);
-                                    System.out.println("Line " + ID + " is not a nomal line:" + line);
+                                    System.out.println("Line " + N + " is not a nomal line:" + line);
                                 } catch (Exception ex) {
                                     System.err.println("Line: " + line);
                                     Logger.getLogger(LR_Select_Process.class.getName()).log(Level.SEVERE, null, ex);

@@ -15,10 +15,12 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.process;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StreamTokenizer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,10 +33,10 @@ import java.util.logging.Logger;
 import uk.ac.leeds.ccg.andyt.generic.util.Generic_Collections;
 import uk.ac.leeds.ccg.andyt.generic.time.Generic_YearMonth;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Environment;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ID2;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID_TypeID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_Strings;
-import uk.ac.leeds.ccg.andyt.projects.landregistry.core.LR_ValueID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_RecordID;
+import uk.ac.leeds.ccg.andyt.projects.landregistry.data.id.LR_ValueID;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_COU_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_CC_FULL_Record;
 import uk.ac.leeds.ccg.andyt.projects.landregistry.data.landregistry.LR_OC_COU_Record;
@@ -93,19 +95,19 @@ public class LR_Transitions_Process extends LR_Main_Process {
         super(env);
     }
 
-    public HashMap<LR_ID2, ArrayList<LR_ValueID>> IDToProprietorNameIDs;
+    public HashMap<LR_ValueID_TypeID, ArrayList<LR_ValueID>> IDToProprietorNameIDs;
 
-    HashMap<LR_ID2, Integer> addedCCRCount;
-    HashMap<LR_ID2, Integer> deletedCCRCount;
-    HashMap<LR_ID2, Integer> addedOCRCount;
-    HashMap<LR_ID2, Integer> deletedOCRCount;
-    HashMap<String, HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>>> addedCCR;
-    HashMap<String, HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>>> deletedCCR;
-    HashMap<String, HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>>> addedOCR;
-    HashMap<String, HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>>> deletedOCR;
+    HashMap<LR_ValueID_TypeID, Integer> addedCCRCount;
+    HashMap<LR_ValueID_TypeID, Integer> deletedCCRCount;
+    HashMap<LR_ValueID_TypeID, Integer> addedOCRCount;
+    HashMap<LR_ValueID_TypeID, Integer> deletedOCRCount;
+    HashMap<String, HashMap<LR_ValueID_TypeID, ArrayList<LR_CC_COU_Record>>> addedCCR;
+    HashMap<String, HashMap<LR_ValueID_TypeID, ArrayList<LR_CC_COU_Record>>> deletedCCR;
+    HashMap<String, HashMap<LR_ValueID_TypeID, ArrayList<LR_OC_COU_Record>>> addedOCR;
+    HashMap<String, HashMap<LR_ValueID_TypeID, ArrayList<LR_OC_COU_Record>>> deletedOCR;
 
-    HashMap<LR_ID2, LR_CC_FULL_Record> fullCCR;
-    HashMap<LR_ID2, LR_OC_FULL_Record> fullOCR;
+    HashMap<LR_ValueID_TypeID, LR_CC_FULL_Record> fullCCR;
+    HashMap<LR_ValueID_TypeID, LR_OC_FULL_Record> fullOCR;
 
     public void run(String area, boolean doAll, File inputDataDir,
             int minCC, int minOC, boolean overwrite) throws IOException {
@@ -152,20 +154,16 @@ public class LR_Transitions_Process extends LR_Main_Process {
         addedOCR = new HashMap<>();
         deletedOCR = new HashMap<>();
 
-        HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>> addedCCRTime = null;
-        HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>> deletedCCRTime = null;
-        HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>> addedOCRTime = null;
-        HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>> deletedOCRTime = null;
+        HashMap<LR_ValueID_TypeID, ArrayList<LR_CC_COU_Record>> addedCCRTime = null;
+        HashMap<LR_ValueID_TypeID, ArrayList<LR_CC_COU_Record>> deletedCCRTime = null;
+        HashMap<LR_ValueID_TypeID, ArrayList<LR_OC_COU_Record>> addedOCRTime = null;
+        HashMap<LR_ValueID_TypeID, ArrayList<LR_OC_COU_Record>> deletedOCRTime = null;
 
-        File indir;
-        File outdir;
-        File fin;
-        File fout;
         ArrayList<String> lines;
 
         // Initialise Transitions Generalisation output
         PrintWriter pw = null;
-        outdir = new File(outputDataDir, LR_Strings.s_Transitions);
+        File outdir = new File(outputDataDir, LR_Strings.s_Transitions);
         if (!doAll) {
             outdir = new File(outputDataDir, LR_Strings.s_Transitions);
             outdir = new File(outdir, LR_Strings.s_Subsets);
@@ -173,7 +171,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
         System.out.println("outdir " + outdir);
         outdir.mkdirs();
-        fout = new File(outdir, "TransitionsGeneralisation.csv");
+        File fout = new File(outdir, "TransitionsGeneralisation.csv");
         try {
             pw = new PrintWriter(fout);
         } catch (FileNotFoundException ex) {
@@ -211,26 +209,31 @@ public class LR_Transitions_Process extends LR_Main_Process {
 
         // init fullCCR
         fullCCR = new HashMap<>();
-        indir = new File(outputDataDir, LR_Strings.s_Subsets);
+        File indir = new File(outputDataDir, LR_Strings.s_Subsets);
         indir = new File(indir, area);
         indir = new File(indir, "CCOD");
         indir = new File(indir, LR_Strings.s_FULL);
         name = "CCOD_FULL_2017_11";
         indir = new File(indir, name);
-        fin = new File(indir, name + ".csv");
-        lines = reader.read(fin, null, 7);
-        LR_ID2 ID;
-        for (int line = 1; line < lines.size(); line++) {
+        File fin = new File(indir, name + ".csv");
+        //lines = reader.read(fin, null, 7);
+        BufferedReader br = env.env.io.getBufferedReader(fin);
+        StreamTokenizer st = new StreamTokenizer(br);
+        env.env.io.setStreamTokenizerSyntax7(st);
+        String line = reader.readLine(st);
+        long n = 0;
+        while (line != null) {
             try {
-                fullccr = new LR_CC_FULL_Record(env, ym, lines.get(line), upDateIDs);
-                fullCCR.put(fullccr.getID(), fullccr);
-                ID = fullccr.getID();
+                fullccr = new LR_CC_FULL_Record(env, new LR_RecordID(n), ym, line, upDateIDs);
+                n++;
+                LR_ValueID_TypeID ID2 = fullccr.ID2;
+                fullCCR.put(ID2, fullccr);
                 // update IDToProprietorNameIDs
                 proprietorName1ID = fullccr.getProprietorName1ID();
                 proprietorName2ID = fullccr.getProprietorName2ID();
                 proprietorName3ID = fullccr.getProprietorName3ID();
                 proprietorName4ID = fullccr.getProprietorName4ID();
-                updateIDToProprietorNameIDs(ID, proprietorName1ID,
+                updateIDToProprietorNameIDs(ID2, proprietorName1ID,
                         proprietorName2ID, proprietorName3ID,
                         proprietorName4ID);
                 companyRegistrationNo1ID = fullccr.getCompanyRegistrationNo1ID();
@@ -239,7 +242,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 companyRegistrationNo4ID = fullccr.getCompanyRegistrationNo4ID();
                 titleNumberID = fullccr.getTitleNumberID();
                 // Update key lookups
-                updateKeyLookups(ID, companyRegistrationNo1ID,
+                updateKeyLookups(ID2, companyRegistrationNo1ID,
                         companyRegistrationNo2ID, companyRegistrationNo3ID,
                         companyRegistrationNo4ID, titleNumberID,
                         proprietorName1ID, proprietorName2ID, proprietorName3ID,
@@ -255,6 +258,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 Logger.getLogger(LR_Transitions_Process.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        br.close();
 
         // init fullOCR
         fullOCR = new HashMap<>();
@@ -265,12 +269,17 @@ public class LR_Transitions_Process extends LR_Main_Process {
         name = "OCOD_FULL_2017_11";
         indir = new File(indir, name);
         fin = new File(indir, name + ".csv");
-        lines = reader.read(fin, null, 7);
-        for (int line = 1; line < lines.size(); line++) {
+        br = env.env.io.getBufferedReader(fin);
+        st = new StreamTokenizer(br);
+        env.env.io.setStreamTokenizerSyntax7(st);
+        line = reader.readLine(st);
+        n = 0;
+        while (line != null) {
             try {
-                fullocr = new LR_OC_FULL_Record(env, ym, lines.get(line), upDateIDs);
-                fullOCR.put(fullocr.getID(), fullocr);
-                ID = fullocr.getID();
+                fullocr = new LR_OC_FULL_Record(env, new LR_RecordID(n), ym, line, upDateIDs);
+                n++;
+                LR_ValueID_TypeID ID2 = fullocr.ID2;
+                fullOCR.put(ID2, fullocr);
                 companyRegistrationNo1ID = fullocr.getCompanyRegistrationNo1ID();
                 companyRegistrationNo2ID = fullocr.getCompanyRegistrationNo2ID();
                 companyRegistrationNo3ID = fullocr.getCompanyRegistrationNo3ID();
@@ -280,11 +289,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 proprietorName2ID = fullocr.getProprietorName2ID();
                 proprietorName3ID = fullocr.getProprietorName3ID();
                 proprietorName4ID = fullocr.getProprietorName4ID();
-                updateIDToProprietorNameIDs(ID, proprietorName1ID,
+                updateIDToProprietorNameIDs(ID2, proprietorName1ID,
                         proprietorName2ID, proprietorName3ID,
                         proprietorName4ID);
                 // Update key lookups
-                updateKeyLookups(ID, companyRegistrationNo1ID,
+                updateKeyLookups(ID2, companyRegistrationNo1ID,
                         companyRegistrationNo2ID, companyRegistrationNo3ID,
                         companyRegistrationNo4ID, titleNumberID,
                         proprietorName1ID, proprietorName2ID, proprietorName3ID,
@@ -302,12 +311,12 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
 
         // Check if there are OCR in CCR
-        Set<LR_ID2> s;
+        Set<LR_ValueID_TypeID> s;
         s = new HashSet<>();
         s.addAll(fullCCR.keySet());
         s.retainAll(fullOCR.keySet());
         System.out.println("There are " + s.size() + " oversees corporate owners.");
-        Iterator<LR_ID2> ite;
+        Iterator<LR_ValueID_TypeID> ite;
         String address;
         String titleNumber;
         LR_ValueID companyRegistrationNoID;
@@ -319,16 +328,16 @@ public class LR_Transitions_Process extends LR_Main_Process {
         ite = s.iterator();
         System.out.println("CompanyRegistrationNo, TitleNumber, ProprietorName, Address");
         while (ite.hasNext()) {
-            ID = ite.next();
-            address = ID.getPropertyAddressID().getValue();
-            titleNumber = ID.getTitleNumberID().getValue();
-            companyRegistrationNoIDs = titleNumberIDToCompanyRegistrationNoIDs.get(ID.getTitleNumberID());
+            LR_ValueID_TypeID ID2 = ite.next();
+            address = ID2.getPropertyAddressID().getValue();
+            titleNumber = ID2.getTitleNumberID().getValue();
+            companyRegistrationNoIDs = titleNumberIDToCompanyRegistrationNoIDs.get(ID2.getTitleNumberID());
             if (companyRegistrationNoIDs.size() > 1) {
                 companyRegistrationNoID = companyRegistrationNoIDs.get(companyRegistrationNoIDs.size() - 1);
                 proprietorNameIDs = companyRegistrationNoIDToProprietorNameIDs.get(companyRegistrationNoID);
                 proprietorNameID = proprietorNameIDs.get(proprietorNameIDs.size() - 1);
             } else {
-                proprietorNameIDs = IDToProprietorNameIDs.get(ID);
+                proprietorNameIDs = IDToProprietorNameIDs.get(ID2);
                 proprietorNameID = proprietorNameIDs.get(proprietorNameIDs.size() - 1);
                 companyRegistrationNoIDs = proprietorNameIDToCompanyRegistrationNoIDs.get(proprietorNameID);
                 companyRegistrationNoID = companyRegistrationNoIDs.get(companyRegistrationNoIDs.size() - 1);
@@ -381,11 +390,17 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 if (!fin.exists()) {
                     System.out.println("File " + fin + " does not exist.");
                 }
-                lines = reader.read(fin, null, 7);
-                //LR_Record r;
-                for (int line = 1; line < lines.size(); line++) {
+                
+                br = env.env.io.getBufferedReader(fin);
+                st = new StreamTokenizer(br);
+                env.env.io.setStreamTokenizerSyntax7(st);
+                line = reader.readLine(st);
+                n = 0;
+                while (line != null) {
                     try {
                         if (isCCOD) {
+                            fullccr = new LR_CC_COU_Record(env, new LR_RecordID(n), ym, line, upDateIDs);
+                            n++;
                             // ccr = new LR_CC_COU_Record(env, ym, lines.get(ID));
                             // add(addedCCRTime, deletedCCRTime, ccr);
                         } else {
@@ -414,7 +429,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         /**
          * mappedTransitions contains the detailed transition for each property.
          */
-        HashMap<LR_ID2, ArrayList<ArrayList<? extends LR_Record>>> mTs;
+        HashMap<LR_ValueID_TypeID, ArrayList<ArrayList<? extends LR_Record>>> mTs;
 
         /**
          * For transitions in mappedTransitions.
@@ -432,7 +447,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         /**
          * transitionTypes gives a type of transition for each property.
          */
-        HashMap<LR_ID2, String> tts;
+        HashMap<LR_ValueID_TypeID, String> tts;
 
         /**
          * For name that describes a property ownership transition.
@@ -457,14 +472,14 @@ public class LR_Transitions_Process extends LR_Main_Process {
         // For messages
         String m;
 
-        Iterator<LR_ID2> ite1;
+        Iterator<LR_ValueID_TypeID> ite1;
 
         Iterator<LR_CC_COU_Record> itec1;
         Iterator<LR_CC_COU_Record> itec2;
         Iterator<LR_OC_COU_Record> iteo1;
         Iterator<LR_OC_COU_Record> iteo2;
 
-        LR_ID2 aID;
+        LR_ValueID_TypeID aID;
         /**
          * Delimeter
          */
@@ -850,7 +865,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
                 fullOCR.remove(aID);
             }
 
-            HashSet<LR_ID> done;
+            HashSet<LR_ValueID_TypeID> done;
             done = new HashSet<>();
             // Transitions for addedCCR
             System.out.println("There are up to " + addedCCRTime.size() + " addedCCRTime records to process");
@@ -936,7 +951,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         pw.close();
     }
 
-    protected void updateIDToProprietorNameIDs(LR_ID2 ID,
+    protected void updateIDToProprietorNameIDs(LR_ValueID_TypeID ID,
             LR_ValueID proprietorName1ID, LR_ValueID proprietorName2ID,
             LR_ValueID proprietorName3ID, LR_ValueID proprietorName4ID) {
         if (proprietorName4ID != null) {
@@ -978,7 +993,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
      * @param companyRegistrationNoIDToProprietorNameIDs CompanyRegistrationNoID
      * to ProprietorNameID lookup.
      */
-    protected void updateKeyLookups(LR_ID2 ID, LR_ValueID companyRegistrationNo1ID,
+    protected void updateKeyLookups(LR_ValueID_TypeID ID, LR_ValueID companyRegistrationNo1ID,
             LR_ValueID companyRegistrationNo2ID, LR_ValueID companyRegistrationNo3ID,
             LR_ValueID companyRegistrationNo4ID, LR_ValueID titleNumberID,
             LR_ValueID proprietorName1ID, LR_ValueID proprietorName2ID,
@@ -1196,7 +1211,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
         }
     }
 
-    protected void printDiff(String type, boolean printDiff, LR_ID2 aID,
+    protected void printDiff(String type, boolean printDiff, LR_ValueID_TypeID aID,
             ArrayList<? extends LR_Record> ld, ArrayList<? extends LR_Record> la) {
         if (printDiff) {
             String m;
@@ -1239,7 +1254,7 @@ public class LR_Transitions_Process extends LR_Main_Process {
      * @param name
      * @return
      */
-    protected int checkList(ArrayList<? extends LR_Record> l, LR_ID2 aID, String name) {
+    protected int checkList(ArrayList<? extends LR_Record> l, LR_ValueID_TypeID aID, String name) {
         int result;
         result = l.size();
         if (result > 1) {
@@ -1267,11 +1282,11 @@ public class LR_Transitions_Process extends LR_Main_Process {
      * @param l
      * @param delimeter
      */
-    protected void addToMappedTransitions(LR_ID2 aID,
-            HashMap<LR_ID2, ArrayList<ArrayList<? extends LR_Record>>> mappedTransitions,
+    protected void addToMappedTransitions(LR_ValueID_TypeID aID,
+            HashMap<LR_ValueID_TypeID, ArrayList<ArrayList<? extends LR_Record>>> mappedTransitions,
             ArrayList<ArrayList<? extends LR_Record>> transitions,
             String transitionType0,
-            HashMap<LR_ID2, String> transitionTypes,
+            HashMap<LR_ValueID_TypeID, String> transitionTypes,
             TreeMap<String, Integer> transitionTypeCounts,
             ArrayList<? extends LR_Record> l,
             String delimeter
@@ -1620,13 +1635,13 @@ public class LR_Transitions_Process extends LR_Main_Process {
         return result;
     }
 
-    void add(HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>> added,
-            HashMap<LR_ID2, ArrayList<LR_CC_COU_Record>> deleted,
+    void add(HashMap<LR_ValueID_TypeID, ArrayList<LR_CC_COU_Record>> added,
+            HashMap<LR_ValueID_TypeID, ArrayList<LR_CC_COU_Record>> deleted,
             LR_CC_COU_Record r) {
-        LR_ID2 aID;
+        LR_ValueID_TypeID aID;
         String changeIndicator;
         ArrayList<LR_CC_COU_Record> l;
-        aID = r.getID();
+        aID = r.ID2;
         changeIndicator = r.getChangeIndicator();
         if (changeIndicator.equalsIgnoreCase("A")) {
             Generic_Collections.addToMap(addedCCRCount, aID, 1);
@@ -1654,41 +1669,37 @@ public class LR_Transitions_Process extends LR_Main_Process {
         l.add(r);
     }
 
-    void add(HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>> added,
-            HashMap<LR_ID2, ArrayList<LR_OC_COU_Record>> deleted,
+    void add(HashMap<LR_ValueID_TypeID, ArrayList<LR_OC_COU_Record>> added,
+            HashMap<LR_ValueID_TypeID, ArrayList<LR_OC_COU_Record>> deleted,
             LR_OC_COU_Record r) {
-        LR_ID2 aID;
         String changeIndicator;
         ArrayList<LR_OC_COU_Record> l;
-        aID = r.getID();
+        LR_ValueID_TypeID iD2 = r.ID2;
         changeIndicator = r.getChangeIndicator();
         if (changeIndicator.equalsIgnoreCase("A")) {
-            Generic_Collections.addToMap(addedOCRCount, aID, 1);
-            if (added.containsKey(aID)) {
-                l = added.get(aID);
+            Generic_Collections.addToMap(addedOCRCount, iD2, 1);
+            if (added.containsKey(iD2)) {
+                l = added.get(iD2);
 //                System.out.println("OC Property with address "
 //                        + r.getPropertyAddress()
 //                        + " added multiple times in a given month!");
             } else {
                 l = new ArrayList<>();
-                added.put(aID, l);
+                added.put(iD2, l);
             }
         } else {
-            Generic_Collections.addToMap(deletedOCRCount, aID, 1);
-            if (deleted.containsKey(aID)) {
-                l = deleted.get(aID);
+            Generic_Collections.addToMap(deletedOCRCount, iD2, 1);
+            if (deleted.containsKey(iD2)) {
+                l = deleted.get(iD2);
 //                System.out.println("OC Property with address "
 //                        + r.getPropertyAddress()
 //                        + " deleted multiple times in a given month!");
             } else {
                 l = new ArrayList<>();
-                deleted.put(aID, l);
+                deleted.put(iD2, l);
             }
         }
-        l
-                .add(r
-                );
-
+        l.add(r);
     }
 
     void printGeneralisation(PrintWriter pw, int minCC, int minOC) {
@@ -1700,16 +1711,16 @@ public class LR_Transitions_Process extends LR_Main_Process {
     }
 
     void printGeneralisation(PrintWriter pw, String type,
-            HashMap<LR_ID2, Integer> counts, int min) {
+            HashMap<LR_ValueID_TypeID, Integer> counts, int min) {
         pw.println(type);
         if (!counts.isEmpty()) {
-            Map<LR_ID2, Integer> sortedCounts;
+            Map<LR_ValueID_TypeID, Integer> sortedCounts;
             sortedCounts = Generic_Collections.sortByValue(counts);
-            LR_ID2 aID;
+            LR_ValueID_TypeID aID;
             int count;
             int smallCount = 0;
             boolean reportedSmallCount = false;
-            Iterator<LR_ID2> ite;
+            Iterator<LR_ValueID_TypeID> ite;
             pw.println("Address, TitleNumber, Count");
             ite = sortedCounts.keySet().iterator();
             while (ite.hasNext()) {
