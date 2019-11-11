@@ -15,7 +15,7 @@
  */
 package uk.ac.leeds.ccg.andyt.projects.landregistry.data.id;
 
-import uk.ac.leeds.ccg.andyt.data.Data_RecordID;
+import uk.ac.leeds.ccg.andyt.data.id.Data_RecordID;
 
 /**
  * A Record ID for a Wave to help with type safety.

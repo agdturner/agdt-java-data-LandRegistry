@@ -49,7 +49,7 @@ public class LR_Main_Process extends LR_Object {
 
     public static void main(String[] args) {
         try {
-            LR_Files files = new LR_Files(Generic_Defaults.getDefaultDir());
+            LR_Files files = new LR_Files(Generic_Defaults.getDataDir());
             Generic_Environment ge = new Generic_Environment();
             Data_Environment de = new Data_Environment(ge);
             LR_Environment env = new LR_Environment(de, files);
