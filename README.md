@@ -2,7 +2,7 @@
 
 https://github.com/agdturner/agdt-java-generic-data-LandRegistry/
 
-A Java library for processing UK Land Registry corporate land and property ownership data.
+A Java library for processing UK Land Registry corporate land and property ownership data (https://data.gov.uk/dataset/9d93785c-008a-4089-9414-ea2c4dbc110a/commercial-and-corporate-ownership-data).
 
 ## Usages
 1. This library is being used in some under the radar research at the University of Leeds.
